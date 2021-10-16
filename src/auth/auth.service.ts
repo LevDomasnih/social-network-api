@@ -5,11 +5,13 @@ import { ModelType } from '@typegoose/typegoose/lib/types';
 import { AuthDto } from './dto/auth.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { ProfileService } from '../profile/profile.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
+        private readonly profileService: ProfileService,
         private readonly jwtService: JwtService
     ) { }
 
@@ -20,7 +22,13 @@ export class AuthService {
             passwordHash: await hash(dto.password, salt)
         })
 
-        return newUser.save()
+        await newUser.save()
+        const profile = await this.profileService.createProfile(newUser._id.toString(), dto.login)
+
+        return {
+            newUser,
+            profile
+        }
     }
 
     async findUser(email: string) {
