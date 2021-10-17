@@ -2,16 +2,16 @@ import { Module } from '@nestjs/common';
 import { FollowController } from './follow.controller';
 import { FollowService } from './follow.service';
 import { TypegooseModule } from 'nestjs-typegoose';
-import { FollowModel } from './follow.model';
+import { UserModel } from '../users/user.model';
 
 @Module({
   controllers: [FollowController],
   imports: [
     TypegooseModule.forFeature([
       {
-        typegooseClass: FollowModel,
+        typegooseClass: UserModel,
         schemaOptions: {
-          collection: 'Follow'
+          collection: 'User'
         }
       }
     ]),

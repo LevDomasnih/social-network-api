@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
@@ -6,14 +6,20 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getJWTConfig } from '../configs/jwt.config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { ProfileModule } from '../profile/profile.module';
-import { UsersModule } from '../users/users.module';
+import { TypegooseModule } from 'nestjs-typegoose';
+import { UserModel } from '../users/user.model';
 
 @Module({
     controllers: [AuthController],
     imports: [
-        forwardRef(() => UsersModule),
-        ProfileModule,
+        TypegooseModule.forFeature([
+            {
+                typegooseClass: UserModel,
+                schemaOptions: {
+                    collection: 'User'
+                }
+            }
+        ]),
         ConfigModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],
@@ -25,4 +31,5 @@ import { UsersModule } from '../users/users.module';
     exports: [AuthService],
     providers: [AuthService, JwtStrategy]
 })
-export class AuthModule {}
+export class AuthModule {
+}

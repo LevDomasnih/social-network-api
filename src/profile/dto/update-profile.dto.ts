@@ -12,5 +12,5 @@ export class UpdateProfileDto {
     about: string
 
     @IsString()
-    profileId: string
+    userId: string
 }
