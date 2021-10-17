@@ -1,38 +1,25 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { UserModel } from './user.model';
-import { ModelType } from '@typegoose/typegoose/lib/types';
+import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
-import { compare, genSalt, hash } from 'bcryptjs';
+import { compare, genSalt } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { ProfileService } from '../profile/profile.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
-        private readonly profileService: ProfileService,
+        @Inject(forwardRef(() => UsersService))
+        private readonly usersService: UsersService,
         private readonly jwtService: JwtService
     ) { }
 
     async createUser(dto: AuthDto) {
         const salt = await genSalt(10)
-        const newUser = new this.userModel({
-            email: dto.login,
-            passwordHash: await hash(dto.password, salt)
-        })
 
-        await newUser.save()
-        const profile = await this.profileService.createProfile(newUser._id.toString(), dto.login)
-
-        return {
-            newUser,
-            profile
-        }
+        return this.usersService.createUser(dto, salt)
     }
 
     async findUser(email: string) {
-        return this.userModel.findOne({email}).exec()
+        return this.usersService.findUser(email)
     }
 
     async validateUser(email: string, password: string) {
