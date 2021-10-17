@@ -5,6 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ProfileModule } from '../profile/profile.module';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { UserModel } from './user.model';
+import { FollowModule } from '../follow/follow.module';
 
 @Module({
     controllers: [UsersController],
@@ -17,6 +18,7 @@ import { UserModel } from './user.model';
                 }
             }
         ]),
+        FollowModule,
         forwardRef(() => AuthModule),
         ProfileModule
     ],

@@ -7,6 +7,7 @@ import { InjectModel } from 'nestjs-typegoose';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { UserModel } from './user.model';
 import { Types } from 'mongoose';
+import { FollowService } from '../follow/follow.service';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +15,7 @@ export class UsersService {
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
         @Inject(forwardRef(() => AuthService))
         private readonly authService: AuthService,
+        private readonly followService: FollowService,
         private readonly profileService: ProfileService
     ) { }
 
@@ -75,10 +77,12 @@ export class UsersService {
 
         await newUser.save()
         const profile = await this.profileService.createProfile(newUser._id.toString(), dto.login)
+        const follow = await this.followService.createFollow(newUser._id.toString())
 
         return {
             newUser,
-            profile
+            profile,
+            follow
         }
     }
 }

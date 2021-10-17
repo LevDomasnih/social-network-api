@@ -7,6 +7,7 @@ import { getMongoConfig } from './configs/mongo.config';
 import { AuthModule } from './auth/auth.module';
 import { ProfileModule } from './profile/profile.module';
 import { UsersModule } from './users/users.module';
+import { FollowModule } from './follow/follow.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     ProfileModule,
-    UsersModule
+    UsersModule,
+    FollowModule
   ],
   controllers: [AppController],
   providers: [AppService],
