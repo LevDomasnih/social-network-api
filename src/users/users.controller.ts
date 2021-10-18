@@ -14,4 +14,9 @@ export class UsersController {
     async getUserById(@Param('id') id: string) {
         return this.userService.getUserById(id)
     }
+
+    @Get('follow/:id')
+    async getFollowUsers(@Param("id") id: string) {
+        return this.userService.getFollowUsers(id)
+    }
 }
