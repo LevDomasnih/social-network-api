@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Headers } from '@nestjs/common';
 import { FollowService } from './follow.service';
 import { FollowDto } from './dto/follow.dto';
 
@@ -12,7 +12,7 @@ export class FollowController {
     }
 
     @Post('unfollow')
-    async unfollow(@Body() dto: FollowDto) {
+    async unfollow(@Headers() headers: any, @Body() dto: FollowDto) {
         return this.followService.unfollow(dto)
     }
 }
