@@ -22,7 +22,6 @@ export class AuthService {
             passwordHash: await hash(dto.password, salt)
         });
 
-        await newUser.save();
         return newUser.save();
     }
 
