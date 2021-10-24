@@ -5,11 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from 'nestjs-typegoose';
 import { UserModel } from '../users/user.model';
 import { ModelType } from '@typegoose/typegoose/lib/types';
+import { ProfileModel } from '../profile/profile.model';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
+        @InjectModel(ProfileModel) private readonly profileModel: ModelType<ProfileModel>,
         private readonly jwtService: JwtService
     ) {
     }
@@ -17,10 +19,12 @@ export class AuthService {
     async createUser(dto: AuthDto) {
         const salt = await genSalt(10);
 
-        const newUser = new this.userModel({
+        const newUser = await this.userModel.create({
             email: dto.login,
             passwordHash: await hash(dto.password, salt)
         });
+
+        await this.profileModel.create({ userId: newUser._id})
 
         return newUser.save();
     }

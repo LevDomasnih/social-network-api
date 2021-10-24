@@ -1,28 +1,6 @@
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { Prop, prop, Ref } from '@typegoose/typegoose';
-
-export class Profile {
-    @prop({default: ''})
-    status: string
-
-    @prop({default: ''})
-    about: string
-
-    @prop({default: ''})
-    dateOfBirth: string
-
-    @prop({default: ''})
-    country: string
-
-    @prop({default: ''})
-    city: string
-
-    @prop({default: ''})
-    brothersAndSisters: string
-
-    @prop({default: ''})
-    school: string
-}
+import { ProfileModel } from '../profile/profile.model';
 
 export interface UserModel extends Base {}
 export class UserModel extends TimeStamps {
@@ -39,8 +17,13 @@ export class UserModel extends TimeStamps {
     @prop({default: ''})
     surname: string
 
-    @prop({ref: () => Profile})
-    profile: Ref<Profile>
+    @prop({
+        ref: () => ProfileModel,
+        foreignField: 'userId',
+        localField: '_id',
+        justOne: true
+    })
+    profile: Ref<ProfileModel>
 
     @Prop({type: () => [String]})
     follow: string[]
