@@ -26,7 +26,7 @@ export class AuthService {
 
         await this.profileModel.create({ userId: newUser._id})
 
-        return newUser.save();
+        return newUser.populate('Profile');
     }
 
     async findUser(email: string) {
