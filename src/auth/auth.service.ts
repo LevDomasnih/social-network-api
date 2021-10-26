@@ -21,12 +21,11 @@ export class AuthService {
 
         const newUser = await this.userModel.create({
             email: dto.login,
-            passwordHash: await hash(dto.password, salt)
+            passwordHash: await hash(dto.password, salt),
+            profile: await this.profileModel.create({ userId: dto.login})
         });
 
-        await this.profileModel.create({ userId: newUser._id})
-
-        return newUser.populate('Profile');
+        return newUser
     }
 
     async findUser(email: string) {

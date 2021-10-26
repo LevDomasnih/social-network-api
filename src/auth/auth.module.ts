@@ -17,7 +17,9 @@ import { ProfileModel } from '../profile/profile.model';
             {
                 typegooseClass: UserModel,
                 schemaOptions: {
-                    collection: 'User'
+                    collection: 'User',
+                    toJSON: { virtuals: true },
+                    toObject: { virtuals: true }
                 }
             },
             {

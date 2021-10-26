@@ -1,11 +1,10 @@
 import { mongoose, prop } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
-import { UserModel } from 'src/users/user.model';
 
 export interface ProfileModel extends Base {}
 export class ProfileModel extends TimeStamps {
-    @prop({ required: true, ref: () => UserModel})
-    userId: mongoose.Types.ObjectId
+    @prop()
+    userId: string
 
     @prop({default: ''})
     status: string

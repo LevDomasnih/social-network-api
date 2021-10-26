@@ -18,10 +18,10 @@ export class UserModel extends TimeStamps {
     surname: string
 
     @prop({
-        ref: () => ProfileModel,
+        ref: () => 'Profile',
         foreignField: 'userId',
-        localField: '_id',
-        justOne: true
+        localField: 'email',
+        justOne: true,
     })
     profile: Ref<ProfileModel>
 
