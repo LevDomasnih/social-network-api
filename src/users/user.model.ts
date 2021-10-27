@@ -1,6 +1,7 @@
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { Prop, prop, Ref } from '@typegoose/typegoose';
 import { ProfileModel } from '../profile/profile.model';
+import { Types } from 'mongoose';
 
 export interface UserModel extends Base {}
 export class UserModel extends TimeStamps {
@@ -19,9 +20,7 @@ export class UserModel extends TimeStamps {
 
     @prop({
         ref: () => 'Profile',
-        foreignField: 'userId',
-        localField: 'email',
-        justOne: true,
+        type: () => Types.ObjectId
     })
     profile: Ref<ProfileModel>
 

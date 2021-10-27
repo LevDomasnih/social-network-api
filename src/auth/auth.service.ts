@@ -6,6 +6,7 @@ import { InjectModel } from 'nestjs-typegoose';
 import { UserModel } from '../users/user.model';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { ProfileModel } from '../profile/profile.model';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class AuthService {
@@ -19,10 +20,12 @@ export class AuthService {
     async createUser(dto: AuthDto) {
         const salt = await genSalt(10);
 
+        const newProfile = await this.profileModel.create({_id: new Types.ObjectId()})
+
         const newUser = await this.userModel.create({
             email: dto.login,
             passwordHash: await hash(dto.password, salt),
-            profile: await this.profileModel.create({ userId: dto.login})
+            profile: newProfile._id
         });
 
         return newUser
@@ -50,5 +53,14 @@ export class AuthService {
         return {
             access_token: await this.jwtService.signAsync(payload)
         };
+    }
+
+    async test() {
+        const login = '2'
+
+        return this.userModel
+            .find({email: login})
+            .populate({path: 'profile', model: ProfileModel})
+            .exec()
     }
 }
