@@ -3,11 +3,13 @@ import { InjectModel } from 'nestjs-typegoose';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserModel } from '../users/user.model';
+import { ProfileModel } from './profile.model';
 
 @Injectable()
 export class ProfileService {
     constructor(
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
+        @InjectModel(ProfileModel) private readonly profileModel: ModelType<ProfileModel>,
     ) { }
 
     async updateProfile({userId, ...dto}: UpdateProfileDto) {
@@ -19,12 +21,13 @@ export class ProfileService {
             ).exec()
     }
 
-    async findProfile(profileId: string) {
+    async findProfile(userId: string) {
         return this.userModel
             .findOne(
-                { profileId },
+                { _id: userId },
                 {'passwordHash': false }
             )
+            .populate({path: 'profile', model: this.profileModel})
             .exec()
     }
 }

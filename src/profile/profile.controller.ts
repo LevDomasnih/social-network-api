@@ -14,8 +14,8 @@ export class ProfileController {
         return this.profileService.updateProfile(dto);
     }
 
-    @Get(':id')
-    async get(@Param('id') id: string) {
-        return this.profileService.findProfile(id);
+    @Get(':userId')
+    async get(@Param('userId') userId: string) {
+        return this.profileService.findProfile(userId);
     }
 }

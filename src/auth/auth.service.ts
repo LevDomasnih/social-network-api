@@ -56,7 +56,7 @@ export class AuthService {
     }
 
     async test() {
-        const login = '2'
+        const login = '3'
 
         return this.userModel
             .find({email: login})
