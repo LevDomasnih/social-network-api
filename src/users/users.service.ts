@@ -19,18 +19,20 @@ export class UsersService {
         return this.userModel.find({}, { 'passwordHash': false }).exec();
     }
 
-    async getFollowUsers(id: string) {
-        const friends: ((Document<Types.ObjectId, BeAnObject, any> & UserModel & IObjectWithTypegooseFunction & { _id: Types.ObjectId; }) | null)[] = []
-
-        const { follow } = await this.userModel.find({ _id: id }, {follow: true}).then(f => f[0]);
-
-        await (async () => {
-            for (const id of follow) {
-                const friend = await this.userModel.findOne({ _id: id })
-                friends.push(friend)
-            }
-        })()
-
-        return friends
-    }
+    // async getFollowUsers(id: string) {
+    // tslint:disable-next-line:max-line-length
+    //     const friends: ((Document<Types.ObjectId, BeAnObject> & UserModel & IObjectWithTypegooseFunction & { _id: Types.ObjectId; }) | null)[] = []
+    //
+    //     const { follow } = await this.userModel.find({ _id: id }, {follow: true}).then(f => f[0]);
+    //
+    //     await (async () => {
+    //         // tslint:disable-next-line:no-shadowed-variable
+    //         for (const id of follow) {
+    //             const friend = await this.userModel.findOne({ _id: id })
+    //             friends.push(friend)
+    //         }
+    //     })()
+    //
+    //     return friends
+    // }
 }

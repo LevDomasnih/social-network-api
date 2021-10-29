@@ -9,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { UserModel } from '../users/user.model';
 import { ProfileModel } from '../profile/profile.model';
+import { FollowModel } from '../follow/follow.model';
 
 @Module({
     controllers: [AuthController],
@@ -24,6 +25,12 @@ import { ProfileModel } from '../profile/profile.model';
                 typegooseClass: ProfileModel,
                 schemaOptions: {
                     collection: 'Profile'
+                }
+            },
+            {
+                typegooseClass: FollowModel,
+                schemaOptions: {
+                    collection: 'Follow'
                 }
             }
         ]),

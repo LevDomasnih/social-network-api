@@ -7,12 +7,14 @@ import { UserModel } from '../users/user.model';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { ProfileModel } from '../profile/profile.model';
 import { Types } from 'mongoose';
+import { FollowModel } from '../follow/follow.model';
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
         @InjectModel(ProfileModel) private readonly profileModel: ModelType<ProfileModel>,
+        @InjectModel(FollowModel) private readonly followModel: ModelType<FollowModel>,
         private readonly jwtService: JwtService
     ) {
     }
@@ -21,11 +23,13 @@ export class AuthService {
         const salt = await genSalt(10);
 
         const newProfile = await this.profileModel.create({_id: new Types.ObjectId()})
+        const newFollow = await  this.followModel.create({_id: new Types.ObjectId()})
 
         const newUser = await this.userModel.create({
             email: dto.login,
             passwordHash: await hash(dto.password, salt),
-            profile: newProfile._id
+            profile: newProfile._id,
+            follow: newFollow._id
         });
 
         return newUser
