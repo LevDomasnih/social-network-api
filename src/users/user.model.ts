@@ -29,5 +29,5 @@ export class UserModel extends TimeStamps {
         ref: () => 'Follow',
         type: () => Types.ObjectId
     })
-    follow: Ref<FollowModel>[]
+    follow: Ref<FollowModel>
 }

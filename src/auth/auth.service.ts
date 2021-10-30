@@ -23,7 +23,7 @@ export class AuthService {
         const salt = await genSalt(10);
 
         const newProfile = await this.profileModel.create({_id: new Types.ObjectId()})
-        const newFollow = await  this.followModel.create({_id: new Types.ObjectId()})
+        const newFollow = await this.followModel.create({_id: new Types.ObjectId()})
 
         const newUser = await this.userModel.create({
             email: dto.login,
@@ -60,11 +60,28 @@ export class AuthService {
     }
 
     async test() {
-        const login = '3'
+        const login = '10'
+
+        //617d7bf8b25c11cb5a988c7c
+
+        const x = await this.userModel.findById('617d7bf8b25c11cb5a988c7c')
+
+        // @ts-ignore
+        // tslint:disable-next-line:max-line-length
+        // const z = await this.followModel .findOneAndUpdate( { _id: '617d84b6bec142d22dfee146' }, { $push: {followUser: x._id}},
+        //         {new: true}
+        //     )
+        //     .exec()
+        //
+        // return this.followModel.findById('617d84b6bec142d22dfee146')
+        //     .populate({path: 'followUser', model: UserModel})
+
+
 
         return this.userModel
             .find({email: login})
             .populate({path: 'profile', model: ProfileModel})
+            .populate({path: 'follow', model: FollowModel, select: 'followUser'})
             .exec()
     }
 }
