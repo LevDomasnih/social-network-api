@@ -17,6 +17,6 @@ export class FollowController {
     @UseGuards(JwtAuthGuard)
     @Delete()
     async unfollow(@Body() dto: FollowDto) {
-        // return this.followService.unfollow(dto);
+        return this.followService.unfollow(dto);
     }
 }
