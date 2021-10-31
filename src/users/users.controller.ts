@@ -20,6 +20,6 @@ export class UsersController {
 
     @Get('follow/:id')
     async getFollowUsers(@Param('id') id: string) {
-        // return this.userService.getFollowUsers(id);
+        return this.userService.getFollowUsers(id);
     }
 }

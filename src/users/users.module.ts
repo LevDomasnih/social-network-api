@@ -3,6 +3,7 @@ import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { UserModel } from './user.model';
+import { FollowModel } from '../follow/follow.model';
 
 @Module({
     controllers: [UsersController],
@@ -12,6 +13,12 @@ import { UserModel } from './user.model';
                 typegooseClass: UserModel,
                 schemaOptions: {
                     collection: 'User'
+                }
+            },
+            {
+                typegooseClass: FollowModel,
+                schemaOptions: {
+                    collection: 'Follow'
                 }
             }
         ]),

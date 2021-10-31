@@ -5,6 +5,10 @@ import { Types } from 'mongoose';
 
 export interface FollowModel extends Base { }
 export class FollowModel extends TimeStamps {
+
+    @prop()
+    userId: string
+
     @prop({
         ref: () => 'User',
         type: () => Types.ObjectId

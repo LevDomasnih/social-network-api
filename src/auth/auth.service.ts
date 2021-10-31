@@ -22,10 +22,16 @@ export class AuthService {
     async createUser(dto: AuthDto) {
         const salt = await genSalt(10);
 
+        const userId = new Types.ObjectId()
+
         const newProfile = await this.profileModel.create({_id: new Types.ObjectId()})
-        const newFollow = await this.followModel.create({_id: new Types.ObjectId()})
+        const newFollow = await this.followModel.create({
+            _id: new Types.ObjectId(),
+            userId
+        })
 
         const newUser = await this.userModel.create({
+            _id: userId,
             email: dto.login,
             passwordHash: await hash(dto.password, salt),
             profile: newProfile._id,
@@ -60,7 +66,7 @@ export class AuthService {
     }
 
     async test() {
-        const login = '10'
+        const login = '12'
 
         //617d7bf8b25c11cb5a988c7c
 
@@ -79,9 +85,9 @@ export class AuthService {
 
 
         return this.userModel
-            .find({email: login})
-            .populate({path: 'profile', model: ProfileModel})
+            .findOne({email: login})
             .populate({path: 'follow', model: FollowModel, select: 'followUser'})
-            .exec()
+            // .select('follow')
+            // .exec()
     }
 }
