@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
+import { Express, Response } from 'express';
 import { diskStorage } from 'multer';
+import { CreatePostDto } from './dto/create-post.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -18,18 +19,24 @@ export class PostsController {
         }),
     }),)
     // tslint:disable-next-line:no-any
-    async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
+    async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: CreatePostDto) {
         console.log(file);
-        console.log(body.a);
+        console.log(body);
     }
 
     @Post()
-    async createPost() {
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({
+            destination: './files',
 
+        }),
+    }),)
+    async createPost(@UploadedFile() file: Express.Multer.File, @Body() dto: CreatePostDto) {
+        return this.postsService.createPost(file, dto)
     }
 
-    @Get()
-    async getPost() {
-
+    @Get(':image')
+    async getPost(@Param('image') image: string, @Res() res: Response) {
+        res.sendFile(image, { root: './files'})
     }
 }
