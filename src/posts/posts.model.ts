@@ -1,5 +1,6 @@
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
-import { prop } from '@typegoose/typegoose';
+import { prop, Ref } from '@typegoose/typegoose';
+import { Types } from 'mongoose';
 
 export interface PostsModel extends Base {}
 export class PostsModel extends TimeStamps {
@@ -19,6 +20,6 @@ export class PostsModel extends TimeStamps {
     @prop({default: 0})
     views: number
 
-    @prop({default: []})
-    comments: string[] // TODO REF
+    // @prop({default: []})
+    // comments: string[] // TODO REF
 }

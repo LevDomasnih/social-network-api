@@ -3,7 +3,7 @@ import { IsString } from 'class-validator';
 export class CreatePostDto {
 
     @IsString()
-    ownerId: string
+    owner: string
 
     @IsString()
     text: string

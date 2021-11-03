@@ -4,6 +4,7 @@ import { PostsService } from './posts.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { PostsModel } from './posts.model';
 import { MulterModule } from '@nestjs/platform-express';
+import { UserModel } from '../users/user.model';
 
 @Module({
     controllers: [PostsController],
@@ -13,6 +14,12 @@ import { MulterModule } from '@nestjs/platform-express';
                 typegooseClass: PostsModel,
                 schemaOptions: {
                     collection: 'Posts',
+                },
+            },
+            {
+                typegooseClass: UserModel,
+                schemaOptions: {
+                    collection: 'User',
                 },
             },
         ]),
