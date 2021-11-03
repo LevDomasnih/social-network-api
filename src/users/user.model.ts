@@ -3,6 +3,7 @@ import { Prop, prop, Ref } from '@typegoose/typegoose';
 import { ProfileModel } from '../profile/profile.model';
 import { Types } from 'mongoose';
 import { FollowModel } from '../follow/follow.model';
+import { PostsModel } from '../posts/posts.model';
 
 export interface UserModel extends Base {}
 export class UserModel extends TimeStamps {
@@ -30,4 +31,10 @@ export class UserModel extends TimeStamps {
         type: () => Types.ObjectId
     })
     follow: Ref<FollowModel>
+
+    @Prop({
+        ref: () => 'Posts',
+        type: () => Types.ObjectId
+    })
+    posts: Ref<PostsModel>[]
 }
