@@ -1,12 +1,16 @@
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import { prop, Ref } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
+import { UserModel } from '../users/user.model';
 
 export interface PostsModel extends Base {}
 export class PostsModel extends TimeStamps {
 
-    @prop()
-    owner: string
+    @prop({
+        ref: () => 'User',
+        type: () => Types.ObjectId
+    })
+    owner: Ref<UserModel>
 
     @prop({default: ''})
     text: string
@@ -20,6 +24,9 @@ export class PostsModel extends TimeStamps {
     @prop({default: 0})
     views: number
 
-    // @prop({default: []})
-    // comments: string[] // TODO REF
+    @prop({
+        ref: () => 'Posts',
+        type: () => Types.ObjectId
+    })
+    comments: Ref<PostsModel>[]
 }
