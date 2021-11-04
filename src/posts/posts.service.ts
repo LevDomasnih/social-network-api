@@ -35,7 +35,34 @@ export class PostsService {
         return newPost
     }
 
-    async createComment() {
+    async createComment(parentId: string, file: Express.Multer.File, dto: CreatePostDto) {
+
+        const user = await this.userModel.findById(dto.owner)
+
+        if (!user) {
+            throw new BadRequestException('Данного пользователя не существует');
+        }
+
+        const parentPost = await this.postsModel.findById(parentId)
+
+        if (!parentPost) {
+            throw new BadRequestException('Пост не существует');
+        }
+
+        const newPost = await this.postsModel.create({
+            image: file.filename,
+            ...dto,
+        })
+
+        return this.postsModel.findOneAndUpdate(
+            {_id: parentId},
+            { $push: { comments: newPost._id } },
+            {new: true}
+        )
+            .populate({
+                path: 'comments',
+                model: PostsModel
+            })
 
     }
 

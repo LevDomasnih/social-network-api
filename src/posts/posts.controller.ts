@@ -12,28 +12,24 @@ export class PostsController {
         private readonly postsService: PostsService
     ) { }
 
-    @Post('upload')
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({
-            destination: './files',
-
-        }),
-    }),)
-    // tslint:disable-next-line:no-any
-    async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: CreatePostDto) {
-        console.log(file);
-        console.log(body);
-    }
-
     @Post()
     @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({
-            destination: './files',
-
-        }),
+        storage: diskStorage({ destination: './files' })
     }))
     async createPost(@UploadedFile() file: Express.Multer.File, @Body() dto: CreatePostDto) {
         return this.postsService.createPost(file, dto)
+    }
+
+    @Post(':parentId')
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({ destination: './files' })
+    }))
+    async createComment(
+        @Param('parentId') parentId: string,
+        @UploadedFile() file: Express.Multer.File,
+        @Body() dto: CreatePostDto
+    ) {
+        return this.postsService.createComment(parentId, file, dto)
     }
 
     @Get(':image')
