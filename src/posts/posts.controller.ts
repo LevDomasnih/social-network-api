@@ -17,6 +17,7 @@ import { diskStorage } from 'multer';
 import { CreatePostDto } from './dto/create-post.dto';
 import { Types } from 'mongoose';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { IdValidationPipe } from '../pipes/id-validation.pipe';
 
 @Controller('posts')
 export class PostsController {
@@ -44,7 +45,7 @@ export class PostsController {
     }))
     async createComment(
         @Headers('authorization') authorization: string,
-        @Param('parentId') parentId: string,
+        @Param('parentId', IdValidationPipe) parentId: Types.ObjectId,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreatePostDto
     ) {
@@ -57,7 +58,7 @@ export class PostsController {
     }
 
     @Get('user/:id')
-    async getPostsOfUser(@Param('id') id: Types.ObjectId) {
+    async getPostsOfUser(@Param('id', IdValidationPipe) id: Types.ObjectId) {
         return this.postsService.getPostsOfUser(id)
     }
 

@@ -45,7 +45,10 @@ export class PostsService {
         }
     }
 
-    async createComment(authorization: string, parentId: string, file: Express.Multer.File, dto: CreatePostDto) {
+    async createComment(
+        authorization: string, parentId: Types.ObjectId,
+        file: Express.Multer.File, dto: CreatePostDto
+    ) {
       try {
           const decodeData = await this.jwtService.verifyAsync(authorization.split(' ')[1]);
 
