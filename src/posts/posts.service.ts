@@ -28,7 +28,7 @@ export class PostsService {
             }
 
             const newPost = await this.postsModel.create({
-                image: file.filename,
+                image: file?.filename || '',
                 owner: user._id,
                 ...dto,
             });
@@ -65,7 +65,7 @@ export class PostsService {
           }
 
           const newPost = await this.postsModel.create({
-              image: file.filename,
+              image: file.filename || '',
               owner: user._id,
               ...dto,
           });
