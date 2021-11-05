@@ -6,64 +6,80 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { Express } from 'express';
 import { UserModel } from '../users/user.model';
 import { Types } from 'mongoose';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class PostsService {
     constructor(
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
         @InjectModel(PostsModel) private readonly postsModel: ModelType<PostsModel>,
-    ) { }
-
-    async createPost(file: Express.Multer.File, dto: CreatePostDto) {
-
-        const user = await this.userModel.findById(dto.owner)
-
-        if (!user) {
-            throw new BadRequestException('Данного пользователя не существует');
-        }
-
-        const newPost = await this.postsModel.create({
-            image: file.filename,
-            ...dto,
-        })
-
-        await this.userModel.findOneAndUpdate(
-            { _id: dto.owner },
-            { $push: { posts: newPost._id } }
-        )
-
-        return newPost
+        private readonly jwtService: JwtService,
+    ) {
     }
 
-    async createComment(parentId: string, file: Express.Multer.File, dto: CreatePostDto) {
+    async createPost(authorization: string, file: Express.Multer.File, dto: CreatePostDto) {
+        try {
+            const decodeData = await this.jwtService.verifyAsync(authorization.split(' ')[1]);
 
-        const user = await this.userModel.findById(dto.owner)
+            const user = await this.userModel.findOne({email: decodeData.email}).exec()
 
-        if (!user) {
-            throw new BadRequestException('Данного пользователя не существует');
+            if (!user) {
+                throw new BadRequestException('Данного пользователя не существует');
+            }
+
+            const newPost = await this.postsModel.create({
+                image: file.filename,
+                owner: user._id,
+                ...dto,
+            });
+
+            await this.userModel.findOneAndUpdate(
+                { _id: user._id },
+                { $push: { posts: newPost._id } },
+            );
+
+            return newPost;
+
+        } catch (e) {
+            throw new BadRequestException(e);
         }
+    }
 
-        const parentPost = await this.postsModel.findById(parentId)
+    async createComment(authorization: string, parentId: string, file: Express.Multer.File, dto: CreatePostDto) {
+      try {
+          const decodeData = await this.jwtService.verifyAsync(authorization.split(' ')[1]);
 
-        if (!parentPost) {
-            throw new BadRequestException('Пост не существует');
-        }
+          const user = await this.userModel.findOne({email: decodeData.email}).exec()
 
-        const newPost = await this.postsModel.create({
-            image: file.filename,
-            ...dto,
-        })
+          if (!user) {
+              throw new BadRequestException('Данного пользователя не существует');
+          }
 
-        return this.postsModel.findOneAndUpdate(
-            {_id: parentId},
-            { $push: { comments: newPost._id } },
-            {new: true}
-        )
-            .populate({
-                path: 'comments',
-                model: PostsModel
-            })
+          const parentPost = await this.postsModel.findById(parentId);
 
+          if (!parentPost) {
+              throw new BadRequestException('Пост не существует');
+          }
+
+          const newPost = await this.postsModel.create({
+              image: file.filename,
+              owner: user._id,
+              ...dto,
+          });
+
+          return this.postsModel.findOneAndUpdate(
+              { _id: parentId },
+              { $push: { comments: newPost._id } },
+              { new: true },
+          )
+              .populate({
+                  path: 'comments',
+                  model: PostsModel,
+              });
+
+      } catch (e) {
+          throw new BadRequestException(e)
+      }
     }
 
     async updatePost() {
@@ -81,12 +97,12 @@ export class PostsService {
                 model: PostsModel,
                 populate: {
                     path: 'comments',
-                    model: PostsModel
-                }
+                    model: PostsModel,
+                },
             }).exec()
             .then(doc => {
-                return doc?.posts
-            })
+                return doc?.posts;
+            });
     }
 
     async getPosts() {
@@ -98,19 +114,19 @@ export class PostsService {
     }
 
     async test() {
-        const nestId = '6182e2af813926336a926665'
-        const _id = '6182e35bf30c4d25f49ffcef'
+        const nestId = '6182e2af813926336a926665';
+        const _id = '6182e35bf30c4d25f49ffcef';
 
-        const nestPost = await this.postsModel.findById(nestId)
+        const nestPost = await this.postsModel.findById(nestId);
 
         if (!nestPost) {
             throw new BadRequestException('Данного пользователя не существует');
         }
 
-        return  this.postsModel.findOneAndUpdate(
+        return this.postsModel.findOneAndUpdate(
             { _id },
             { $push: { comments: nestPost._id } },
-            {new: true}
-        )
+            { new: true },
+        );
     }
 }

@@ -64,30 +64,4 @@ export class AuthService {
             access_token: await this.jwtService.signAsync(payload)
         };
     }
-
-    async test() {
-        const login = '12'
-
-        //617d7bf8b25c11cb5a988c7c
-
-        const x = await this.userModel.findById('617d7bf8b25c11cb5a988c7c')
-
-        // @ts-ignore
-        // tslint:disable-next-line:max-line-length
-        // const z = await this.followModel .findOneAndUpdate( { _id: '617d84b6bec142d22dfee146' }, { $push: {followUser: x._id}},
-        //         {new: true}
-        //     )
-        //     .exec()
-        //
-        // return this.followModel.findById('617d84b6bec142d22dfee146')
-        //     .populate({path: 'followUser', model: UserModel})
-
-
-
-        return this.userModel
-            .findOne({email: login})
-            .populate({path: 'follow', model: FollowModel, select: 'followUser'})
-            // .select('follow')
-            // .exec()
-    }
 }
