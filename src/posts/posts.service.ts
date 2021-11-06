@@ -28,10 +28,6 @@ export class PostsService {
                 throw new BadRequestException('Данного пользователя не существует');
             }
 
-            const user2 = await this.userModel.findOne({email: decodeData.email, posts: {$in: [new Types.ObjectId('6182e2af813926336a926665')]}}).exec()
-
-            console.log(user2);
-
             const newPost = await this.postsModel.create({
                 image: file?.filename || '',
                 owner: user._id,
