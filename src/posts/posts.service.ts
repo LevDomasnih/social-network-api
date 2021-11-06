@@ -79,6 +79,10 @@ export class PostsService {
               .populate({
                   path: 'comments',
                   model: PostsModel,
+                  transform: (doc: PostsModel) => {
+                      doc.image = `http://localhost:3000/files/${doc.image}`
+                      return doc
+                  }
               });
 
       } catch (e) {
