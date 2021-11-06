@@ -7,6 +7,7 @@ import { Express } from 'express';
 import { UserModel } from '../users/user.model';
 import { Types } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
+import { unlink } from 'fs/promises';
 
 @Injectable()
 export class PostsService {
@@ -26,6 +27,10 @@ export class PostsService {
             if (!user) {
                 throw new BadRequestException('Данного пользователя не существует');
             }
+
+            const user2 = await this.userModel.findOne({email: decodeData.email, posts: {$in: [new Types.ObjectId('6182e2af813926336a926665')]}}).exec()
+
+            console.log(user2);
 
             const newPost = await this.postsModel.create({
                 image: file?.filename || '',
@@ -85,8 +90,39 @@ export class PostsService {
       }
     }
 
-    async updatePost() {
+    async updatePost(
+        authorization: string, id: Types.ObjectId,
+        file: Express.Multer.File, {text}: CreatePostDto
+    ) {
+        try {
+            const decodeData = await this.jwtService.verifyAsync(authorization.split(' ')[1]);
 
+            const user = await this.userModel.findOne({email: decodeData.email, posts: {$in: [id]}}).exec()
+
+            if (!user) {
+                throw new BadRequestException('Данного пользователя не существует или пользователь не владелец поста');
+            }
+
+            const oldPost = await this.postsModel.findById(id).exec()
+
+            const oldImageName = oldPost?.image
+
+            if (oldImageName) {
+                await unlink(`files/${oldImageName}`)
+            }
+
+            return this.postsModel.findOneAndUpdate(
+                {_id: id},
+                {
+                    text,
+                    image: file.filename
+                },
+                {new: true}
+            )
+
+        } catch (e) {
+            throw new BadRequestException(e)
+        }
     }
 
     async getPost() {

@@ -8,7 +8,7 @@ import {
     Res,
     UploadedFile,
     UseInterceptors,
-    UseGuards,
+    UseGuards, Put,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -50,6 +50,20 @@ export class PostsController {
         @Body() dto: CreatePostDto
     ) {
         return this.postsService.createComment(authorization, parentId, file, dto)
+    }
+
+    @Put(':id')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('file', {
+        storage: diskStorage({ destination: './files' })
+    }))
+    async updatePost(
+        @Headers('authorization') authorization: string,
+        @Param('id', IdValidationPipe) id: Types.ObjectId,
+        @UploadedFile() file: Express.Multer.File,
+        @Body() dto: CreatePostDto
+    ) {
+        return this.postsService.updatePost(authorization, id, file, dto)
     }
 
     @Get(':image')
