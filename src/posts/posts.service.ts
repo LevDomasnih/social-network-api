@@ -151,21 +151,4 @@ export class PostsService {
     async deletePost() {
 
     }
-
-    async test() {
-        const nestId = '6182e2af813926336a926665';
-        const _id = '6182e35bf30c4d25f49ffcef';
-
-        const nestPost = await this.postsModel.findById(nestId);
-
-        if (!nestPost) {
-            throw new BadRequestException('Данного пользователя не существует');
-        }
-
-        return this.postsModel.findOneAndUpdate(
-            { _id },
-            { $push: { comments: nestPost._id } },
-            { new: true },
-        );
-    }
 }

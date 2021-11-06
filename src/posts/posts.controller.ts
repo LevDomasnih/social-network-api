@@ -75,9 +75,4 @@ export class PostsController {
     async getPostsOfUser(@Param('id', IdValidationPipe) id: Types.ObjectId) {
         return this.postsService.getPostsOfUser(id)
     }
-
-    @Get()
-    async test() {
-        return this.postsService.test()
-    }
 }
