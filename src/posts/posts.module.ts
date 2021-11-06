@@ -8,6 +8,7 @@ import { UserModel } from '../users/user.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { getJWTConfig } from '../configs/jwt.config';
+import { PostsGateway } from './posts.gateway';
 
 @Module({
     controllers: [PostsController],
@@ -36,7 +37,7 @@ import { getJWTConfig } from '../configs/jwt.config';
             useFactory: getJWTConfig
         }),
     ],
-    providers: [PostsService],
+    providers: [PostsService, PostsGateway],
 })
 export class PostsModule {
 }
