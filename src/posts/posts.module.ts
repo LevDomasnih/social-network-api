@@ -5,10 +5,8 @@ import { TypegooseModule } from 'nestjs-typegoose';
 import { PostsModel } from './posts.model';
 import { MulterModule } from '@nestjs/platform-express';
 import { UserModel } from '../users/user.model';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
-import { getJWTConfig } from '../configs/jwt.config';
 import { PostsGateway } from './posts.gateway';
+import { AuthService } from '../auth/auth.service';
 
 @Module({
     controllers: [PostsController],
@@ -30,12 +28,7 @@ import { PostsGateway } from './posts.gateway';
         MulterModule.register({
             dest: './files',
         }),
-        ConfigModule,
-        JwtModule.registerAsync({
-            imports: [ConfigModule],
-            inject: [ConfigService],
-            useFactory: getJWTConfig
-        }),
+        AuthService
     ],
     providers: [PostsService, PostsGateway],
 })

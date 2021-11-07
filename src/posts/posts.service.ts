@@ -6,21 +6,21 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { Express } from 'express';
 import { UserModel } from '../users/user.model';
 import { Types } from 'mongoose';
-import { JwtService } from '@nestjs/jwt';
 import { unlink } from 'fs/promises';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class PostsService {
     constructor(
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
         @InjectModel(PostsModel) private readonly postsModel: ModelType<PostsModel>,
-        private readonly jwtService: JwtService,
+        private readonly authService: AuthService,
     ) {
     }
 
     async createPost(authorization: string, file: Express.Multer.File, dto: CreatePostDto) {
         try {
-            const decodeData = await this.jwtService.verifyAsync(authorization.split(' ')[1]);
+            const decodeData = await this.authService.verifyUser(authorization);
 
             const user = await this.userModel.findOne({email: decodeData.email}).exec()
 
@@ -51,7 +51,7 @@ export class PostsService {
         file: Express.Multer.File, dto: CreatePostDto
     ) {
       try {
-          const decodeData = await this.jwtService.verifyAsync(authorization.split(' ')[1]);
+          const decodeData = await this.authService.verifyUser(authorization);
 
           const user = await this.userModel.findOne({email: decodeData.email}).exec()
 
@@ -95,7 +95,7 @@ export class PostsService {
         file: Express.Multer.File, {text}: CreatePostDto
     ) {
         try {
-            const decodeData = await this.jwtService.verifyAsync(authorization.split(' ')[1]);
+            const decodeData = await this.authService.verifyUser(authorization);
 
             const user = await this.userModel.findOne({email: decodeData.email, posts: {$in: [id]}}).exec()
 

@@ -4,6 +4,7 @@ import { ProfileModel } from '../profile/profile.model';
 import { Types } from 'mongoose';
 import { FollowModel } from '../follow/follow.model';
 import { PostsModel } from '../posts/posts.model';
+import { DialogsModel } from '../dialogs/dialogs.model';
 
 export interface UserModel extends Base {}
 export class UserModel extends TimeStamps {
@@ -37,4 +38,10 @@ export class UserModel extends TimeStamps {
         type: () => Types.ObjectId
     })
     posts: Ref<PostsModel>[]
+
+    @prop({
+        ref: () => 'Dialogs',
+        type: () => Types.ObjectId
+    })
+    dialogs: Ref<DialogsModel>[]
 }

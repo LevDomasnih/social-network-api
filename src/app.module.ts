@@ -9,6 +9,8 @@ import { ProfileModule } from './profile/profile.module';
 import { UsersModule } from './users/users.module';
 import { FollowModule } from './follow/follow.module';
 import { PostsModule } from './posts/posts.module';
+import { DialogsModule } from './dialogs/dialogs.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -22,7 +24,9 @@ import { PostsModule } from './posts/posts.module';
     ProfileModule,
     UsersModule,
     FollowModule,
-    PostsModule
+    PostsModule,
+    DialogsModule,
+    MessagesModule
   ],
   controllers: [AppController],
   providers: [AppService],

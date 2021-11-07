@@ -64,4 +64,8 @@ export class AuthService {
             access_token: await this.jwtService.signAsync(payload)
         };
     }
+
+    async verifyUser(token: string) {
+        return  this.jwtService.verifyAsync(token.split(' ')[1]);
+    }
 }
