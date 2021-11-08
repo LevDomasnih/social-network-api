@@ -16,6 +16,7 @@ import { MessagesModel } from './messages.model';
       }
     ])
   ],
+  exports: [MessagesService],
   providers: [MessagesService]
 })
 export class MessagesModule {}

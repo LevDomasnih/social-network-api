@@ -12,7 +12,7 @@ export class DialogsModel extends TimeStamps {
         type: () => Types.ObjectId,
         required: true
     })
-    owners: Ref<UserModel>
+    owners: Ref<UserModel>[]
 
     @prop({
         ref: () => 'Messages',
