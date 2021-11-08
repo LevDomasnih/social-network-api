@@ -3,7 +3,7 @@ import { DialogsController } from './dialogs.controller';
 import { DialogsService } from './dialogs.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { DialogsModel } from './dialogs.model';
-import { AuthService } from '../auth/auth.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     controllers: [DialogsController],
@@ -16,7 +16,7 @@ import { AuthService } from '../auth/auth.service';
                 },
             },
         ]),
-        AuthService,
+        AuthModule,
     ],
     providers: [DialogsService],
 })

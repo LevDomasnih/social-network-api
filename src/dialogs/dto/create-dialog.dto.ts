@@ -23,12 +23,14 @@ export class CreateDialogDto {
 
     @IsNotEmpty()
     @IsArray()
+    @IsString({each: true})
     @ArrayMinSize(1)
     @Validate(IsObjectId, {
         message: 'Id can be a 24 character hex string'
     })
     otherOwners: Types.ObjectId[]
 
+    // TODO вернуть когда будет сделана работа с файлами
     // image: string
     //
     // file: string

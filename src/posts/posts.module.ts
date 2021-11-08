@@ -6,7 +6,7 @@ import { PostsModel } from './posts.model';
 import { MulterModule } from '@nestjs/platform-express';
 import { UserModel } from '../users/user.model';
 import { PostsGateway } from './posts.gateway';
-import { AuthService } from '../auth/auth.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     controllers: [PostsController],
@@ -28,7 +28,7 @@ import { AuthService } from '../auth/auth.service';
         MulterModule.register({
             dest: './files',
         }),
-        AuthService
+        AuthModule
     ],
     providers: [PostsService, PostsGateway],
 })
