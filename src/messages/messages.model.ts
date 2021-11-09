@@ -10,9 +10,9 @@ export class MessagesModel extends TimeStamps {
     @prop()
     text: string
 
-    @prop()
+    @prop({ default: '' })
     image: string
 
-    @prop()
+    @prop({ default: '' })
     file: string
 }

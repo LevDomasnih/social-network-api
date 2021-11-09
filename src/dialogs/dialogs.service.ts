@@ -29,17 +29,48 @@ export class DialogsService {
             const newMessage = await this.messagesService.createMessage(user._id, messageData)
 
             const validOwners = await this.userModel.find({_id: { $in: otherOwners}})
-                .select('_id').exec().then(e => e.map(el => el._id))
+                .select('_id').exec().then(e => [ user._id,...e.map(el => el._id)])
 
-            return this.dialogsModel.create({
-                owners: [
-                    ...validOwners,
-                    user._id
-                ],
+            const newDialog = await this.dialogsModel.create({
+                owners: validOwners,
                 messages: [
                     newMessage._id
                 ]
             })
+
+            await this.userModel.updateMany(
+                {_id: { $in: validOwners}},
+                {$push: { dialogs: newDialog._id }},
+                {multi: true, new: true}
+                )
+
+            return newDialog
+
+        } catch (e) {
+            throw new BadRequestException(e)
+        }
+    }
+
+    async getDialogs(authorization: string) {
+        try {
+            const decodeData = await this.authService.verifyUser(authorization);
+
+            const user = await this.userModel.findOne({email: decodeData.email}).exec()
+
+            if (!user) {
+                throw new BadRequestException('Данного пользователя не существует');
+            }
+
+            return this.userModel.findById(user._id)
+                .populate({
+                    path: 'dialogs',
+                    model: DialogsModel,
+                    transform: (doc: DialogsModel) => {
+                        doc.messages = [doc.messages[0]]
+                        return doc
+                    }
+                }).exec()
+                .then(doc => doc?.dialogs)
 
         } catch (e) {
             throw new BadRequestException(e)

@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Headers, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Put } from '@nestjs/common';
 import { DialogsService } from './dialogs.service';
 import { CreateDialogDto } from './dto/create-dialog.dto';
+import { IdValidationPipe } from '../pipes/id-validation.pipe';
+import { Types } from 'mongoose';
 
 @Controller('dialogs')
 export class DialogsController {
@@ -18,6 +20,14 @@ export class DialogsController {
 
     @Get()
     async getDialogs(
+        @Headers('authorization') authorization: string,
+    ) {
+        return this.dialogsService.getDialogs(authorization)
+    }
+
+    @Get(':id')
+    async getDialog(
+        @Param('id', IdValidationPipe) id: Types.ObjectId,
         @Headers('authorization') authorization: string,
     ) {
 
