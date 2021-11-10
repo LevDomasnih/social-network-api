@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -30,15 +30,13 @@ export class AuthService {
             userId
         })
 
-        const newUser = await this.userModel.create({
+        return this.userModel.create({
             _id: userId,
             email: dto.login,
             passwordHash: await hash(dto.password, salt),
             profile: newProfile._id,
             follow: newFollow._id
         });
-
-        return newUser
     }
 
     async findUser(email: string) {
@@ -65,7 +63,15 @@ export class AuthService {
         };
     }
 
-    async verifyUser(token: string) {
-        return  this.jwtService.verifyAsync(token.split(' ')[1]);
+    async verifyUser(token: string, options = {}) {
+        const decodeData = await this.jwtService.verifyAsync(token.split(' ')[1]);
+
+        const user = await this.userModel.findOne({email: decodeData.email, options}).exec()
+
+        if (!user) {
+            throw new BadRequestException('Данного пользователя не существует');
+        }
+
+        return user
     }
 }

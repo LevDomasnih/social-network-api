@@ -20,13 +20,7 @@ export class PostsService {
 
     async createPost(authorization: string, file: Express.Multer.File, dto: CreatePostDto) {
         try {
-            const decodeData = await this.authService.verifyUser(authorization);
-
-            const user = await this.userModel.findOne({email: decodeData.email}).exec()
-
-            if (!user) {
-                throw new BadRequestException('Данного пользователя не существует');
-            }
+            const user = await this.authService.verifyUser(authorization);
 
             const newPost = await this.postsModel.create({
                 image: file?.filename || '',
@@ -51,13 +45,7 @@ export class PostsService {
         file: Express.Multer.File, dto: CreatePostDto
     ) {
       try {
-          const decodeData = await this.authService.verifyUser(authorization);
-
-          const user = await this.userModel.findOne({email: decodeData.email}).exec()
-
-          if (!user) {
-              throw new BadRequestException('Данного пользователя не существует');
-          }
+          const user = await this.authService.verifyUser(authorization);
 
           const parentPost = await this.postsModel.findById(parentId);
 
@@ -95,13 +83,8 @@ export class PostsService {
         file: Express.Multer.File, {text}: CreatePostDto
     ) {
         try {
-            const decodeData = await this.authService.verifyUser(authorization);
 
-            const user = await this.userModel.findOne({email: decodeData.email, posts: {$in: [id]}}).exec()
-
-            if (!user) {
-                throw new BadRequestException('Данного пользователя не существует или пользователь не владелец поста');
-            }
+            const user = await this.authService.verifyUser(authorization, { posts: {$in: [id]} });
 
             const oldPost = await this.postsModel.findById(id).exec()
 

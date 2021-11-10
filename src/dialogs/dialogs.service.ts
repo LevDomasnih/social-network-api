@@ -19,20 +19,16 @@ export class DialogsService {
         private readonly messagesService: MessagesService,
     ) {}
 
+    async validateOwners(owners: Types.ObjectId[]) {
+        return this.userModel.find({_id: { $in: owners}})
+            .select('_id').exec().then(e => e.map(el => el._id))
+    }
+
     async createDialog(authorization: string, {otherOwners, ...messageData}: CreateDialogDto) {
         try {
-            const decodeData = await this.authService.verifyUser(authorization);
-
-            const user = await this.userModel.findOne({email: decodeData.email}).exec()
-
-            if (!user) {
-                throw new BadRequestException('Данного пользователя не существует');
-            }
-
+            const user = await this.authService.verifyUser(authorization);
             const newMessage = await this.messagesService.createMessage(user._id, messageData)
-
-            const validOwners = await this.userModel.find({_id: { $in: otherOwners}})
-                .select('_id').exec().then(e => [ user._id,...e.map(el => el._id)])
+            const validOwners = await this.validateOwners([user._id, ...otherOwners])
 
             const newDialog = await this.dialogsModel.create({
                 owners: validOwners,
@@ -44,7 +40,7 @@ export class DialogsService {
             await this.userModel.updateMany(
                 {_id: { $in: validOwners}},
                 {$push: { dialogs: newDialog._id }},
-                {multi: true, new: true}
+                {multi: true}
                 )
 
             return newDialog
@@ -56,13 +52,7 @@ export class DialogsService {
 
     async getDialogs(authorization: string) {
         try {
-            const decodeData = await this.authService.verifyUser(authorization);
-
-            const user = await this.userModel.findOne({email: decodeData.email}).exec()
-
-            if (!user) {
-                throw new BadRequestException('Данного пользователя не существует');
-            }
+            const user = await this.authService.verifyUser(authorization);
 
             return this.userModel.findById(user._id)
                 .populate({
@@ -82,13 +72,7 @@ export class DialogsService {
 
     async getDialog(authorization: string, id: Types.ObjectId) {
         try {
-            const decodeData = await this.authService.verifyUser(authorization);
-
-            const user = await this.userModel.findOne({email: decodeData.email}).exec()
-
-            if (!user) {
-                throw new BadRequestException('Данного пользователя не существует');
-            }
+            const user = await this.authService.verifyUser(authorization);
 
             return this.dialogsModel
                 .findOne({ _id: id, owners: { $in: [user._id] }})
@@ -102,33 +86,26 @@ export class DialogsService {
 
     async updateDialogOwners(authorization: string, { dialogId, owners }: UpdateOwnersDto) {
         try {
-            const decodeData = await this.authService.verifyUser(authorization);
-
-            const user = await this.userModel.findOne({email: decodeData.email}).exec()
-
-            if (!user) {
-                throw new BadRequestException('Данного пользователя не существует');
-            }
-
+            const user = await this.authService.verifyUser(authorization);
             const oldDialogsOwner = await this.dialogsModel.findById(dialogId)
 
             if (!oldDialogsOwner) {
-                throw new BadRequestException('Данного пользователя не существует');
+                throw new BadRequestException('Диалога не существует');
             }
 
-            await this.userModel.updateMany(
-                {dialogs: { $in: [oldDialogsOwner]}},
-                {$pull: { dialogs: dialogId }},
-                {multi: true, new: true}
-            )
+            const validOwners = await this.validateOwners([user._id, ...owners])
 
-            const validOwners = await this.userModel.find({_id: { $in: [user._id, ...owners]}})
-                .select('_id').exec().then(e => e.map(el => el._id))
+            await this.userModel
+                .updateMany(
+                    {dialogs: { $in: [oldDialogsOwner]}},
+                    {$pull: { dialogs: dialogId }},
+                    {multi: true}
+                )
 
             await this.userModel.updateMany(
                 {_id: { $in: validOwners}},
                 {$push: { dialogs: dialogId }},
-                {multi: true, new: true}
+                {multi: true}
             )
 
             return this.dialogsModel
