@@ -3,6 +3,7 @@ import { DialogsService } from './dialogs.service';
 import { CreateDialogDto } from './dto/create-dialog.dto';
 import { IdValidationPipe } from '../pipes/id-validation.pipe';
 import { Types } from 'mongoose';
+import { UpdateOwnersDto } from './dto/update-owners.dto';
 
 @Controller('dialogs')
 export class DialogsController {
@@ -36,7 +37,8 @@ export class DialogsController {
     @Put()
     async updateDialogOwners(
         @Headers('authorization') authorization: string,
+        @Body() dto: UpdateOwnersDto
     ) {
-
+        return this.dialogsService.updateDialogOwners(authorization, dto)
     }
 }

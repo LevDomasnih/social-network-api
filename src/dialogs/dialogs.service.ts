@@ -8,7 +8,7 @@ import { MessagesService } from '../messages/messages.service';
 import { UserModel } from '../users/user.model';
 import { Types } from 'mongoose';
 import { MessagesModel } from '../messages/messages.model';
-import { ProfileModel } from '../profile/profile.model';
+import { UpdateOwnersDto } from './dto/update-owners.dto';
 
 @Injectable()
 export class DialogsService {
@@ -93,6 +93,50 @@ export class DialogsService {
             return this.dialogsModel
                 .findOne({ _id: id, owners: { $in: [user._id] }})
                 .populate({ path: 'messages', model: MessagesModel })
+                .populate({ path: 'owners', model: UserModel, select: 'name surname' })
+
+        } catch (e) {
+            throw new BadRequestException(e)
+        }
+    }
+
+    async updateDialogOwners(authorization: string, { dialogId, owners }: UpdateOwnersDto) {
+        try {
+            const decodeData = await this.authService.verifyUser(authorization);
+
+            const user = await this.userModel.findOne({email: decodeData.email}).exec()
+
+            if (!user) {
+                throw new BadRequestException('Данного пользователя не существует');
+            }
+
+            const oldDialogsOwner = await this.dialogsModel.findById(dialogId)
+
+            if (!oldDialogsOwner) {
+                throw new BadRequestException('Данного пользователя не существует');
+            }
+
+            await this.userModel.updateMany(
+                {dialogs: { $in: [oldDialogsOwner]}},
+                {$pull: { dialogs: dialogId }},
+                {multi: true, new: true}
+            )
+
+            const validOwners = await this.userModel.find({_id: { $in: [user._id, ...owners]}})
+                .select('_id').exec().then(e => e.map(el => el._id))
+
+            await this.userModel.updateMany(
+                {_id: { $in: validOwners}},
+                {$push: { dialogs: dialogId }},
+                {multi: true, new: true}
+            )
+
+            return this.dialogsModel
+                .findOneAndUpdate(
+                    { _id: dialogId, owners: { $in: [user._id] }},
+                    {owners: validOwners},
+                    {new: true}
+                )
                 .populate({ path: 'owners', model: UserModel, select: 'name surname' })
 
         } catch (e) {

@@ -1,32 +1,18 @@
-import {
-    ArrayMinSize,
-    IsArray,
-    IsNotEmpty,
-    IsString, Validate, ValidationArguments,
-    ValidatorConstraint,
-    ValidatorConstraintInterface,
-} from 'class-validator';
+import { ArrayMinSize, IsArray, IsNotEmpty, IsString, Validate } from 'class-validator';
 import { Types } from 'mongoose';
-
-@ValidatorConstraint()
-export class IsObjectId implements ValidatorConstraintInterface {
-    public async validate(ids: string[], args: ValidationArguments) {
-        const isValid = ids.map(id => Types.ObjectId.isValid(id))
-        return !isValid.includes(false)
-    }
-}
+import { IsObjectIds } from '../../validator-helpers/object-id';
 
 export class CreateDialogDto {
 
     @IsString()
-    text: string
+    text: string;
 
     @IsNotEmpty()
     @IsArray()
-    @IsString({each: true})
+    @IsString({ each: true })
     @ArrayMinSize(1)
-    @Validate(IsObjectId, {
-        message: 'Id can be a 24 character hex string'
+    @Validate(IsObjectIds, {
+        message: 'Id can be a 24 character hex string',
     })
     otherOwners: Types.ObjectId[]
 
