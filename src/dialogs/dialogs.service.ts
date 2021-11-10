@@ -6,6 +6,9 @@ import { AuthService } from '../auth/auth.service';
 import { CreateDialogDto } from './dto/create-dialog.dto';
 import { MessagesService } from '../messages/messages.service';
 import { UserModel } from '../users/user.model';
+import { Types } from 'mongoose';
+import { MessagesModel } from '../messages/messages.model';
+import { ProfileModel } from '../profile/profile.model';
 
 @Injectable()
 export class DialogsService {
@@ -71,6 +74,26 @@ export class DialogsService {
                     }
                 }).exec()
                 .then(doc => doc?.dialogs)
+
+        } catch (e) {
+            throw new BadRequestException(e)
+        }
+    }
+
+    async getDialog(authorization: string, id: Types.ObjectId) {
+        try {
+            const decodeData = await this.authService.verifyUser(authorization);
+
+            const user = await this.userModel.findOne({email: decodeData.email}).exec()
+
+            if (!user) {
+                throw new BadRequestException('Данного пользователя не существует');
+            }
+
+            return this.dialogsModel
+                .findOne({ _id: id, owners: { $in: [user._id] }})
+                .populate({ path: 'messages', model: MessagesModel })
+                .populate({ path: 'owners', model: UserModel, select: 'name surname' })
 
         } catch (e) {
             throw new BadRequestException(e)

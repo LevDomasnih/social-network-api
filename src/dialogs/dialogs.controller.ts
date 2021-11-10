@@ -30,7 +30,7 @@ export class DialogsController {
         @Param('id', IdValidationPipe) id: Types.ObjectId,
         @Headers('authorization') authorization: string,
     ) {
-
+        return this.dialogsService.getDialog(authorization, id)
     }
 
     @Put()
