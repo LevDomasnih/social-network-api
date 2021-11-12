@@ -1,14 +1,12 @@
-import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
+import { ApiProperty } from '@nestjs/swagger';
+import { UserModel } from '../../users/user.model';
 import { prop, Ref } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
-import { UserModel } from '../users/user.model';
-import { MessagesModel } from '../messages/messages.model';
-import { ApiProperty } from '@nestjs/swagger';
+import { MessagesModel } from '../../messages/messages.model';
 
-export interface DialogsModel extends Base {}
-export class DialogsModel extends TimeStamps {
+export class GetDialogResponseDto {
 
-    @ApiProperty({ type: () => [UserModel]})
+    @ApiProperty({ type: () => [UserModel], default: 'userId'})
     @prop({
         ref: () => 'User',
         type: () => Types.ObjectId,

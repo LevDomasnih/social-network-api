@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { UserModel } from '../users/user.model';
-import { FollowDto } from './dto/follow.dto';
+import { FollowRequestDto } from './dto/follow-request.dto';
 import { FollowModel } from './follow.model';
 import { Types } from 'mongoose';
 
@@ -17,7 +17,7 @@ export class FollowService {
         return this.userModel.findOne({ _id: followUser }).exec();
     }
 
-    async follow(dto: FollowDto) {
+    async follow(dto: FollowRequestDto) {
         const followUser = this.findUser(dto.followUserId);
         const user = this.findUser(dto.userId);
 
@@ -49,7 +49,7 @@ export class FollowService {
             ).exec()
     }
 
-    async unfollow(dto: FollowDto) {
+    async unfollow(dto: FollowRequestDto) {
         const followUser = this.findUser(dto.followUserId);
         const user = this.findUser(dto.userId);
 

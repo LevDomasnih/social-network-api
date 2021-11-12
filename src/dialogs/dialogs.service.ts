@@ -3,12 +3,12 @@ import { InjectModel } from 'nestjs-typegoose';
 import { DialogsModel } from './dialogs.model';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { AuthService } from '../auth/auth.service';
-import { CreateDialogDto } from './dto/create-dialog.dto';
+import { CreateDialogRequestDto } from './dto/create-dialog-request.dto';
 import { MessagesService } from '../messages/messages.service';
 import { UserModel } from '../users/user.model';
 import { Types } from 'mongoose';
 import { MessagesModel } from '../messages/messages.model';
-import { UpdateOwnersDto } from './dto/update-owners.dto';
+import { UpdateOwnersRequestDto } from './dto/update-owners-request.dto';
 
 @Injectable()
 export class DialogsService {
@@ -24,7 +24,7 @@ export class DialogsService {
             .select('_id').exec().then(e => e.map(el => el._id))
     }
 
-    async createDialog(authorization: string, {otherOwners, ...messageData}: CreateDialogDto) {
+    async createDialog(authorization: string, {otherOwners, ...messageData}: CreateDialogRequestDto) {
         try {
             const user = await this.authService.verifyUser(authorization);
             const newMessage = await this.messagesService.createMessage(user._id, messageData)
@@ -63,14 +63,14 @@ export class DialogsService {
                         return doc
                     }
                 }).exec()
-                .then(doc => doc?.dialogs)
+                .then(doc => doc!.dialogs)
 
         } catch (e) {
             throw new BadRequestException(e)
         }
     }
 
-    async getDialog(authorization: string, id: Types.ObjectId) {
+    async getDialog(authorization: string, id: string) {
         try {
             const user = await this.authService.verifyUser(authorization);
 
@@ -84,7 +84,7 @@ export class DialogsService {
         }
     }
 
-    async updateDialogOwners(authorization: string, { dialogId, owners }: UpdateOwnersDto) {
+    async updateDialogOwners(authorization: string, { dialogId, owners }: UpdateOwnersRequestDto) {
         try {
             const user = await this.authService.verifyUser(authorization);
             const oldDialogsOwner = await this.dialogsModel.findById(dialogId)

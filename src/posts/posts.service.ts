@@ -2,10 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { PostsModel } from './posts.model';
 import { ModelType } from '@typegoose/typegoose/lib/types';
-import { CreatePostDto } from './dto/create-post.dto';
+import { CreatePostRequestDto } from './dto/create-post-request.dto';
 import { Express } from 'express';
 import { UserModel } from '../users/user.model';
-import { Types } from 'mongoose';
 import { unlink } from 'fs/promises';
 import { AuthService } from '../auth/auth.service';
 
@@ -18,7 +17,7 @@ export class PostsService {
     ) {
     }
 
-    async createPost(authorization: string, file: Express.Multer.File, dto: CreatePostDto) {
+    async createPost(authorization: string, file: Express.Multer.File, dto: CreatePostRequestDto) {
         try {
             const user = await this.authService.verifyUser(authorization);
 
@@ -41,8 +40,8 @@ export class PostsService {
     }
 
     async createComment(
-        authorization: string, parentId: Types.ObjectId,
-        file: Express.Multer.File, dto: CreatePostDto
+        authorization: string, parentId: string,
+        file: Express.Multer.File, dto: CreatePostRequestDto
     ) {
       try {
           const user = await this.authService.verifyUser(authorization);
@@ -79,8 +78,8 @@ export class PostsService {
     }
 
     async updatePost(
-        authorization: string, id: Types.ObjectId,
-        file: Express.Multer.File, {text}: CreatePostDto
+        authorization: string, id: string,
+        file: Express.Multer.File, {text}: CreatePostRequestDto
     ) {
         try {
 
@@ -112,7 +111,7 @@ export class PostsService {
 
     }
 
-    async getPostsOfUser(id: Types.ObjectId) {
+    async getPostsOfUser(id: string) {
         return this.userModel.findById(id)
             .populate({
                 path: 'posts',

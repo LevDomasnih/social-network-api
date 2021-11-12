@@ -1,7 +1,11 @@
 import { BadRequestException, Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
+import { AuthRequestDto } from './dto/auth-request.dto';
+import { AuthLoginResponseDto } from './dto/auth-login-response.dto';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { AuthRegisterResponseDto } from './dto/auth-register-response.dto';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {
@@ -9,7 +13,11 @@ export class AuthController {
 
     @UsePipes(new ValidationPipe())
     @Post('register')
-    async register(@Body() dto: AuthDto) {
+    @ApiCreatedResponse({
+        description: 'User register',
+        type: AuthRegisterResponseDto,
+    })
+    async register(@Body() dto: AuthRequestDto): Promise<AuthRegisterResponseDto> {
         const oldUser = await this.authService.findUser(dto.login);
         if (oldUser) {
             throw new BadRequestException('Данный пользователь уже зарегистрирован!');
@@ -21,7 +29,11 @@ export class AuthController {
     @UsePipes(new ValidationPipe())
     @HttpCode(200)
     @Post('login')
-    async login(@Body() { login, password }: AuthDto) {
+    @ApiCreatedResponse({
+        description: 'User login',
+        type: AuthLoginResponseDto,
+    })
+    async login(@Body() { login, password }: AuthRequestDto): Promise<AuthLoginResponseDto> {
         const { email } = await this.authService.validateUser(login, password);
         return this.authService.login(email);
     }

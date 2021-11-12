@@ -1,9 +1,11 @@
 import { ArrayMinSize, IsArray, IsNotEmpty, IsString, Validate } from 'class-validator';
 import { Types } from 'mongoose';
 import { IsObjectIds, IsObjectId } from '../../validator-helpers/object-id';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateOwnersDto {
+export class UpdateOwnersRequestDto {
 
+    @ApiProperty({ type: 'string'})
     @IsNotEmpty()
     @IsString()
     @Validate(IsObjectId, {
@@ -11,6 +13,7 @@ export class UpdateOwnersDto {
     })
     dialogId: Types.ObjectId
 
+    @ApiProperty({ type: ['string']})
     @IsNotEmpty()
     @IsArray()
     @IsString({each: true})

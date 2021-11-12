@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ModelType } from '@typegoose/typegoose/lib/types';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
 import { UserModel } from '../users/user.model';
 import { ProfileModel } from './profile.model';
 
@@ -12,12 +12,12 @@ export class ProfileService {
         @InjectModel(ProfileModel) private readonly profileModel: ModelType<ProfileModel>,
     ) { }
 
-    async updateProfile({userId, ...dto}: UpdateProfileDto) {
+    async updateProfile({userId, ...dto}: UpdateProfileRequestDto) {
         return this.userModel
             .findOneAndUpdate(
-            {userId},
-            { ...dto },
-            {new: true, projection: { 'passwordHash': false }}
+                { userId },
+                { ...dto },
+                { new: true, projection: { 'passwordHash': false }}
             ).exec()
     }
 

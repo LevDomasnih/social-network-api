@@ -24,6 +24,7 @@ export class UsersService {
         return this.followModel.findOne({ userId: id })
             .populate({ path: 'followUser', model: UserModel })
             .select('followUser')
-            .then(f => f?.followUser);
+            .exec()
+            .then(f => f!.followUser);
     }
 }

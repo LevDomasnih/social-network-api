@@ -1,12 +1,15 @@
 import { ArrayMinSize, IsArray, IsNotEmpty, IsString, Validate } from 'class-validator';
 import { Types } from 'mongoose';
 import { IsObjectIds } from '../../validator-helpers/object-id';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateDialogDto {
+export class CreateDialogRequestDto {
 
+    @ApiProperty()
     @IsString()
     text: string;
 
+    @ApiProperty()
     @IsNotEmpty()
     @IsArray()
     @IsString({ each: true })
