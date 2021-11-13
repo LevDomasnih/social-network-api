@@ -1,4 +1,5 @@
 import {
+    applyDecorators,
     Body,
     Controller,
     Get,
@@ -27,6 +28,16 @@ import { UpdatePostRequestDto } from './dto/update-post-request.dto';
 import { UpdatePostResponseDto } from './dto/update-post-response.dto';
 import { GetUserPostsResponseDto } from './dto/get-user-posts-response.dto';
 import { Ref } from '@typegoose/typegoose';
+import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
+
+function SwaggerApi(createdResponse: ApiResponseOptions) {
+    return applyDecorators(
+        ApiBearerAuth(),
+        ApiConsumes('multipart/form-data'),
+        ApiBody({ type: FileUploadDto }),
+        ApiCreatedResponse(createdResponse)
+    );
+}
 
 @ApiTags('posts')
 @Controller('posts')
@@ -40,10 +51,7 @@ export class PostsController {
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({ destination: './files' })
     }))
-    @ApiBearerAuth()
-    @ApiConsumes('multipart/form-data')
-    @ApiBody({ type: FileUploadDto })
-    @ApiCreatedResponse({
+    @SwaggerApi({
         description: 'Create Post',
         type: CreatePostResponseDto,
     })
@@ -60,10 +68,7 @@ export class PostsController {
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({ destination: './files' })
     }))
-    @ApiBearerAuth()
-    @ApiConsumes('multipart/form-data')
-    @ApiBody({ type: FileUploadDto })
-    @ApiCreatedResponse({
+    @SwaggerApi({
         description: 'Create comment',
         type: CreateCommentResponseDto,
     })
@@ -81,10 +86,7 @@ export class PostsController {
     @UseInterceptors(FileInterceptor('file', {
         storage: diskStorage({ destination: './files' })
     }))
-    @ApiBearerAuth()
-    @ApiConsumes('multipart/form-data')
-    @ApiBody({ type: FileUploadDto })
-    @ApiCreatedResponse({
+    @SwaggerApi({
         description: 'Update post',
         type: UpdatePostResponseDto,
     })

@@ -1,13 +1,23 @@
-import { Body, Controller, Get, Headers, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { applyDecorators, Body, Controller, Get, Headers, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { DialogsService } from './dialogs.service';
 import { CreateDialogRequestDto } from './dto/create-dialog-request.dto';
 import { IdValidationPipe } from '../pipes/id-validation.pipe';
 import { UpdateOwnersRequestDto } from './dto/update-owners-request.dto';
 import { CreateDialogResponseDto } from './dto/create-dialog-response.dto';
-import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { GetDialogResponseDto } from './dto/get-dialog-response-dto';
 import { Ref } from '@typegoose/typegoose';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
+import { FileUploadDto } from '../posts/dto/file-upload.dto';
+
+function SwaggerApi(createdResponse: ApiResponseOptions) {
+    return applyDecorators(
+        ApiBearerAuth(),
+        ApiCreatedResponse(createdResponse)
+    );
+}
+
 
 @ApiTags('dialogs')
 @Controller('dialogs')
@@ -19,8 +29,7 @@ export class DialogsController {
 
     @Post()
     @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @ApiCreatedResponse({
+    @SwaggerApi({
         description: 'Create dialog',
         type: CreateDialogResponseDto,
     })
@@ -33,8 +42,7 @@ export class DialogsController {
 
     @Get()
     @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @ApiCreatedResponse({
+    @SwaggerApi({
         description: 'Get dialogs',
         type: [GetDialogResponseDto],
     })
@@ -46,8 +54,7 @@ export class DialogsController {
 
     @Get(':id')
     @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @ApiCreatedResponse({
+    @SwaggerApi({
         description: 'Get dialog',
         type: GetDialogResponseDto,
     })
@@ -60,8 +67,7 @@ export class DialogsController {
 
     @Put()
     @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
-    @ApiCreatedResponse({
+    @SwaggerApi({
         description: 'Update owners',
         type: GetDialogResponseDto,
     })
