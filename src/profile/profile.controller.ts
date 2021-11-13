@@ -19,7 +19,7 @@ export class ProfileController {
         type: () => UpdateProfileResponseDto,
     })
     @Post('update')
-    async update(@Body() dto: UpdateProfileRequestDto): Promise<UpdateProfileResponseDto | null> {
+    async update(@Body() dto: UpdateProfileRequestDto): Promise<UpdateProfileResponseDto> {
         return this.profileService.updateProfile(dto);
     }
 
@@ -28,7 +28,7 @@ export class ProfileController {
         type: () => GetProfileResponseDto,
     })
     @Get(':userId')
-    async get(@Param('userId') userId: string): Promise<GetProfileResponseDto | null> {
+    async get(@Param('userId') userId: string): Promise<GetProfileResponseDto> {
         return this.profileService.findProfile(userId);
     }
 }

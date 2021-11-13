@@ -1,4 +1,4 @@
-import { OmitType } from '@nestjs/swagger';
-import { UserModel } from '../../users/user.model';
+import { PartialType } from '@nestjs/swagger';
+import { ProfileModel } from '../profile.model';
 
-export class UpdateProfileResponseDto extends OmitType(UserModel, ['passwordHash'] as const) {}
+export class UpdateProfileResponseDto extends PartialType(ProfileModel) { }

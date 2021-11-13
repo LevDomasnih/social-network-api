@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
@@ -13,21 +13,27 @@ export class ProfileService {
     ) { }
 
     async updateProfile({userId, ...dto}: UpdateProfileRequestDto) {
-        return this.userModel
+        const profile = await this.profileModel
             .findOneAndUpdate(
-                { userId },
+                { owner: userId },
                 { ...dto },
-                { new: true, projection: { 'passwordHash': false }}
+                { new: true}
             ).exec()
+
+        if (!profile) {
+            throw new BadRequestException('Профиль отсутствует')
+        }
+
+        return profile
     }
 
     async findProfile(userId: string) {
-        return this.userModel
-            .findOne(
-                { _id: userId },
-                {'passwordHash': false }
-            )
-            .populate({path: 'profile', model: this.profileModel})
-            .exec()
+        const profile = await this.profileModel.findById(userId)
+
+        if (!profile) {
+            throw new BadRequestException('Профиль отсутствует')
+        }
+
+        return profile
     }
 }

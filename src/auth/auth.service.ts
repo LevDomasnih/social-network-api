@@ -24,7 +24,10 @@ export class AuthService {
 
         const userId = new Types.ObjectId()
 
-        const newProfile = await this.profileModel.create({_id: new Types.ObjectId()})
+        const newProfile = await this.profileModel.create({
+            _id: new Types.ObjectId(),
+            owner: userId
+        })
         const newFollow = await this.followModel.create({
             _id: new Types.ObjectId(),
             userId
