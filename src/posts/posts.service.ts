@@ -58,7 +58,7 @@ export class PostsService {
               ...dto,
           });
 
-          return this.postsModel.findOneAndUpdate(
+          const createdPost = await this.postsModel.findOneAndUpdate(
               { _id: parentId },
               { $push: { comments: newPost._id } },
               { new: true },
@@ -71,6 +71,10 @@ export class PostsService {
                       return doc
                   }
               });
+
+          if (!createdPost) { throw new BadRequestException('Пост не был создан')}
+
+          return createdPost
 
       } catch (e) {
           throw new BadRequestException(e)
@@ -93,7 +97,7 @@ export class PostsService {
                 await unlink(`files/${oldImageName}`)
             }
 
-            return this.postsModel.findOneAndUpdate(
+            const updatedPost = await this.postsModel.findOneAndUpdate(
                 {_id: id},
                 {
                     text,
@@ -101,6 +105,10 @@ export class PostsService {
                 },
                 {new: true}
             )
+
+            if (!updatedPost) { throw new BadRequestException('Пост не был обновлен') }
+
+            return updatedPost
 
         } catch (e) {
             throw new BadRequestException(e)
@@ -112,7 +120,7 @@ export class PostsService {
     }
 
     async getPostsOfUser(id: string) {
-        return this.userModel.findById(id)
+        const posts = await this.userModel.findById(id)
             .populate({
                 path: 'posts',
                 model: PostsModel,
@@ -124,6 +132,10 @@ export class PostsService {
             .then(doc => {
                 return doc?.posts;
             });
+
+        if (!posts) { throw new BadRequestException('Постов нет')}
+
+        return posts
     }
 
     async getPosts() {

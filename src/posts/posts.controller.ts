@@ -72,7 +72,7 @@ export class PostsController {
         @Param('parentId', IdValidationPipe) parentId: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreateCommentRequestDto
-    ): Promise<CreateCommentResponseDto | null> {
+    ): Promise<CreateCommentResponseDto> {
         return this.postsService.createComment(authorization, parentId, file, dto)
     }
 
@@ -93,7 +93,7 @@ export class PostsController {
         @Param('id', IdValidationPipe) id: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: UpdatePostRequestDto
-    ): Promise<UpdatePostResponseDto | null> {
+    ): Promise<UpdatePostResponseDto> {
         return this.postsService.updatePost(authorization, id, file, dto)
     }
 
@@ -113,7 +113,7 @@ export class PostsController {
     })
     async getPostsOfUser(
         @Param('id', IdValidationPipe) id: string
-    ): Promise<Ref<GetUserPostsResponseDto>[] | undefined> {
+    ): Promise<Ref<GetUserPostsResponseDto>[]> {
         return this.postsService.getPostsOfUser(id)
     }
 }
