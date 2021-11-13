@@ -18,8 +18,8 @@ export class FollowService {
     }
 
     async follow(dto: FollowRequestDto) {
-        const followUser = this.findUser(dto.followUserId);
-        const user = this.findUser(dto.userId);
+        const followUser = await this.findUser(dto.followUserId);
+        const user = await this.findUser(dto.userId);
 
         if (!followUser || !user) {
             throw new BadRequestException('Данного пользователя не существует');
@@ -29,29 +29,33 @@ export class FollowService {
             throw new BadRequestException('Пользователь не может подписаться сам на себя');
         }
 
-        const followId = await this.userModel.findOne({ _id: dto.userId }).exec();
+        const followUserId = new Types.ObjectId(dto.followUserId)
 
         const userIsFollow = await this.followModel
             .findOne({
-                _id: followId?.follow?._id,
-                followUser: { $in: [new Types.ObjectId(dto.followUserId)] }
+                _id: user.follow!._id,
+                followUser: { $in: [followUserId] }
             })
 
         if (userIsFollow) {
             throw new BadRequestException('Пользователь уже подписан');
         }
 
-        return this.followModel
+        const newFollow = await this.followModel
             .findOneAndUpdate(
-                {_id: followId?.follow?._id},
-                { $push: {followUser: new Types.ObjectId(dto.followUserId)}},
-                {new: true}
+                { _id: user.follow!._id },
+                { $push: {followUser: followUserId}},
+                { new: true }
             ).exec()
+
+        if (!newFollow) { throw new BadRequestException('Не удалось подписаться') }
+
+        return newFollow
     }
 
     async unfollow(dto: FollowRequestDto) {
-        const followUser = this.findUser(dto.followUserId);
-        const user = this.findUser(dto.userId);
+        const followUser = await this.findUser(dto.followUserId);
+        const user = await this.findUser(dto.userId);
 
         if (!followUser || !user) {
             throw new BadRequestException('Данного пользователя не существует');
@@ -61,23 +65,29 @@ export class FollowService {
             throw new BadRequestException('Пользователь не может отписаться от себя');
         }
 
-        const followId = await this.userModel.findOne({ _id: dto.userId }).exec();
+        const followUserId = new Types.ObjectId(dto.followUserId)
 
         const userIsFollow = await this.followModel
             .findOne({
-                _id: followId?.follow?._id,
-                followUser: { $in: [new Types.ObjectId(dto.followUserId)] }
+                _id: user.follow!._id,
+                followUser: { $in: [followUserId] }
             })
 
         if (!userIsFollow) {
             throw new BadRequestException('Пользователь не подписан');
         }
 
-        return this.followModel
+
+
+        const newFollow = await this.followModel
             .findOneAndUpdate(
-                {_id: followId?.follow?._id},
-                { $pull: {followUser: new Types.ObjectId(dto.followUserId)} },
-                { new: true, projection: { 'passwordHash': false } }
+                { _id: user.follow!._id },
+                { $pull: {followUser: followUserId} },
+                { new: true }
             ).exec();
+
+        if (!newFollow) { throw new BadRequestException('Не удалось отписаться') }
+
+        return newFollow
     }
 }
