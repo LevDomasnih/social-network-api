@@ -54,7 +54,7 @@ export class DialogsController {
     async getDialog(
         @Param('id', IdValidationPipe) id: string,
         @Headers('authorization') authorization: string,
-    ): Promise<GetDialogResponseDto | null> {
+    ): Promise<GetDialogResponseDto> {
         return this.dialogsService.getDialog(authorization, id);
     }
 
@@ -68,7 +68,7 @@ export class DialogsController {
     async updateDialogOwners(
         @Headers('authorization') authorization: string,
         @Body() dto: UpdateOwnersRequestDto,
-    ): Promise<GetDialogResponseDto | null> {
+    ): Promise<GetDialogResponseDto> {
         return this.dialogsService.updateDialogOwners(authorization, dto);
     }
 }

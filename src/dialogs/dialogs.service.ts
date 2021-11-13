@@ -74,10 +74,16 @@ export class DialogsService {
         try {
             const user = await this.authService.verifyUser(authorization);
 
-            return this.dialogsModel
+            const dialog = await this.dialogsModel
                 .findOne({ _id: id, owners: { $in: [user._id] }})
                 .populate({ path: 'messages', model: MessagesModel })
                 .populate({ path: 'owners', model: UserModel, select: 'name surname' })
+
+            if (!dialog) {
+                throw new BadRequestException('Диалога не существует')
+            }
+
+            return dialog
 
         } catch (e) {
             throw new BadRequestException(e)
@@ -87,34 +93,39 @@ export class DialogsService {
     async updateDialogOwners(authorization: string, { dialogId, owners }: UpdateOwnersRequestDto) {
         try {
             const user = await this.authService.verifyUser(authorization);
-            const oldDialogsOwner = await this.dialogsModel.findById(dialogId)
+            const oldDialog = await this.dialogsModel.findById(dialogId)
 
-            if (!oldDialogsOwner) {
+            if (!oldDialog) {
                 throw new BadRequestException('Диалога не существует');
             }
 
-            const validOwners = await this.validateOwners([user._id, ...owners])
+            const updatedOwners = await this.validateOwners([user._id, ...owners])
 
-            await this.userModel
-                .updateMany(
-                    {dialogs: { $in: [oldDialogsOwner]}},
+            await this.userModel.updateMany(
+                    {dialogs: { $in: [oldDialog]}},
                     {$pull: { dialogs: dialogId }},
                     {multi: true}
                 )
 
             await this.userModel.updateMany(
-                {_id: { $in: validOwners}},
+                {_id: { $in: updatedOwners}},
                 {$push: { dialogs: dialogId }},
                 {multi: true}
             )
 
-            return this.dialogsModel
+            const updatedDialog = await this.dialogsModel
                 .findOneAndUpdate(
                     { _id: dialogId, owners: { $in: [user._id] }},
-                    {owners: validOwners},
+                    {owners: updatedOwners},
                     {new: true}
                 )
                 .populate({ path: 'owners', model: UserModel, select: 'name surname' })
+
+            if (!updatedDialog) {
+                throw new BadRequestException('Диалога не существует')
+            }
+
+            return updatedDialog
 
         } catch (e) {
             throw new BadRequestException(e)
