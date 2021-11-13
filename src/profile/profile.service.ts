@@ -12,10 +12,10 @@ export class ProfileService {
         @InjectModel(ProfileModel) private readonly profileModel: ModelType<ProfileModel>,
     ) { }
 
-    async updateProfile({userId, ...dto}: UpdateProfileRequestDto) {
+    async updateProfile(user: UserModel, dto: UpdateProfileRequestDto ) {
         const profile = await this.profileModel
             .findOneAndUpdate(
-                { owner: userId },
+                { owner: user._id },
                 { ...dto },
                 { new: true}
             ).exec()

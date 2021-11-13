@@ -1,23 +1,23 @@
-import { applyDecorators, Body, Controller, Get, Headers, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { applyDecorators, Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { DialogsService } from './dialogs.service';
 import { CreateDialogRequestDto } from './dto/create-dialog-request.dto';
 import { IdValidationPipe } from '../pipes/id-validation.pipe';
 import { UpdateOwnersRequestDto } from './dto/update-owners-request.dto';
 import { CreateDialogResponseDto } from './dto/create-dialog-response.dto';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { GetDialogResponseDto } from './dto/get-dialog-response-dto';
 import { Ref } from '@typegoose/typegoose';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
-import { FileUploadDto } from '../posts/dto/file-upload.dto';
+import { User } from '../decorators/user.decorator';
+import { UserModel } from '../users/user.model';
 
 function SwaggerApi(createdResponse: ApiResponseOptions) {
     return applyDecorators(
         ApiBearerAuth(),
-        ApiCreatedResponse(createdResponse)
+        ApiCreatedResponse(createdResponse),
     );
 }
-
 
 @ApiTags('dialogs')
 @Controller('dialogs')
@@ -34,10 +34,10 @@ export class DialogsController {
         type: CreateDialogResponseDto,
     })
     async createDialog(
-        @Headers('authorization') authorization: string,
+        @User() user: UserModel,
         @Body() dto: CreateDialogRequestDto,
     ): Promise<CreateDialogResponseDto> {
-        return this.dialogsService.createDialog(authorization, dto);
+        return this.dialogsService.createDialog(user, dto);
     }
 
     @Get()
@@ -47,9 +47,9 @@ export class DialogsController {
         type: [GetDialogResponseDto],
     })
     async getDialogs(
-        @Headers('authorization') authorization: string,
+        @User() user: UserModel,
     ): Promise<Ref<GetDialogResponseDto>[]> {
-        return this.dialogsService.getDialogs(authorization);
+        return this.dialogsService.getDialogs(user);
     }
 
     @Get(':id')
@@ -60,9 +60,9 @@ export class DialogsController {
     })
     async getDialog(
         @Param('id', IdValidationPipe) id: string,
-        @Headers('authorization') authorization: string,
+        @User() user: UserModel,
     ): Promise<GetDialogResponseDto> {
-        return this.dialogsService.getDialog(authorization, id);
+        return this.dialogsService.getDialog(user, id);
     }
 
     @Put()
@@ -72,9 +72,9 @@ export class DialogsController {
         type: GetDialogResponseDto,
     })
     async updateDialogOwners(
-        @Headers('authorization') authorization: string,
+        @User() user: UserModel,
         @Body() dto: UpdateOwnersRequestDto,
     ): Promise<GetDialogResponseDto> {
-        return this.dialogsService.updateDialogOwners(authorization, dto);
+        return this.dialogsService.updateDialogOwners(user, dto);
     }
 }

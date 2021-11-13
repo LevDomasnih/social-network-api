@@ -4,6 +4,7 @@ import { ProfileService } from './profile.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { UserModel } from '../users/user.model';
 import { ProfileModel } from './profile.model';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   controllers: [ProfileController],
@@ -22,6 +23,7 @@ import { ProfileModel } from './profile.model';
         }
       }
     ]),
+    AuthModule,
   ],
   exports: [ProfileService],
   providers: [ProfileService]

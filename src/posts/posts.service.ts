@@ -6,21 +6,17 @@ import { CreatePostRequestDto } from './dto/create-post-request.dto';
 import { Express } from 'express';
 import { UserModel } from '../users/user.model';
 import { unlink } from 'fs/promises';
-import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class PostsService {
     constructor(
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
         @InjectModel(PostsModel) private readonly postsModel: ModelType<PostsModel>,
-        private readonly authService: AuthService,
     ) {
     }
 
-    async createPost(authorization: string, file: Express.Multer.File, dto: CreatePostRequestDto) {
+    async createPost(user: UserModel, file: Express.Multer.File, dto: CreatePostRequestDto) {
         try {
-            const user = await this.authService.verifyUser(authorization);
-
             const newPost = await this.postsModel.create({
                 image: file?.filename || '',
                 owner: user._id,
@@ -40,12 +36,10 @@ export class PostsService {
     }
 
     async createComment(
-        authorization: string, parentId: string,
+        user: UserModel, parentId: string,
         file: Express.Multer.File, dto: CreatePostRequestDto
     ) {
       try {
-          const user = await this.authService.verifyUser(authorization);
-
           const parentPost = await this.postsModel.findById(parentId);
 
           if (!parentPost) {
@@ -82,13 +76,10 @@ export class PostsService {
     }
 
     async updatePost(
-        authorization: string, id: string,
+        user: UserModel, id: string,
         file: Express.Multer.File, {text}: CreatePostRequestDto
     ) {
         try {
-
-            const user = await this.authService.verifyUser(authorization, { posts: {$in: [id]} });
-
             const oldPost = await this.postsModel.findById(id).exec()
 
             const oldImageName = oldPost?.image

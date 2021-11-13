@@ -29,6 +29,8 @@ import { UpdatePostResponseDto } from './dto/update-post-response.dto';
 import { GetUserPostsResponseDto } from './dto/get-user-posts-response.dto';
 import { Ref } from '@typegoose/typegoose';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
+import { User } from '../decorators/user.decorator';
+import { UserModel } from '../users/user.model';
 
 function SwaggerApi(createdResponse: ApiResponseOptions) {
     return applyDecorators(
@@ -56,11 +58,11 @@ export class PostsController {
         type: CreatePostResponseDto,
     })
     async createPost(
-        @Headers('authorization') authorization: string,
+        @User() user: UserModel,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreatePostRequestDto
     ) : Promise<CreatePostResponseDto> {
-        return this.postsService.createPost(authorization, file, dto)
+        return this.postsService.createPost(user, file, dto)
     }
 
     @Post(':parentId')
@@ -73,12 +75,12 @@ export class PostsController {
         type: CreateCommentResponseDto,
     })
     async createComment(
-        @Headers('authorization') authorization: string,
+        @User() user: UserModel,
         @Param('parentId', IdValidationPipe) parentId: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreateCommentRequestDto
     ): Promise<CreateCommentResponseDto> {
-        return this.postsService.createComment(authorization, parentId, file, dto)
+        return this.postsService.createComment(user, parentId, file, dto)
     }
 
     @Put(':id')
@@ -91,12 +93,13 @@ export class PostsController {
         type: UpdatePostResponseDto,
     })
     async updatePost(
+        @User() user: UserModel,
         @Headers('authorization') authorization: string,
         @Param('id', IdValidationPipe) id: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: UpdatePostRequestDto
     ): Promise<UpdatePostResponseDto> {
-        return this.postsService.updatePost(authorization, id, file, dto)
+        return this.postsService.updatePost(user, id, file, dto)
     }
 
     @Get(':image')

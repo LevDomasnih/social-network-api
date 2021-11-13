@@ -67,14 +67,18 @@ export class AuthService {
     }
 
     async verifyUser(token: string, options = {}) {
-        const decodeData = await this.jwtService.verifyAsync(token.split(' ')[1]);
+        try {
+            const decodeData = await this.jwtService.verifyAsync(token.split(' ')[1]);
 
-        const user = await this.userModel.findOne({email: decodeData.email, options}).exec()
+            const user = await this.userModel.findOne({email: decodeData.email, options}).exec()
 
-        if (!user) {
-            throw new BadRequestException('Данного пользователя не существует');
+            if (!user) {
+                throw new BadRequestException('Данного пользователя не существует');
+            }
+
+            return user
+        } catch (e) {
+            throw new BadRequestException(e);
         }
-
-        return user
     }
 }

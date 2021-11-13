@@ -24,9 +24,8 @@ export class DialogsService {
             .select('_id').exec().then(e => e.map(el => el._id))
     }
 
-    async createDialog(authorization: string, {otherOwners, ...messageData}: CreateDialogRequestDto) {
+    async createDialog(user: UserModel, {otherOwners, ...messageData}: CreateDialogRequestDto) {
         try {
-            const user = await this.authService.verifyUser(authorization);
             const newMessage = await this.messagesService.createMessage(user._id, messageData)
             const validOwners = await this.validateOwners([user._id, ...otherOwners])
 
@@ -50,10 +49,8 @@ export class DialogsService {
         }
     }
 
-    async getDialogs(authorization: string) {
+    async getDialogs(user: UserModel) {
         try {
-            const user = await this.authService.verifyUser(authorization);
-
             return this.userModel.findById(user._id)
                 .populate({
                     path: 'dialogs',
@@ -70,10 +67,8 @@ export class DialogsService {
         }
     }
 
-    async getDialog(authorization: string, id: string) {
+    async getDialog(user: UserModel, id: string) {
         try {
-            const user = await this.authService.verifyUser(authorization);
-
             const dialog = await this.dialogsModel
                 .findOne({ _id: id, owners: { $in: [user._id] }})
                 .populate({ path: 'messages', model: MessagesModel })
@@ -90,9 +85,8 @@ export class DialogsService {
         }
     }
 
-    async updateDialogOwners(authorization: string, { dialogId, owners }: UpdateOwnersRequestDto) {
+    async updateDialogOwners(user: UserModel, { dialogId, owners }: UpdateOwnersRequestDto) {
         try {
-            const user = await this.authService.verifyUser(authorization);
             const oldDialog = await this.dialogsModel.findById(dialogId)
 
             if (!oldDialog) {
