@@ -26,7 +26,7 @@ export class UsersController {
         description: 'Get user by id',
         type: () => GetUserResponseDto,
     })
-    async getUserById(@Param('id') id: string): Promise<GetUserResponseDto | null> {
+    async getUserById(@Param('id') id: string): Promise<GetUserResponseDto> {
         return this.userService.getUserById(id);
     }
 

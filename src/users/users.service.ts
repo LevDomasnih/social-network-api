@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from 'nestjs-typegoose';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { UserModel } from './user.model';
@@ -13,7 +13,11 @@ export class UsersService {
     }
 
     async getUserById(id: string) {
-        return this.userModel.findOne({ _id: id }, { 'passwordHash': false }).exec();
+        const user = await this.userModel.findOne({ _id: id }, { 'passwordHash': false })
+
+        if (!user) { throw new BadRequestException('Пользователя не существует') }
+
+        return user
     }
 
     async getUsers() {
