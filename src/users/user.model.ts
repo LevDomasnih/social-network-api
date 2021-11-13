@@ -18,14 +18,6 @@ export class UserModel extends TimeStamps {
     @prop()
     passwordHash: string
 
-    @ApiProperty()
-    @prop({default: ''})
-    name: string
-
-    @ApiProperty()
-    @prop({default: ''})
-    surname: string
-
     @ApiProperty({ type: () => ProfileModel, default: 'ProfileId'})
     @prop({
         ref: () => 'Profile',
