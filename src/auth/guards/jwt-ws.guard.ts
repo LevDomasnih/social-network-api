@@ -3,7 +3,7 @@ import { AuthService } from '../auth.service';
 import { ExecutionContext, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class JwtWsAuthGuard extends AuthGuard('jwt') {
     constructor(
         private readonly authService: AuthService
     ) {
@@ -11,11 +11,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
-        const bearerToken = request.headers.authorization;
-        const user = await this.authService.verifyUser(bearerToken);
-        request.user = user;
+        const request = context.switchToWs().getClient()
+        const bearerToken = request.handshake.headers.authorization
+        const user = await this.authService.verifyUser(bearerToken)
+        request.user = user
 
-        return !!user;
+        return !!user
     }
 }

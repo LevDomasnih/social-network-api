@@ -9,6 +9,7 @@ import { UserModel } from '../users/user.model';
 import { Types } from 'mongoose';
 import { MessagesModel } from '../messages/messages.model';
 import { UpdateOwnersRequestDto } from './dto/update-owners-request.dto';
+import { UpdateDialogResponseDto } from './dto/update-dialog-response.dto';
 
 @Injectable()
 export class DialogsService {
@@ -26,10 +27,14 @@ export class DialogsService {
 
     async createDialog(user: UserModel, {otherOwners, ...messageData}: CreateDialogRequestDto) {
         try {
-            const newMessage = await this.messagesService.createMessage(user._id, messageData)
+            const dialogId = new Types.ObjectId()
+            const newMessage = await this.messagesService.createMessage(
+                {ownerId: user._id, dialog: dialogId, ...messageData}
+            )
             const validOwners = await this.validateOwners([user._id, ...otherOwners])
 
             const newDialog = await this.dialogsModel.create({
+                _id: dialogId,
                 owners: validOwners,
                 messages: [
                     newMessage._id
@@ -80,6 +85,31 @@ export class DialogsService {
 
             return dialog
 
+        } catch (e) {
+            throw new BadRequestException(e)
+        }
+    }
+
+    async updateDialog(user: UserModel, {dialogId, ...dto}: UpdateDialogResponseDto) {
+        try {
+            const newMessage = await this.messagesService.createMessage(
+                {ownerId: user._id, dialog: dialogId, ...dto}
+            )
+
+            const dialogs = await this.dialogsModel.findOneAndUpdate(
+                {_id: dialogId},
+                {$push: { messages: newMessage }},
+                {new: true}
+            ).exec()
+
+            if (!dialogs) { throw new BadRequestException('Диалога нет') }
+
+            const owners = dialogs.owners.map(e => e!.toString())
+
+            return {
+                newMessage,
+                owners: owners as unknown as string[],
+            }
         } catch (e) {
             throw new BadRequestException(e)
         }
