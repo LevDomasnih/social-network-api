@@ -18,12 +18,16 @@ export class ProfileModel extends TimeStamps {
     owner: Ref<UserModel>
 
     @ApiProperty()
-    @prop({default: ''})
-    name: string
+    @prop({default: '', required: true})
+    firstName: string
 
     @ApiProperty()
-    @prop({default: ''})
-    surname: string
+    @prop({default: '', required: true})
+    lastName: string
+
+    @ApiProperty()
+    @prop({default: '', required: true})
+    phone: string
 
     @ApiProperty()
     @prop({default: ''})

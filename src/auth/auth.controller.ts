@@ -4,6 +4,7 @@ import { AuthRequestDto } from './dto/auth-request.dto';
 import { AuthLoginResponseDto } from './dto/auth-login-response.dto';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { AuthRegisterResponseDto } from './dto/auth-register-response.dto';
+import { AuthLoginDto } from './dto/auth-login.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -33,7 +34,7 @@ export class AuthController {
         description: 'User login',
         type: AuthLoginResponseDto,
     })
-    async login(@Body() { login, password }: AuthRequestDto): Promise<AuthLoginResponseDto> {
+    async login(@Body() { login, password }: AuthLoginDto): Promise<AuthLoginResponseDto> {
         const { email } = await this.authService.validateUser(login, password);
         return this.authService.login(email);
     }

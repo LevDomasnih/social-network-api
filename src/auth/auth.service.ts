@@ -19,14 +19,15 @@ export class AuthService {
     ) {
     }
 
-    async createUser(dto: AuthRequestDto) {
+    async createUser({ login, password, ...dto }: AuthRequestDto) {
         const salt = await genSalt(10);
 
         const userId = new Types.ObjectId()
 
         const newProfile = await this.profileModel.create({
             _id: new Types.ObjectId(),
-            owner: userId
+            owner: userId,
+            ...dto
         })
         const newFollow = await this.followModel.create({
             _id: new Types.ObjectId(),
@@ -35,8 +36,8 @@ export class AuthService {
 
         return this.userModel.create({
             _id: userId,
-            email: dto.login,
-            passwordHash: await hash(dto.password, salt),
+            email: login,
+            passwordHash: await hash(password, salt),
             profile: newProfile._id,
             follow: newFollow._id
         });
