@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { AuthRequestDto } from './dto/auth-request.dto';
+import { AuthRegisterRequestDto } from './dto/auth-register-request.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from 'nestjs-typegoose';
@@ -19,7 +19,7 @@ export class AuthService {
     ) {
     }
 
-    async createUser({ login, password, ...dto }: AuthRequestDto) {
+    async createUser({ email, password, ...dto }: AuthRegisterRequestDto) {
         const salt = await genSalt(10);
 
         const userId = new Types.ObjectId()
@@ -36,7 +36,7 @@ export class AuthService {
 
         return this.userModel.create({
             _id: userId,
-            email: login,
+            email,
             passwordHash: await hash(password, salt),
             profile: newProfile._id,
             follow: newFollow._id

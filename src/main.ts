@@ -6,7 +6,10 @@ import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    forbidNonWhitelisted: true,
+    whitelist: true,
+  }));
   const config = new DocumentBuilder()
       .setTitle('Social network')
       .setDescription('Social network API ')
