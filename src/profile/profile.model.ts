@@ -9,7 +9,7 @@ export interface ProfileModel extends Base {
 
 export class ProfileModel extends TimeStamps {
 
-    @ApiProperty({type: () => UserModel, default: ['ownerId']})
+    @ApiProperty({type: () => UserModel, default: 'ownerId'})
     @prop({
         ref: () => 'User',
         type: () => Types.ObjectId,

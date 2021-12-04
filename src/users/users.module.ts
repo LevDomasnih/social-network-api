@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { UserModel } from './user.model';
 import { FollowModel } from '../follow/follow.model';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
     controllers: [UsersController],
@@ -22,6 +23,7 @@ import { FollowModel } from '../follow/follow.model';
                 }
             }
         ]),
+        AuthModule
     ],
     exports: [UsersService],
     providers: [UsersService]
