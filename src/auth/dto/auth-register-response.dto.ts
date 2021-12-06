@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/swagger';
-import { UserModel } from '../../users/user.model';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
-export class AuthRegisterResponseDto extends PartialType(UserModel) { }
+export class AuthRegisterResponseDto {
+
+  @IsString()
+  @ApiProperty()
+  access_token: string
+}
