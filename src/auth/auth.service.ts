@@ -51,6 +51,10 @@ export class AuthService {
         }
     }
 
+    async isValidEmail(dto: {email: string}) {
+        return this.userModel.exists({...dto})
+    }
+
     private async createAccessToken(email: string) {
         const payload = { email };
         return {

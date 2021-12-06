@@ -29,4 +29,14 @@ export class AuthController {
     async login(@Body() dto: AuthLoginRequestDto): Promise<AuthLoginResponseDto> {
         return this.authService.login(dto);
     }
+
+    @HttpCode(200)
+    @Post('validate')
+    @ApiCreatedResponse({
+        description: 'is valid email',
+        type: Boolean,
+    })
+    async isValidEmail(@Body() dto: {email: string}) {
+        return this.authService.isValidEmail(dto)
+    }
 }
