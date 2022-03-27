@@ -6,34 +6,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getJWTConfig } from '../configs/jwt.config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { UserModel } from '../users/user.model';
-import { ProfileModel } from '../profile/profile.model';
-import { FollowModel } from '../follow/follow.model';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserEntity } from '../users/user.entity';
+import { ProfileEntity } from '../profile/profile.entity';
+import { PostEntity } from '../posts/post.entity';
+import { FollowEntity } from '../follow/follow.entity';
+import { UsersRepository } from '../users/users.repository';
 
 @Module({
     controllers: [AuthController],
     imports: [
-        TypegooseModule.forFeature([
-            {
-                typegooseClass: UserModel,
-                schemaOptions: {
-                    collection: 'User'
-                }
-            },
-            {
-                typegooseClass: ProfileModel,
-                schemaOptions: {
-                    collection: 'Profile'
-                }
-            },
-            {
-                typegooseClass: FollowModel,
-                schemaOptions: {
-                    collection: 'Follow'
-                }
-            }
-        ]),
+        TypeOrmModule.forFeature([UserEntity, ProfileEntity, PostEntity, FollowEntity, UsersRepository]),
         ConfigModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],

@@ -9,6 +9,8 @@ import { FollowModule } from './follow/follow.module';
 import { PostsModule } from './posts/posts.module';
 import { DialogsModule } from './dialogs/dialogs.module';
 import { MessagesModule } from './messages/messages.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmConfig } from './configs/typeorm.config';
 
 @Module({
   imports: [
@@ -17,6 +19,11 @@ import { MessagesModule } from './messages/messages.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: getMongoConfig
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: typeOrmConfig,
+      inject: [ConfigService]
     }),
     AuthModule,
     ProfileModule,

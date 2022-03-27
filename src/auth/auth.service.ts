@@ -2,27 +2,28 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { AuthRegisterRequestDto } from './dto/auth-register-request.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from 'nestjs-typegoose';
-import { UserModel } from '../users/user.model';
-import { ModelType } from '@typegoose/typegoose/lib/types';
-import { ProfileModel } from '../profile/profile.model';
-import { Types } from 'mongoose';
-import { FollowModel } from '../follow/follow.model';
 import { AuthLoginRequestDto } from './dto/auth-login-request.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ProfileEntity } from '../profile/profile.entity';
+import { PostEntity } from '../posts/post.entity';
+import { FollowEntity } from '../follow/follow.entity';
+import { UsersRepository } from '../users/users.repository';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
-        @InjectModel(ProfileModel) private readonly profileModel: ModelType<ProfileModel>,
-        @InjectModel(FollowModel) private readonly followModel: ModelType<FollowModel>,
-        private readonly jwtService: JwtService
+        private readonly userRepository: UsersRepository,
+        @InjectRepository(ProfileEntity) private readonly profileRepository: Repository<ProfileEntity>,
+        @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
+        @InjectRepository(FollowEntity) private readonly followRepository: Repository<FollowEntity>,
+        private readonly jwtService: JwtService,
     ) {
     }
 
-    async login({email, password}: AuthLoginRequestDto) {
-        await this.validateUser(email, password);
-        return this.createAccessToken(email)
+    async login({ login, password }: AuthLoginRequestDto) {
+        const { email } = await this.validateUser(login, password);
+        return this.createAccessToken(email);
     }
 
     async register(dto: AuthRegisterRequestDto) {
@@ -39,65 +40,62 @@ export class AuthService {
         try {
             const decodeData = await this.jwtService.verifyAsync(token.split(' ')[1]);
 
-            const user = await this.userModel.findOne({email: decodeData.email, options}).exec()
+            const user = await this.userRepository.findOne({ email: decodeData.email });
 
             if (!user) {
                 throw new BadRequestException('Данного пользователя не существует');
             }
 
-            return user
+            return user;
         } catch (e) {
             throw new BadRequestException(e);
         }
     }
 
-    async isValidEmail(dto: {email: string}) {
-        return this.userModel.exists({...dto})
+    async isValidEmail(dto: { email: string }) {
+        return this.userRepository.existsByOptions(dto)
     }
 
     private async createAccessToken(email: string) {
         const payload = { email };
         return {
-            access_token: await this.jwtService.signAsync(payload)
+            access_token: await this.jwtService.signAsync(payload),
         };
     }
 
-    private async createUser({ email, password, ...dto }: AuthRegisterRequestDto) {
+    private async createUser({ email, password, login, ...dto }: AuthRegisterRequestDto) {
         const salt = await genSalt(10);
 
-        const userId = new Types.ObjectId()
-
         try {
-            const newProfile = await this.profileModel.create({
-                _id: new Types.ObjectId(),
-                owner: userId,
-                ...dto
-            })
-            const newFollow = await this.followModel.create({
-                _id: new Types.ObjectId(),
-                userId
-            })
-
-            await this.userModel.create({
-                _id: userId,
-                email,
+            const userInstance = this.userRepository.create({
+                email: email,
                 passwordHash: await hash(password, salt),
-                profile: newProfile._id,
-                follow: newFollow._id
+                login,
+            });
+            const user = await this.userRepository.save(userInstance);
+            const follow = await this.followRepository.create({
+                owner: user,
+            });
+            const profile = this.profileRepository.create({
+                owner: user,
+                ...dto,
             });
 
-            return this.createAccessToken(email)
+            await this.followRepository.save(follow);
+            await this.profileRepository.save(profile);
+
+            return this.createAccessToken(email);
         } catch (e) {
-            throw new BadRequestException(e)
+            throw new BadRequestException(e);
         }
     }
 
-    private async findUser(email: string) {
-        return this.userModel.findOne({ email }).exec();
+    private async findUser(login: string) {
+        return this.userRepository.findOne({ login });
     }
 
-    private async validateUser(email: string, password: string) {
-        const user = await this.findUser(email);
+    private async validateUser(login: string, password: string) {
+        const user = await this.findUser(login);
         if (!user) {
             throw new UnauthorizedException('Данного пользователя не существует');
         }

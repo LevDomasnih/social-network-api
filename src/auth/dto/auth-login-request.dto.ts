@@ -5,7 +5,7 @@ export class AuthLoginRequestDto {
 
     @IsString()
     @ApiProperty()
-    email: string
+    login: string
 
     @IsString()
     @ApiProperty()
