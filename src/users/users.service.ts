@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FollowEntity } from '../follow/follow.entity';
-import { createQueryBuilder, getManager, Repository } from 'typeorm';
+import { createQueryBuilder, Repository } from 'typeorm';
 import { SubscribersEntity } from '../follow/subscribers.entity';
 
 @Injectable()
@@ -23,7 +23,9 @@ export class UsersService {
     async getUserById(id: string) {
         const user = await this.usersRepository.findOne(id);
 
-        if (!user) { throw new BadRequestException('Пользователя не существует') }
+        if (!user) {
+            throw new BadRequestException('Пользователя не существует');
+        }
 
         return user;
     }
@@ -42,10 +44,10 @@ export class UsersService {
         // `)
         return createQueryBuilder()
             .select()
-            .from(FollowEntity ,'follow')
+            .from(FollowEntity, 'follow')
             .where('follow.id = :id', { id })
             .innerJoinAndSelect('follow.subscriber', '')
             .innerJoinAndSelect('follow.owner', 'owner')
-            .execute()
+            .execute();
     }
 }

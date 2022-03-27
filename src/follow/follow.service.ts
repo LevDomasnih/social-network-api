@@ -5,23 +5,33 @@ import { UserModel } from '../users/user.model';
 import { FollowRequestDto } from './dto/follow-request.dto';
 import { FollowModel } from './follow.model';
 import { Types } from 'mongoose';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FollowEntity } from './follow.entity';
+import { createQueryBuilder, In, Repository } from 'typeorm';
+import { UsersRepository } from '../users/users.repository';
+import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
+import { UserEntity } from '../users/user.entity';
+import { SubscribersEntity } from './subscribers.entity';
 
 @Injectable()
 export class FollowService {
     constructor(
+        private readonly userRepository: UsersRepository,
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
-        @InjectModel(FollowModel) private readonly followModel: ModelType<FollowModel>
+        @InjectModel(FollowModel) private readonly followModel: ModelType<FollowModel>,
+        @InjectRepository(FollowEntity) private readonly followRepository: Repository<FollowEntity>,
+        @InjectRepository(SubscribersEntity) private readonly subscribersRepository: Repository<SubscribersEntity>,
     ) { }
 
-    async findUser(followUser: string) {
-        return this.userModel.findOne({ _id: followUser }).exec();
+    async findUser(followUser: string, options?: FindOneOptions<UserEntity>) {
+        return this.userRepository.findOne({ id: followUser }, options);
     }
 
     async follow(dto: FollowRequestDto) {
-        const followUser = await this.findUser(dto.followUserId);
-        const user = await this.findUser(dto.userId);
+        const subscriberOwner = (await this.findUser(dto.followUserId, { relations: ['follow'] }))?.follow;
+        const subscriber = (await this.findUser(dto.userId, { relations: ['follow'] }))?.follow;
 
-        if (!followUser || !user) {
+        if (!subscriberOwner || !subscriber) {
             throw new BadRequestException('Данного пользователя не существует');
         }
 
@@ -29,24 +39,25 @@ export class FollowService {
             throw new BadRequestException('Пользователь не может подписаться сам на себя');
         }
 
-        const followUserId = new Types.ObjectId(dto.followUserId)
-
-        const userIsFollow = await this.followModel
-            .findOne({
-                _id: user.follow!._id,
-                followUser: { $in: [followUserId] }
-            })
+        const userIsFollow = await createQueryBuilder()
+            .select()
+            .from(FollowEntity, 'follow')
+            .where('follow.id = :followId', { followId: subscriber.id })
+            .innerJoinAndSelect('follow.subscriber', 's')
+            .andWhere('s.subscriberOwnerId NOT IN (:...ids)', {ids: [subscriberOwner.id]})
+            .execute();
 
         if (userIsFollow) {
             throw new BadRequestException('Пользователь уже подписан');
         }
 
-        const newFollow = await this.followModel
-            .findOneAndUpdate(
-                { _id: user.follow!._id },
-                { $push: {followUser: followUserId}},
-                { new: true }
-            ).exec()
+        const follow1 = await this.followRepository.findOne(subscriber.id)
+        const follow2 = await this.followRepository.findOne(subscriberOwner.id)
+
+        const newFollow = await this.subscribersRepository.save({
+            subscriber: follow1,
+            subscriberOwner: follow2
+        })
 
         if (!newFollow) { throw new BadRequestException('Не удалось подписаться') }
 
@@ -67,27 +78,27 @@ export class FollowService {
 
         const followUserId = new Types.ObjectId(dto.followUserId)
 
-        const userIsFollow = await this.followModel
-            .findOne({
-                _id: user.follow!._id,
-                followUser: { $in: [followUserId] }
-            })
-
-        if (!userIsFollow) {
-            throw new BadRequestException('Пользователь не подписан');
-        }
-
-
-
-        const newFollow = await this.followModel
-            .findOneAndUpdate(
-                { _id: user.follow!._id },
-                { $pull: {followUser: followUserId} },
-                { new: true }
-            ).exec();
-
-        if (!newFollow) { throw new BadRequestException('Не удалось отписаться') }
-
-        return newFollow
+        // const userIsFollow = await this.followModel
+        //     .findOne({
+        //         _id: user.follow!._id,
+        //         followUser: { $in: [followUserId] }
+        //     })
+        //
+        // if (!userIsFollow) {
+        //     throw new BadRequestException('Пользователь не подписан');
+        // }
+        //
+        //
+        //
+        // const newFollow = await this.followModel
+        //     .findOneAndUpdate(
+        //         { _id: user.follow!._id },
+        //         { $pull: {followUser: followUserId} },
+        //         { new: true }
+        //     ).exec();
+        //
+        // if (!newFollow) { throw new BadRequestException('Не удалось отписаться') }
+        //
+        // return newFollow
     }
 }

@@ -17,7 +17,7 @@ export class FollowController {
         description: 'Follow',
         type: FollowResponseDto,
     })
-    async follow(@Body() dto: FollowRequestDto): Promise<FollowResponseDto> {
+    async follow(@Body() dto: FollowRequestDto) {
         return this.followService.follow(dto);
     }
 
@@ -27,7 +27,7 @@ export class FollowController {
         description: 'Unfollow',
         type: FollowResponseDto,
     })
-    async unfollow(@Body() dto: FollowRequestDto): Promise<FollowResponseDto> {
+    async unfollow(@Body() dto: FollowRequestDto) {
         return this.followService.unfollow(dto);
     }
 }
