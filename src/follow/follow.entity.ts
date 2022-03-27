@@ -1,6 +1,7 @@
 import { Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
+import { SubscribersEntity } from './subscribers.entity';
 
 @Entity('follow')
 export class FollowEntity {
@@ -13,7 +14,11 @@ export class FollowEntity {
     @JoinColumn()
     owner: UserEntity;
 
-    @ApiProperty({ type: () => UserEntity, default: ['userId'] })
-    @OneToMany(() => UserEntity, user => user.id)
-    followUser: UserEntity[];
+    @ApiProperty({ type: () => SubscribersEntity, default: ['userId'] })
+    @OneToMany(() => SubscribersEntity, follow => follow.subscriber)
+    subscriber: FollowEntity[];
+
+    @ApiProperty({ type: () => SubscribersEntity, default: ['userId'] })
+    @OneToMany(() => SubscribersEntity, follow => follow.subscriberOwner)
+    subscriberOwner: FollowEntity[];
 }

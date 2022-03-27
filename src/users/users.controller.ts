@@ -21,7 +21,7 @@ export class UsersController {
         description: 'Get users',
         type: [GetUserResponseDto],
     })
-    async getUsers(): Promise<GetUserResponseDto[]> {
+    async getUsers() {
         return this.userService.getUsers();
     }
 
@@ -32,7 +32,7 @@ export class UsersController {
         description: 'Get me',
         type: GetUserMeResponseDto,
     })
-    async getMe(@User() user: UserModel): Promise<GetUserMeResponseDto> {
+    async getMe(@User() user: UserModel) {
         return this.userService.getMe(user.id);
     }
 
@@ -41,7 +41,7 @@ export class UsersController {
         description: 'Get user by id',
         type: () => GetUserResponseDto,
     })
-    async getUserById(@Param('id') id: string): Promise<GetUserResponseDto> {
+    async getUserById(@Param('id') id: string) {
         return this.userService.getUserById(id);
     }
 
@@ -50,7 +50,7 @@ export class UsersController {
         type: [GetUserResponseDto],
     })
     @Get('follow/:id')
-    async getFollowUsers(@Param('id') id: string): Promise<Ref<GetUserResponseDto>[]> {
+    async getFollowUsers(@Param('id') id: string) {
         return this.userService.getFollowUsers(id);
     }
 }

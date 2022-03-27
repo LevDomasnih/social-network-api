@@ -1,28 +1,16 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { UserModel } from './user.model';
-import { FollowModel } from '../follow/follow.model';
 import { AuthModule } from '../auth/auth.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersRepository } from './users.repository';
+import { FollowEntity } from '../follow/follow.entity';
+import { SubscribersEntity } from '../follow/subscribers.entity';
 
 @Module({
     controllers: [UsersController],
     imports: [
-        TypegooseModule.forFeature([
-            {
-                typegooseClass: UserModel,
-                schemaOptions: {
-                    collection: 'User'
-                }
-            },
-            {
-                typegooseClass: FollowModel,
-                schemaOptions: {
-                    collection: 'Follow'
-                }
-            }
-        ]),
+        TypeOrmModule.forFeature([UsersRepository, FollowEntity, SubscribersEntity]),
         AuthModule
     ],
     exports: [UsersService],

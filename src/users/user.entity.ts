@@ -16,7 +16,7 @@ export class UserEntity {
     email: string;
 
     @ApiProperty()
-    @Column({ name: 'password_hash' })
+    @Column({ name: 'password_hash', select: false })
     passwordHash: string;
 
     @ApiProperty()
