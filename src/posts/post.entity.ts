@@ -30,7 +30,7 @@ export class PostEntity {
 
     @ApiProperty({type: () => [PostEntity]})
     @ManyToOne(() => PostEntity, post => post.childrenPosts)
-    parentPosts: PostEntity[]
+    parentPosts: PostEntity
 
     @ApiProperty({type: () => [PostEntity]})
     @OneToMany(() => PostEntity, post => post.parentPosts)

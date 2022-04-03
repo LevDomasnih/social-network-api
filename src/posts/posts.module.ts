@@ -7,10 +7,14 @@ import { MulterModule } from '@nestjs/platform-express';
 import { UserModel } from '../users/user.model';
 import { PostsGateway } from './posts.gateway';
 import { AuthModule } from '../auth/auth.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { PostEntity } from './post.entity';
+import { UserEntity } from '../users/user.entity';
 
 @Module({
     controllers: [PostsController],
     imports: [
+        TypeOrmModule.forFeature([PostEntity, UserEntity]),
         TypegooseModule.forFeature([
             {
                 typegooseClass: PostsModel,

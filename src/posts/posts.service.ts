@@ -6,27 +6,28 @@ import { CreatePostRequestDto } from './dto/create-post-request.dto';
 import { Express } from 'express';
 import { UserModel } from '../users/user.model';
 import { unlink } from 'fs/promises';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from '../users/user.entity';
+import { Repository } from 'typeorm';
+import { PostEntity } from './post.entity';
 
 @Injectable()
 export class PostsService {
     constructor(
         @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
         @InjectModel(PostsModel) private readonly postsModel: ModelType<PostsModel>,
+        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+        @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
     ) {
     }
 
-    async createPost(user: UserModel, file: Express.Multer.File, dto: CreatePostRequestDto) {
+    async createPost(user: UserEntity, file: Express.Multer.File, dto: CreatePostRequestDto) {
         try {
-            const newPost = await this.postsModel.create({
+            const newPost = await this.postRepository.save({
                 image: file?.filename || '',
-                owner: user._id,
-                ...dto,
-            });
-
-            await this.userModel.findOneAndUpdate(
-                { _id: user._id },
-                { $push: { posts: newPost._id } },
-            );
+                owner: await this.userRepository.findOne(user.id),
+                ...dto
+            })
 
             return newPost;
 
@@ -36,39 +37,26 @@ export class PostsService {
     }
 
     async createComment(
-        user: UserModel, parentId: string,
+        user: UserEntity, parentId: string,
         file: Express.Multer.File, dto: CreatePostRequestDto
     ) {
       try {
-          const parentPost = await this.postsModel.findById(parentId);
+          const parentPost = await this.postRepository.findOne({ id: parentId })
 
           if (!parentPost) {
               throw new BadRequestException('Пост не существует');
           }
 
-          const newPost = await this.postsModel.create({
+          const newPost = await this.postRepository.save({
               image: file.filename || '',
-              owner: user._id,
+              owner: await this.userRepository.findOne(user.id),
               ...dto,
-          });
+              parentPosts: parentPost
+          })
 
-          const createdPost = await this.postsModel.findOneAndUpdate(
-              { _id: parentId },
-              { $push: { comments: newPost._id } },
-              { new: true },
-          )
-              .populate({
-                  path: 'comments',
-                  model: PostsModel,
-                  transform: (doc: PostsModel) => {
-                      doc.image = `http://localhost:3000/files/${doc.image}`
-                      return doc
-                  }
-              });
+          if (!newPost) { throw new BadRequestException('Пост не был создан')}
 
-          if (!createdPost) { throw new BadRequestException('Пост не был создан')}
-
-          return createdPost
+          return newPost
 
       } catch (e) {
           throw new BadRequestException(e)

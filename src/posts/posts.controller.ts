@@ -31,6 +31,7 @@ import { Ref } from '@typegoose/typegoose';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 import { User } from '../decorators/user.decorator';
 import { UserModel } from '../users/user.model';
+import { UserEntity } from '../users/user.entity';
 
 function SwaggerApi(createdResponse: ApiResponseOptions) {
     return applyDecorators(
@@ -55,13 +56,12 @@ export class PostsController {
     }))
     @SwaggerApi({
         description: 'Create Post',
-        type: CreatePostResponseDto,
     })
     async createPost(
-        @User() user: UserModel,
+        @User() user: UserEntity,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreatePostRequestDto
-    ) : Promise<CreatePostResponseDto> {
+    ) {
         return this.postsService.createPost(user, file, dto)
     }
 
@@ -72,14 +72,13 @@ export class PostsController {
     }))
     @SwaggerApi({
         description: 'Create comment',
-        type: CreateCommentResponseDto,
     })
     async createComment(
-        @User() user: UserModel,
+        @User() user: UserEntity,
         @Param('parentId', IdValidationPipe) parentId: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreateCommentRequestDto
-    ): Promise<CreateCommentResponseDto> {
+    ) {
         return this.postsService.createComment(user, parentId, file, dto)
     }
 
