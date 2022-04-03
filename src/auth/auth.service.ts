@@ -22,6 +22,7 @@ export class AuthService {
     }
 
     async login({ login, password }: AuthLoginRequestDto) {
+        console.log(login, password);
         const { email } = await this.validateUser(login, password);
         return this.createAccessToken(email);
     }
@@ -91,7 +92,7 @@ export class AuthService {
     }
 
     private async findUser(login: string) {
-        return this.userRepository.findOne({ login });
+        return this.userRepository.findOne({ login }, { select: ['passwordHash', 'email'] });
     }
 
     private async validateUser(login: string, password: string) {

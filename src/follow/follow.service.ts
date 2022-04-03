@@ -27,15 +27,15 @@ export class FollowService {
         return this.userRepository.findOne({ id: followUser }, options);
     }
 
-    async follow(dto: FollowRequestDto) {
-        const subscriberOwner = (await this.findUser(dto.followUserId, { relations: ['follow'] }))?.follow;
-        const subscriber = (await this.findUser(dto.userId, { relations: ['follow'] }))?.follow;
+    async follow(subscriberId: string, ownerId: string) {
+        const subscriberOwner = (await this.findUser(ownerId, { relations: ['follow'] }))?.follow;
+        const subscriber = (await this.findUser(subscriberId, { relations: ['follow'] }))?.follow;
 
         if (!subscriberOwner || !subscriber) {
             throw new BadRequestException('Данного пользователя не существует');
         }
 
-        if (dto.followUserId === dto.userId) {
+        if (ownerId === subscriberId) {
             throw new BadRequestException('Пользователь не может подписаться сам на себя');
         }
 
@@ -44,10 +44,10 @@ export class FollowService {
             .from(FollowEntity, 'follow')
             .where('follow.id = :followId', { followId: subscriber.id })
             .innerJoinAndSelect('follow.subscriber', 's')
-            .andWhere('s.subscriberOwnerId NOT IN (:...ids)', {ids: [subscriberOwner.id]})
+            .andWhere('s.subscriberOwnerId = :ownerId', {ownerId: subscriberOwner.id})
             .execute();
 
-        if (userIsFollow) {
+        if (!!userIsFollow.length) {
             throw new BadRequestException('Пользователь уже подписан');
         }
 
@@ -64,19 +64,19 @@ export class FollowService {
         return newFollow
     }
 
-    async unfollow(dto: FollowRequestDto) {
-        const followUser = await this.findUser(dto.followUserId);
-        const user = await this.findUser(dto.userId);
-
-        if (!followUser || !user) {
-            throw new BadRequestException('Данного пользователя не существует');
-        }
-
-        if (dto.followUserId === dto.userId) {
-            throw new BadRequestException('Пользователь не может отписаться от себя');
-        }
-
-        const followUserId = new Types.ObjectId(dto.followUserId)
+    async unfollow(subscriberId: string, ownerId: string) {
+        // const followUser = await this.findUser(dto.followUserId);
+        // const user = await this.findUser(dto.userId);
+        //
+        // if (!followUser || !user) {
+        //     throw new BadRequestException('Данного пользователя не существует');
+        // }
+        //
+        // if (dto.followUserId === dto.userId) {
+        //     throw new BadRequestException('Пользователь не может отписаться от себя');
+        // }
+        //
+        // const followUserId = new Types.ObjectId(dto.followUserId)
 
         // const userIsFollow = await this.followModel
         //     .findOne({
