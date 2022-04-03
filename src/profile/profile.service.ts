@@ -1,39 +1,41 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { ModelType } from '@typegoose/typegoose/lib/types';
 import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
-import { UserModel } from '../users/user.model';
-import { ProfileModel } from './profile.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ProfileEntity } from './profile.entity';
+import { UserEntity } from '../users/user.entity';
 
 @Injectable()
 export class ProfileService {
     constructor(
-        @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
-        @InjectModel(ProfileModel) private readonly profileModel: ModelType<ProfileModel>,
-    ) { }
+        @InjectRepository(ProfileEntity) private readonly profileRepository: Repository<ProfileEntity>,
+        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+    ) {
+    }
 
-    async updateProfile(user: UserModel, dto: UpdateProfileRequestDto ) {
-        const profile = await this.profileModel
-            .findOneAndUpdate(
-                { owner: user._id },
-                { ...dto },
-                { new: true}
-            ).exec()
+    async updateProfile(user: UserEntity, dto: UpdateProfileRequestDto) {
+        const owner = await this.userRepository.findOne(user.id);
 
-        if (!profile) {
-            throw new BadRequestException('Профиль отсутствует')
+        if (!owner) {
+            throw new BadRequestException('Профиль отсутствует');
         }
 
-        return profile
+        const profile = await this.profileRepository.update(
+            { owner },
+            { ...dto },
+        );
+
+        return profile.affected === 1;
     }
 
     async findProfile(userId: string) {
-        const profile = await this.profileModel.findById(userId)
+        const owner = await this.userRepository.findOne(userId);
+        const profile = await this.profileRepository.findOne({ owner });
 
         if (!profile) {
-            throw new BadRequestException('Профиль отсутствует')
+            throw new BadRequestException('Профиль отсутствует');
         }
 
-        return profile
+        return profile;
     }
 }
