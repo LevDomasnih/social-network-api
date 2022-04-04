@@ -8,7 +8,7 @@ import { UserModel } from '../users/user.model';
 import { unlink } from 'fs/promises';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../users/user.entity';
-import { Repository } from 'typeorm';
+import { createQueryBuilder, Repository } from 'typeorm';
 import { PostEntity } from './post.entity';
 
 @Injectable()
@@ -23,14 +23,11 @@ export class PostsService {
 
     async createPost(user: UserEntity, file: Express.Multer.File, dto: CreatePostRequestDto) {
         try {
-            const newPost = await this.postRepository.save({
+            return this.postRepository.save({
                 image: file?.filename || '',
                 owner: await this.userRepository.findOne(user.id),
                 ...dto
             })
-
-            return newPost;
-
         } catch (e) {
             throw new BadRequestException(e);
         }
@@ -64,11 +61,11 @@ export class PostsService {
     }
 
     async updatePost(
-        user: UserModel, id: string,
+        user: UserEntity, postId: string,
         file: Express.Multer.File, {text}: CreatePostRequestDto
     ) {
         try {
-            const oldPost = await this.postsModel.findById(id).exec()
+            const oldPost = await this.postRepository.findOne({ id: postId })
 
             const oldImageName = oldPost?.image
 
@@ -76,18 +73,17 @@ export class PostsService {
                 await unlink(`files/${oldImageName}`)
             }
 
-            const updatedPost = await this.postsModel.findOneAndUpdate(
-                {_id: id},
+            const updatedPost = await this.postRepository.update(
+                { id: postId },
                 {
                     text,
                     image: file.filename
-                },
-                {new: true}
+                }
             )
 
-            if (!updatedPost) { throw new BadRequestException('Пост не был обновлен') }
+            if (!updatedPost.affected) { throw new BadRequestException('Пост не был обновлен') }
 
-            return updatedPost
+            return updatedPost // TODO
 
         } catch (e) {
             throw new BadRequestException(e)
@@ -98,19 +94,12 @@ export class PostsService {
 
     }
 
-    async getPostsOfUser(id: string) {
-        const posts = await this.userModel.findById(id)
-            .populate({
-                path: 'posts',
-                model: PostsModel,
-                populate: {
-                    path: 'comments',
-                    model: PostsModel,
-                },
-            }).exec()
-            .then(doc => {
-                return doc?.posts;
-            });
+    async getPostsOfUser(userId: string) {
+        const posts = await createQueryBuilder('users', 'u')
+            .where('u.id = :userId', { userId: userId })
+            .leftJoinAndSelect('u.posts', 'post')
+            .leftJoinAndSelect('post.childrenPosts', 'comments')
+            .getMany()
 
         if (!posts) { throw new BadRequestException('Постов нет')}
 

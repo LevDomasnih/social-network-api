@@ -92,13 +92,13 @@ export class PostsController {
         type: UpdatePostResponseDto,
     })
     async updatePost(
-        @User() user: UserModel,
+        @User() user: UserEntity,
         @Headers('authorization') authorization: string,
-        @Param('id', IdValidationPipe) id: string,
+        @Param('id', IdValidationPipe) postId: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: UpdatePostRequestDto
-    ): Promise<UpdatePostResponseDto> {
-        return this.postsService.updatePost(user, id, file, dto)
+    ) {
+        return this.postsService.updatePost(user, postId, file, dto)
     }
 
     @Get(':image')
@@ -116,8 +116,8 @@ export class PostsController {
         type: [GetUserPostsResponseDto],
     })
     async getPostsOfUser(
-        @Param('id', IdValidationPipe) id: string
-    ): Promise<Ref<GetUserPostsResponseDto>[]> {
-        return this.postsService.getPostsOfUser(id)
+        @Param('id', IdValidationPipe) userId: string
+    ) {
+        return this.postsService.getPostsOfUser(userId)
     }
 }
