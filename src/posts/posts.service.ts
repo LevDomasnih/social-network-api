@@ -1,10 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { PostsModel } from './posts.model';
-import { ModelType } from '@typegoose/typegoose/lib/types';
 import { CreatePostRequestDto } from './dto/create-post-request.dto';
 import { Express } from 'express';
-import { UserModel } from '../users/user.model';
 import { unlink } from 'fs/promises';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../users/user.entity';
@@ -14,8 +10,6 @@ import { PostEntity } from './post.entity';
 @Injectable()
 export class PostsService {
     constructor(
-        @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
-        @InjectModel(PostsModel) private readonly postsModel: ModelType<PostsModel>,
         @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
         @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
     ) {
@@ -26,8 +20,8 @@ export class PostsService {
             return this.postRepository.save({
                 image: file?.filename || '',
                 owner: await this.userRepository.findOne(user.id),
-                ...dto
-            })
+                ...dto,
+            });
         } catch (e) {
             throw new BadRequestException(e);
         }
@@ -35,58 +29,62 @@ export class PostsService {
 
     async createComment(
         user: UserEntity, parentId: string,
-        file: Express.Multer.File, dto: CreatePostRequestDto
+        file: Express.Multer.File, dto: CreatePostRequestDto,
     ) {
-      try {
-          const parentPost = await this.postRepository.findOne({ id: parentId })
+        try {
+            const parentPost = await this.postRepository.findOne({ id: parentId });
 
-          if (!parentPost) {
-              throw new BadRequestException('Пост не существует');
-          }
+            if (!parentPost) {
+                throw new BadRequestException('Пост не существует');
+            }
 
-          const newPost = await this.postRepository.save({
-              image: file.filename || '',
-              owner: await this.userRepository.findOne(user.id),
-              ...dto,
-              parentPosts: parentPost
-          })
+            const newPost = await this.postRepository.save({
+                image: file.filename || '',
+                owner: await this.userRepository.findOne(user.id),
+                ...dto,
+                parentPosts: parentPost,
+            });
 
-          if (!newPost) { throw new BadRequestException('Пост не был создан')}
+            if (!newPost) {
+                throw new BadRequestException('Пост не был создан');
+            }
 
-          return newPost
+            return newPost;
 
-      } catch (e) {
-          throw new BadRequestException(e)
-      }
+        } catch (e) {
+            throw new BadRequestException(e);
+        }
     }
 
     async updatePost(
         user: UserEntity, postId: string,
-        file: Express.Multer.File, {text}: CreatePostRequestDto
+        file: Express.Multer.File, { text }: CreatePostRequestDto,
     ) {
         try {
-            const oldPost = await this.postRepository.findOne({ id: postId })
+            const oldPost = await this.postRepository.findOne({ id: postId });
 
-            const oldImageName = oldPost?.image
+            const oldImageName = oldPost?.image;
 
             if (oldImageName) {
-                await unlink(`files/${oldImageName}`)
+                await unlink(`files/${oldImageName}`);
             }
 
             const updatedPost = await this.postRepository.update(
                 { id: postId },
                 {
                     text,
-                    image: file.filename
-                }
-            )
+                    image: file.filename,
+                },
+            );
 
-            if (!updatedPost.affected) { throw new BadRequestException('Пост не был обновлен') }
+            if (!updatedPost.affected) {
+                throw new BadRequestException('Пост не был обновлен');
+            }
 
-            return updatedPost // TODO
+            return updatedPost; // TODO
 
         } catch (e) {
-            throw new BadRequestException(e)
+            throw new BadRequestException(e);
         }
     }
 
@@ -99,11 +97,13 @@ export class PostsService {
             .where('u.id = :userId', { userId: userId })
             .leftJoinAndSelect('u.posts', 'post')
             .leftJoinAndSelect('post.childrenPosts', 'comments')
-            .getMany()
+            .getMany();
 
-        if (!posts) { throw new BadRequestException('Постов нет')}
+        if (!posts) {
+            throw new BadRequestException('Постов нет');
+        }
 
-        return posts
+        return posts;
     }
 
     async getPosts() {

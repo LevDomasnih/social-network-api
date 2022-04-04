@@ -21,16 +21,12 @@ import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { IdValidationPipe } from '../pipes/id-validation.pipe';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { FileUploadDto } from './dto/file-upload.dto';
-import { CreatePostResponseDto } from './dto/create-post-response.dto';
 import { CreateCommentRequestDto } from './dto/create-comment-request.dto';
-import { CreateCommentResponseDto } from './dto/create-comment-response.dto';
 import { UpdatePostRequestDto } from './dto/update-post-request.dto';
 import { UpdatePostResponseDto } from './dto/update-post-response.dto';
 import { GetUserPostsResponseDto } from './dto/get-user-posts-response.dto';
-import { Ref } from '@typegoose/typegoose';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 import { User } from '../decorators/user.decorator';
-import { UserModel } from '../users/user.model';
 import { UserEntity } from '../users/user.entity';
 
 function SwaggerApi(createdResponse: ApiResponseOptions) {
@@ -38,7 +34,7 @@ function SwaggerApi(createdResponse: ApiResponseOptions) {
         ApiBearerAuth(),
         ApiConsumes('multipart/form-data'),
         ApiBody({ type: FileUploadDto }),
-        ApiCreatedResponse(createdResponse)
+        ApiCreatedResponse(createdResponse),
     );
 }
 
@@ -46,13 +42,14 @@ function SwaggerApi(createdResponse: ApiResponseOptions) {
 @Controller('posts')
 export class PostsController {
     constructor(
-        private readonly postsService: PostsService
-    ) { }
+        private readonly postsService: PostsService,
+    ) {
+    }
 
     @Post()
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({ destination: './files' })
+        storage: diskStorage({ destination: './files' }),
     }))
     @SwaggerApi({
         description: 'Create Post',
@@ -60,15 +57,15 @@ export class PostsController {
     async createPost(
         @User() user: UserEntity,
         @UploadedFile() file: Express.Multer.File,
-        @Body() dto: CreatePostRequestDto
+        @Body() dto: CreatePostRequestDto,
     ) {
-        return this.postsService.createPost(user, file, dto)
+        return this.postsService.createPost(user, file, dto);
     }
 
     @Post(':parentId')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({ destination: './files' })
+        storage: diskStorage({ destination: './files' }),
     }))
     @SwaggerApi({
         description: 'Create comment',
@@ -77,15 +74,15 @@ export class PostsController {
         @User() user: UserEntity,
         @Param('parentId', IdValidationPipe) parentId: string,
         @UploadedFile() file: Express.Multer.File,
-        @Body() dto: CreateCommentRequestDto
+        @Body() dto: CreateCommentRequestDto,
     ) {
-        return this.postsService.createComment(user, parentId, file, dto)
+        return this.postsService.createComment(user, parentId, file, dto);
     }
 
     @Put(':id')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({ destination: './files' })
+        storage: diskStorage({ destination: './files' }),
     }))
     @SwaggerApi({
         description: 'Update post',
@@ -96,9 +93,9 @@ export class PostsController {
         @Headers('authorization') authorization: string,
         @Param('id', IdValidationPipe) postId: string,
         @UploadedFile() file: Express.Multer.File,
-        @Body() dto: UpdatePostRequestDto
+        @Body() dto: UpdatePostRequestDto,
     ) {
-        return this.postsService.updatePost(user, postId, file, dto)
+        return this.postsService.updatePost(user, postId, file, dto);
     }
 
     @Get(':image')
@@ -107,7 +104,7 @@ export class PostsController {
         type: 'file',
     })
     async getPost(@Param('imageId') imageId: string, @Res() res: Response) {
-        res.sendFile(imageId, { root: './files'})
+        res.sendFile(imageId, { root: './files' });
     }
 
     @Get('user/:id')
@@ -116,8 +113,8 @@ export class PostsController {
         type: [GetUserPostsResponseDto],
     })
     async getPostsOfUser(
-        @Param('id', IdValidationPipe) userId: string
+        @Param('id', IdValidationPipe) userId: string,
     ) {
-        return this.postsService.getPostsOfUser(userId)
+        return this.postsService.getPostsOfUser(userId);
     }
 }
