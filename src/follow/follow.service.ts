@@ -1,8 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { ModelType } from '@typegoose/typegoose/lib/types';
-import { UserModel } from '../users/user.model';
-import { FollowModel } from './follow.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FollowEntity } from './follow.entity';
 import { createQueryBuilder, Repository } from 'typeorm';
@@ -15,8 +11,6 @@ import { SubscribersEntity } from './subscribers.entity';
 export class FollowService {
     constructor(
         private readonly userRepository: UsersRepository,
-        @InjectModel(UserModel) private readonly userModel: ModelType<UserModel>,
-        @InjectModel(FollowModel) private readonly followModel: ModelType<FollowModel>,
         @InjectRepository(FollowEntity) private readonly followRepository: Repository<FollowEntity>,
         @InjectRepository(SubscribersEntity) private readonly subscribersRepository: Repository<SubscribersEntity>,
     ) {

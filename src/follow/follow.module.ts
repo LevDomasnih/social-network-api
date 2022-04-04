@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { FollowController } from './follow.controller';
 import { FollowService } from './follow.service';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { UserModel } from '../users/user.model';
-import { FollowModel } from './follow.model';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FollowEntity } from './follow.entity';
 import { UsersRepository } from '../users/users.repository';
@@ -15,22 +12,9 @@ import { SubscribersEntity } from './subscribers.entity';
     imports: [
         TypeOrmModule.forFeature([FollowEntity, UsersRepository, SubscribersEntity]),
         AuthModule,
-        TypegooseModule.forFeature([
-            {
-                typegooseClass: UserModel,
-                schemaOptions: {
-                    collection: 'User'
-                }
-            },
-            {
-                typegooseClass: FollowModel,
-                schemaOptions: {
-                    collection: 'Follow'
-                }
-            }
-        ]),
     ],
     exports: [FollowService],
-    providers: [FollowService]
+    providers: [FollowService],
 })
-export class FollowModule {}
+export class FollowModule {
+}
