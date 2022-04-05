@@ -4,14 +4,14 @@ import { Express } from 'express';
 import { unlink } from 'fs/promises';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../users/user.entity';
-import { createQueryBuilder, Repository } from 'typeorm';
-import { PostEntity } from './post.entity';
+import { Repository } from 'typeorm';
+import { PostsRepository } from './posts.repository';
 
 @Injectable()
 export class PostsService {
     constructor(
         @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
-        @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
+        private readonly postRepository: PostsRepository,
     ) {
     }
 
@@ -93,11 +93,7 @@ export class PostsService {
     }
 
     async getPostsOfUser(userId: string) {
-        const posts = await createQueryBuilder('users', 'u')
-            .where('u.id = :userId', { userId: userId })
-            .leftJoinAndSelect('u.posts', 'post')
-            .leftJoinAndSelect('post.childrenPosts', 'comments')
-            .getMany();
+        const posts = await this.postRepository.getPostAndCommentsByUserId(userId)
 
         if (!posts) {
             throw new BadRequestException('Постов нет');
