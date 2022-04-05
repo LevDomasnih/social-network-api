@@ -28,6 +28,7 @@ import { GetUserPostsResponseDto } from './dto/get-user-posts-response.dto';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 import { User } from '../decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
+import { PostWithCommentsDto } from './dto/post-with-comments.dto';
 
 function SwaggerApi(createdResponse: ApiResponseOptions) {
     return applyDecorators(
@@ -110,11 +111,11 @@ export class PostsController {
     @Get('user/:id')
     @ApiCreatedResponse({
         description: 'Get user posts',
-        type: [GetUserPostsResponseDto],
+        type: [PostWithCommentsDto],
     })
     async getPostsOfUser(
         @Param('id', IdValidationPipe) userId: string,
-    ) {
+    ): Promise<PostWithCommentsDto> {
         return this.postsService.getPostsOfUser(userId);
     }
 }

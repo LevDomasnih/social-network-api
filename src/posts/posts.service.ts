@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../users/user.entity';
 import { Repository } from 'typeorm';
 import { PostsRepository } from './posts.repository';
+import { PostWithCommentsModel } from './models/post-with-comments.model';
 
 @Injectable()
 export class PostsService {
@@ -92,14 +93,8 @@ export class PostsService {
 
     }
 
-    async getPostsOfUser(userId: string) {
-        const posts = await this.postRepository.getPostAndCommentsByUserId(userId)
-
-        if (!posts) {
-            throw new BadRequestException('Постов нет');
-        }
-
-        return posts;
+    async getPostsOfUser(userId: string): Promise<PostWithCommentsModel> {
+        return this.postRepository.getPostAndCommentsByUserId(userId)
     }
 
     async getPosts() {
