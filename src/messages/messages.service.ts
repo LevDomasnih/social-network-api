@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from 'nestjs-typegoose';
-import { ModelType } from '@typegoose/typegoose/lib/types';
-import { MessagesModel } from './messages.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { MessagesEntity } from './messages.entity';
 
 @Injectable()
 export class MessagesService {
     constructor(
-        @InjectModel(MessagesModel) private readonly messagesModel: ModelType<MessagesModel>,
-    ) {}
+        @InjectRepository(MessagesEntity) private readonly messagesRepository: Repository<MessagesEntity>,
+    ) {
+    }
 
-    async createMessage(data: Omit<MessagesModel, 'id' | '_id'>) {
-        return this.messagesModel.create(data)
+    async createMessage(data: MessagesEntity) {
+        return this.messagesRepository.save(data);
     }
 }

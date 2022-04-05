@@ -3,18 +3,13 @@ import { MessagesController } from './messages.controller';
 import { MessagesService } from './messages.service';
 import { TypegooseModule } from 'nestjs-typegoose';
 import { MessagesModel } from './messages.model';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MessagesEntity } from './messages.entity';
 
 @Module({
   controllers: [MessagesController],
   imports: [
-    TypegooseModule.forFeature([
-      {
-        typegooseClass: MessagesModel,
-        schemaOptions: {
-          collection: 'Messages'
-        }
-      }
-    ])
+      TypeOrmModule.forFeature([MessagesEntity])
   ],
   exports: [MessagesService],
   providers: [MessagesService]
