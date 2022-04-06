@@ -1,32 +1,20 @@
 import { Module } from '@nestjs/common';
 import { DialogsController } from './dialogs.controller';
 import { DialogsService } from './dialogs.service';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { DialogsModel } from './dialogs.model';
 import { AuthModule } from '../auth/auth.module';
 import { MessagesModule } from '../messages/messages.module';
-import { UserModel } from '../users/user.model';
 import { DialogsGateway } from './dialogs.gateway';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MessagesEntity } from '../messages/messages.entity';
+import { DialogsRepository } from './dialogs.repository';
+import { UsersRepository } from '../users/users.repository';
 
 @Module({
     controllers: [DialogsController],
     imports: [
-        TypegooseModule.forFeature([
-            {
-                typegooseClass: DialogsModel,
-                schemaOptions: {
-                    collection: 'Dialogs',
-                },
-            },
-            {
-                typegooseClass: UserModel,
-                schemaOptions: {
-                    collection: 'User',
-                },
-            },
-        ]),
+        TypeOrmModule.forFeature([DialogsRepository, UsersRepository, MessagesEntity]),
         AuthModule,
-        MessagesModule
+        MessagesModule,
     ],
     providers: [DialogsService, DialogsGateway],
 })

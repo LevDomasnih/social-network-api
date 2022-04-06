@@ -1,9 +1,19 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProfileEntity } from '../profile/profile.entity';
 import { FollowEntity } from '../follow/follow.entity';
 import { PostEntity } from '../posts/post.entity';
 import { DialogsEntity } from '../dialogs/dialogs.entity';
+import { MessagesEntity } from '../messages/messages.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -36,6 +46,10 @@ export class UserEntity {
     posts: PostEntity[];
 
     @ApiProperty({ type: () => [DialogsEntity], default: ['dialogId'] })
-    @OneToMany(() => DialogsEntity, dialogs => dialogs, { onDelete: 'CASCADE' })
+    @ManyToMany(() => DialogsEntity, dialogs => dialogs.owners, { onDelete: 'CASCADE' })
     dialogs: DialogsEntity[];
+
+    @ApiProperty({ type: () => [MessagesEntity] })
+    @OneToMany(() => MessagesEntity, message => message.owner)
+    messages: MessagesEntity[];
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
 import { DialogsEntity } from '../dialogs/dialogs.entity';
@@ -10,13 +10,11 @@ export class MessagesEntity {
     id: string;
 
     @ApiProperty({ type: () => [DialogsEntity], default: ['dialogId'] })
-    @OneToOne(() => DialogsEntity, dialog => dialog.id)
-    @JoinColumn()
+    @ManyToOne(() => DialogsEntity, dialog => dialog.messages)
     dialog: DialogsEntity;
 
     @ApiProperty({ type: () => UserEntity, default: 'owner_id' })
-    @OneToOne(() => UserEntity, user => user.id)
-    @JoinColumn()
+    @ManyToOne(() => UserEntity, user => user.messages)
     owner: UserEntity;
 
     @ApiProperty()

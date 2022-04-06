@@ -11,13 +11,9 @@ export class CreateDialogRequestDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsArray()
     @IsString({ each: true })
     @ArrayMinSize(1)
-    @Validate(IsObjectIds, {
-        message: 'Id can be a 24 character hex string',
-    })
-    otherOwners: Types.ObjectId[]
+    otherOwners: string[]
 
     // TODO Пересмотреть
     @IsString()

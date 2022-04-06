@@ -6,11 +6,11 @@ import { UpdateOwnersRequestDto } from './dto/update-owners-request.dto';
 import { CreateDialogResponseDto } from './dto/create-dialog-response.dto';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { GetDialogResponseDto } from './dto/get-dialog-response-dto';
-import { Ref } from '@typegoose/typegoose';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 import { User } from '../decorators/user.decorator';
 import { UserModel } from '../users/user.model';
+import { UserEntity } from '../users/user.entity';
 
 function SwaggerApi(createdResponse: ApiResponseOptions) {
     return applyDecorators(
@@ -34,9 +34,9 @@ export class DialogsController {
         type: CreateDialogResponseDto,
     })
     async createDialog(
-        @User() user: UserModel,
+        @User() user: UserEntity,
         @Body() dto: CreateDialogRequestDto,
-    ): Promise<CreateDialogResponseDto> {
+    ) {
         return this.dialogsService.createDialog(user, dto);
     }
 
@@ -47,8 +47,8 @@ export class DialogsController {
         type: [GetDialogResponseDto],
     })
     async getDialogs(
-        @User() user: UserModel,
-    ): Promise<Ref<GetDialogResponseDto>[]> {
+        @User() user: UserEntity,
+    ) {
         return this.dialogsService.getDialogs(user);
     }
 
@@ -60,8 +60,8 @@ export class DialogsController {
     })
     async getDialog(
         @Param('id', IdValidationPipe) id: string,
-        @User() user: UserModel,
-    ): Promise<GetDialogResponseDto> {
+        @User() user: UserEntity,
+    ) {
         return this.dialogsService.getDialog(user, id);
     }
 
@@ -72,9 +72,9 @@ export class DialogsController {
         type: GetDialogResponseDto,
     })
     async updateDialogOwners(
-        @User() user: UserModel,
+        @User() user: UserEntity,
         @Body() dto: UpdateOwnersRequestDto,
-    ): Promise<GetDialogResponseDto> {
+    ) {
         return this.dialogsService.updateDialogOwners(user, dto);
     }
 }
