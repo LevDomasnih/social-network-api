@@ -4,7 +4,6 @@ import { Server, Socket } from 'socket.io';
 import { DialogsService } from './dialogs.service';
 import { User } from '../decorators/user.decorator';
 import { JwtWsAuthGuard } from '../auth/guards/jwt-ws.guard';
-import { UserModel } from '../users/user.model';
 import { UpdateDialogResponseDto } from './dto/update-dialog-response.dto';
 import { UserEntity } from '../users/user.entity';
 
@@ -21,8 +20,7 @@ export class DialogsGateway implements OnGatewayInit {
 
     private logger = new Logger('DialogsGateway');
 
-    // tslint:disable-next-line:no-any
-    afterInit(server: any) {
+    afterInit() {
         this.logger.log('Initialized!');
     }
 
@@ -31,22 +29,26 @@ export class DialogsGateway implements OnGatewayInit {
         client.join(userId);
     }
 
-    // @SubscribeMessage('createMessage')
-    // @UseGuards(JwtWsAuthGuard)
-    // async handleMessage(
-    //     @User() user: UserEntity,
-    //     @MessageBody() dto: UpdateDialogResponseDto,
-    // ) {
-    //     const {
-    //         newMessage,
-    //         owners,
-    //     } = await this.dialogsService.updateDialog(user, dto);
-    //
-    //     this.wss.to(owners).emit('getMessage', newMessage);
-    // }
-    //
-    // @SubscribeMessage('leftRoom')
-    // handleLeftRoom(client: Socket, userId: string) {
-    //     client.leave(userId);
-    // }
+    @SubscribeMessage('createMessage')
+    @UseGuards(JwtWsAuthGuard)
+    async handleMessage(
+        @User() user: UserEntity,
+        @MessageBody() dto: UpdateDialogResponseDto,
+    ) {
+        try {
+            const {
+                newMessage,
+                owners,
+            } = await this.dialogsService.updateDialog(user, dto);
+
+            this.wss.to(owners.map(o => o.id)).emit('getMessage', newMessage);
+        } catch (e) {
+
+        }
+    }
+
+    @SubscribeMessage('leftRoom')
+    handleLeftRoom(client: Socket, userId: string) {
+        client.leave(userId);
+    }
 }

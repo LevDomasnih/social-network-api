@@ -8,10 +8,7 @@ export class UpdateOwnersRequestDto {
     @ApiProperty({ type: 'string'})
     @IsNotEmpty()
     @IsString()
-    @Validate(IsObjectId, {
-        message: 'Id can be a 24 character hex string'
-    })
-    dialogId: Types.ObjectId
+    dialogId: string
 
     @ApiProperty({ type: ['string']})
     @IsNotEmpty()
@@ -20,8 +17,5 @@ export class UpdateOwnersRequestDto {
     @ArrayMinSize(1, {
         message: 'Чат не может состоять из одного пользователя'
     })
-    @Validate(IsObjectIds, {
-        message: 'Id can be a 24 character hex string'
-    })
-    owners: Types.ObjectId[]
+    owners: string[]
 }

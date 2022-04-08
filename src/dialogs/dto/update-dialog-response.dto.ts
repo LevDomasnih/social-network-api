@@ -8,10 +8,7 @@ export class UpdateDialogResponseDto {
     text: string
 
     @IsString()
-    @Validate(IsObjectId, {
-        message: 'Id can be a 24 character hex string',
-    })
-    dialogId: Types.ObjectId
+    dialogId: string
 
     @IsString()
     @IsOptional()
