@@ -43,16 +43,12 @@ export class PostsService {
         if (!parentPost) {
             throw new BadRequestException('Пост не существует');
         }
-        const newPost = await this.postRepository.save({
-            image: file.filename || '',
+        return this.postRepository.saveAndGet({
+            image: file?.filename || '',
             owner: await this.usersRepository.findOne(user.id),
             ...dto,
             parentPosts: parentPost,
-        });
-        if (!newPost) {
-            throw new BadRequestException('Пост не был создан');
-        }
-        return newPost;
+        }, {}, {relations: ['owner']});
     }
 
     async updatePost(

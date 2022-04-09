@@ -28,11 +28,11 @@ export class PostEntity {
     @Column({ default: 0 })
     views: number;
 
-    @ApiProperty({ type: () => [PostEntity] })
+    // @ApiProperty({ type: () => [PostEntity] })
     @ManyToOne(() => PostEntity, post => post.childrenPosts)
     parentPosts: PostEntity;
 
-    @ApiProperty({ type: () => [PostEntity] })
+    // @ApiProperty({ type: () => [PostEntity] })
     @OneToMany(() => PostEntity, post => post.parentPosts)
     childrenPosts: PostEntity[];
 }
