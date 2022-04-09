@@ -1,9 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FollowEntity } from '../follow/follow.entity';
-import { Repository } from 'typeorm';
-import { SubscribersEntity } from '../follow/subscribers.entity';
 import { UserMeModel } from './models/user-me.model';
 import { UserEntity } from './user.entity';
 import { FollowUsersModel } from './models/follow-users.model';
@@ -12,8 +8,6 @@ import { FollowUsersModel } from './models/follow-users.model';
 export class UsersService {
     constructor(
         private readonly usersRepository: UsersRepository,
-        @InjectRepository(FollowEntity) private readonly followRepository: Repository<FollowEntity>,
-        @InjectRepository(SubscribersEntity) private readonly subscribersRepository: Repository<SubscribersEntity>,
     ) {
     }
 

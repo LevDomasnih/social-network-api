@@ -5,6 +5,8 @@ import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '../../common/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
 import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
+import { FollowResponseDto } from './dto/follow/follow.response.dto';
+import { UnfollowResponseDto } from './dto/unfollow/unfollow.response.dto';
 
 @ApiTags('follow')
 @Controller('follow')
@@ -17,7 +19,10 @@ export class FollowController {
     @ApiCreatedResponse({
         description: 'Follow',
     })
-    async follow(@Param('userId', IdValidationPipe) subscriberId: string, @User() user: UserEntity) {
+    async follow(
+        @Param('userId', IdValidationPipe) subscriberId: string,
+        @User() user: UserEntity
+    ): Promise<FollowResponseDto> {
         return this.followService.follow(user.id, subscriberId);
     }
 
@@ -26,7 +31,10 @@ export class FollowController {
     @ApiCreatedResponse({
         description: 'Unfollow',
     })
-    async unfollow(@Param('userId', IdValidationPipe) subscriberId: string, @User() user: UserEntity) {
+    async unfollow(
+        @Param('userId', IdValidationPipe) subscriberId: string,
+        @User() user: UserEntity
+    ): Promise<UnfollowResponseDto> {
         return this.followService.unfollow(user.id, subscriberId);
     }
 }

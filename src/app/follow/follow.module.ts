@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { FollowController } from './follow.controller';
 import { FollowService } from './follow.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FollowEntity } from './follow.entity';
 import { UsersRepository } from '../users/users.repository';
 import { AuthModule } from '../auth/auth.module';
-import { SubscribersEntity } from './subscribers.entity';
+import { FollowRepository } from './follow.repository';
+import { SubscribersRepository } from './subscribers.repository';
 
 @Module({
     controllers: [FollowController],
     imports: [
-        TypeOrmModule.forFeature([FollowEntity, UsersRepository, SubscribersEntity]),
+        TypeOrmModule.forFeature([FollowRepository, UsersRepository, SubscribersRepository]),
         AuthModule,
     ],
     exports: [FollowService],
