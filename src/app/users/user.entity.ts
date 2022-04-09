@@ -1,13 +1,4 @@
-import {
-    Column,
-    Entity,
-    JoinColumn,
-    JoinTable,
-    ManyToMany,
-    OneToMany,
-    OneToOne,
-    PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProfileEntity } from '../profile/profile.entity';
 import { FollowEntity } from '../follow/follow.entity';
@@ -25,7 +16,6 @@ export class UserEntity {
     @Column()
     email: string;
 
-    @ApiProperty()
     @Column({ name: 'password_hash', select: false })
     passwordHash: string;
 
@@ -33,23 +23,23 @@ export class UserEntity {
     @Column({ unique: true })
     login: string;
 
-    @ApiProperty({ type: () => ProfileEntity, default: 'ProfileId' })
+    // @ApiProperty({ type: () => ProfileEntity, default: 'ProfileId' })
     @OneToOne(() => ProfileEntity, profile => profile.owner, { onDelete: 'CASCADE' })
     profile: ProfileEntity;
 
-    @ApiProperty({ type: () => FollowEntity, default: 'followId' })
+    // @ApiProperty({ type: () => FollowEntity, default: 'followId' })
     @OneToOne(() => FollowEntity, follow => follow.owner, { onDelete: 'CASCADE' })
     follow: FollowEntity;
 
-    @ApiProperty({ type: () => [PostEntity], default: ['postId'] })
+    // @ApiProperty({ type: () => [PostEntity], default: ['postId'] })
     @OneToMany(() => PostEntity, post => post.owner, { onDelete: 'CASCADE' })
     posts: PostEntity[];
 
-    @ApiProperty({ type: () => [DialogsEntity], default: ['dialogId'] })
+    // @ApiProperty({ type: () => [DialogsEntity], default: ['dialogId'] })
     @ManyToMany(() => DialogsEntity, dialogs => dialogs.owners, { onDelete: 'CASCADE' })
     dialogs: DialogsEntity[];
 
-    @ApiProperty({ type: () => [MessagesEntity] })
+    // @ApiProperty({ type: () => [MessagesEntity] })
     @OneToMany(() => MessagesEntity, message => message.owner)
     messages: MessagesEntity[];
 }

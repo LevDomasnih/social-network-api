@@ -5,13 +5,13 @@ import { MulterModule } from '@nestjs/platform-express';
 import { PostsGateway } from './posts.gateway';
 import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '../users/user.entity';
 import { PostsRepository } from './posts.repository';
+import { UsersRepository } from '../users/users.repository';
 
 @Module({
     controllers: [PostsController],
     imports: [
-        TypeOrmModule.forFeature([PostsRepository, UserEntity]),
+        TypeOrmModule.forFeature([PostsRepository, UsersRepository]),
         MulterModule.register({
             dest: './files',
         }),

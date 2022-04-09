@@ -1,4 +1,4 @@
-import { EntityManager, EntityRepository, getManager } from 'typeorm';
+import { EntityRepository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { UserRepositoryInterface } from './interfeces/user-repository.interface';
@@ -7,13 +7,6 @@ import { BaseRepository } from '../../common/repositories/base/base.repository';
 
 @EntityRepository(UserEntity)
 export class UsersRepository extends BaseRepository<UserEntity> implements UserRepositoryInterface {
-    readonly db: EntityManager;
-
-    constructor() {
-        super();
-        this.db = getManager();
-    }
-
     async existsByOptions(options: FindConditions<UserEntity>): Promise<boolean> {
         const search = await this.findOne(options);
         return search !== undefined;

@@ -7,26 +7,25 @@ import { getJWTConfig } from '../../common/configs/jwt.config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '../users/user.entity';
-import { ProfileEntity } from '../profile/profile.entity';
-import { PostEntity } from '../posts/post.entity';
-import { FollowEntity } from '../follow/follow.entity';
 import { UsersRepository } from '../users/users.repository';
+import { PostsRepository } from '../posts/posts.repository';
+import { ProfileRepository } from '../profile/profile.repository';
+import { FollowRepository } from '../follow/follow.repository';
 
 @Module({
     controllers: [AuthController],
     imports: [
-        TypeOrmModule.forFeature([UserEntity, ProfileEntity, PostEntity, FollowEntity, UsersRepository]),
+        TypeOrmModule.forFeature([UsersRepository, ProfileRepository, PostsRepository, FollowRepository]),
         ConfigModule,
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: getJWTConfig
+            useFactory: getJWTConfig,
         }),
-        PassportModule
+        PassportModule,
     ],
     exports: [AuthService],
-    providers: [AuthService, JwtStrategy]
+    providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {
 }

@@ -1,16 +1,17 @@
 import { applyDecorators, Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { DialogsService } from './dialogs.service';
-import { CreateDialogRequestDto } from './dto/create-dialog-request.dto';
+import { CreateDialogRequestDto } from './dto/create-dialog/create-dialog.request.dto';
 import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
-import { UpdateOwnersRequestDto } from './dto/update-owners-request.dto';
-import { CreateDialogResponseDto } from './dto/create-dialog-response.dto';
+import { UpdateOwnersRequestDto } from './dto/update-dialog-owners/update-owners.request.dto';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { GetDialogResponseDto } from './dto/get-dialog-response-dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 import { User } from '../../common/decorators/user.decorator';
-import { UserModel } from '../users/user.model';
 import { UserEntity } from '../users/user.entity';
+import { GetDialogsResponseDto } from './dto/get-dialogs/get-dialogs.response.dto';
+import { GetDialogResponseDto } from './dto/get-dialog/get-dialog.response.dto';
+import { CreateDialogResponseDto } from './dto/create-dialog/create-dialog.response.dto';
+import { UpdateOwnersResponseDto } from './dto/update-dialog-owners/update-owners.response.dto';
 
 function SwaggerApi(createdResponse: ApiResponseOptions) {
     return applyDecorators(
@@ -36,7 +37,7 @@ export class DialogsController {
     async createDialog(
         @User() user: UserEntity,
         @Body() dto: CreateDialogRequestDto,
-    ) {
+    ): Promise<CreateDialogResponseDto> {
         return this.dialogsService.createDialog(user, dto);
     }
 
@@ -44,11 +45,11 @@ export class DialogsController {
     @UseGuards(JwtAuthGuard)
     @SwaggerApi({
         description: 'Get dialogs',
-        type: [GetDialogResponseDto],
+        type: [GetDialogsResponseDto],
     })
     async getDialogs(
         @User() user: UserEntity,
-    ) {
+    ): Promise<GetDialogsResponseDto[]> {
         return this.dialogsService.getDialogs(user);
     }
 
@@ -61,7 +62,7 @@ export class DialogsController {
     async getDialog(
         @Param('id', IdValidationPipe) id: string,
         @User() user: UserEntity,
-    ) {
+    ): Promise<{} | GetDialogResponseDto> {
         return this.dialogsService.getDialog(user, id);
     }
 
@@ -69,12 +70,12 @@ export class DialogsController {
     @UseGuards(JwtAuthGuard)
     @SwaggerApi({
         description: 'Update owners',
-        type: GetDialogResponseDto,
+        type: UpdateOwnersResponseDto,
     })
     async updateDialogOwners(
         @User() user: UserEntity,
         @Body() dto: UpdateOwnersRequestDto,
-    ) {
+    ): Promise<UpdateOwnersResponseDto | undefined> {
         return this.dialogsService.updateDialogOwners(user, dto);
     }
 }

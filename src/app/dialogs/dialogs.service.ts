@@ -1,20 +1,23 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateDialogRequestDto } from './dto/create-dialog-request.dto';
-import { UpdateOwnersRequestDto } from './dto/update-owners-request.dto';
-import { UpdateDialogResponseDto } from './dto/update-dialog-response.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import { CreateDialogRequestDto } from './dto/create-dialog/create-dialog.request.dto';
+import { UpdateOwnersRequestDto } from './dto/update-dialog-owners/update-owners.request.dto';
+import { UpdateDialogRequestDto } from './dto/update-dialog/update-dialog.request.dto';
 import { UserEntity } from '../users/user.entity';
-import { Repository } from 'typeorm';
-import { MessagesEntity } from '../messages/messages.entity';
 import { DialogsRepository } from './dialogs.repository';
 import { UsersRepository } from '../users/users.repository';
+import { MessagesRepository } from '../messages/messages.repository';
+import { GetDialogsResponseDto } from './dto/get-dialogs/get-dialogs.response.dto';
+import { GetDialogResponseDto } from './dto/get-dialog/get-dialog.response.dto';
+import { CreateDialogResponseDto } from './dto/create-dialog/create-dialog.response.dto';
+import { UpdateOwnersResponseDto } from './dto/update-dialog-owners/update-owners.response.dto';
+import { UpdateDialogResponseDto } from './dto/update-dialog/update-dialog.response.dto';
 
 @Injectable()
 export class DialogsService {
     constructor(
         private readonly dialogsRepository: DialogsRepository,
         private readonly userRepository: UsersRepository,
-        @InjectRepository(MessagesEntity) private readonly messagesRepository: Repository<MessagesEntity>,
+        private readonly messagesRepository: MessagesRepository,
     ) {
     }
 
@@ -22,7 +25,10 @@ export class DialogsService {
         return this.userRepository.find({ where: owners.map(id => ({ id })) });
     }
 
-    async createDialog(user: UserEntity, { otherOwners, ...messageData }: CreateDialogRequestDto) {
+    async createDialog(user: UserEntity, {
+        otherOwners,
+        ...messageData
+    }: CreateDialogRequestDto): Promise<CreateDialogResponseDto> {
         const owner = await this.userRepository.findOne(user.id);
         if (!owner) {
             throw new BadRequestException(`Пользователя ${user.id} не существует`);
@@ -31,12 +37,12 @@ export class DialogsService {
         const newDialog = await this.dialogsRepository.save({
             owners: validOwners,
         });
-        return this.messagesRepository.save(
+        return this.messagesRepository.saveAndGet(
             { owner, dialog: newDialog, ...messageData },
         );
     }
 
-    async getDialogs(user: UserEntity) {
+    async getDialogs(user: UserEntity): Promise<GetDialogsResponseDto[]> {
         try {
             return this.dialogsRepository.getDialogsByUserId(user.id);
         } catch (e) {
@@ -44,7 +50,7 @@ export class DialogsService {
         }
     }
 
-    async getDialog(user: UserEntity, id: string) {
+    async getDialog(user: UserEntity, id: string): Promise<{} | GetDialogResponseDto> {
         const dialog = await this.dialogsRepository.getDialogsById(user.id, id);
         if (Object.keys(dialog).length === 0) {
             throw new BadRequestException('Диалога не существует');
@@ -52,7 +58,10 @@ export class DialogsService {
         return dialog;
     }
 
-    async updateDialog(user: UserEntity, { dialogId, ...dto }: UpdateDialogResponseDto) {
+    async updateDialog(
+        user: UserEntity,
+        { dialogId, ...dto }: UpdateDialogRequestDto,
+    ): Promise<UpdateDialogResponseDto> {
         const dialog = await this.dialogsRepository.findOne({ id: dialogId });
         if (!dialog) {
             throw new BadRequestException(`Диалог ${dialogId} отсутствует`);
@@ -61,7 +70,7 @@ export class DialogsService {
         if (!owner) {
             throw new BadRequestException(`Юзер ${user.id} отсутствует`);
         }
-        const newMessage = await this.messagesRepository.save(
+        const newMessage = await this.messagesRepository.saveAndGet(
             { owner, dialog, ...dto },
         );
         return {
@@ -70,7 +79,10 @@ export class DialogsService {
         };
     }
 
-    async updateDialogOwners(user: UserEntity, { dialogId, owners }: UpdateOwnersRequestDto) {
+    async updateDialogOwners(
+        user: UserEntity,
+        { dialogId, owners }: UpdateOwnersRequestDto,
+    ): Promise<UpdateOwnersResponseDto | undefined> {
         const oldDialog = await this.dialogsRepository.findOne({ id: dialogId });
         if (!oldDialog) {
             throw new BadRequestException('Диалога не существует');

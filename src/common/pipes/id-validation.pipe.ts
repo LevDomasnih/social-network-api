@@ -7,7 +7,6 @@ export class IdValidationPipe implements PipeTransform {
 		if (metadata.type !== 'param') {
 			return value
 		}
-		// @ts-ignore
 		if (!this.checkIfValidUUID(value)) {
 			throw new BadRequestException(ID_VALIDATION_ERROR)
 		}
