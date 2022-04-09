@@ -36,7 +36,7 @@ export class AuthController {
         description: 'is valid email',
         type: Boolean,
     })
-    async isValidEmail(@Body() dto: {email: string}) {
+    async isValidEmail(@Body() dto: {email: string}): Promise<boolean> {
         return this.authService.isValidEmail(dto)
     }
 }
