@@ -25,7 +25,10 @@ export class DialogsService {
         return this.userRepository.find({ where: owners.map(id => ({ id })) });
     }
 
-    async createDialog(user: UserEntity, { otherOwners, ...messageData }: CreateDialogRequestDto): Promise<CreateDialogResponseDto> {
+    async createDialog(user: UserEntity, {
+        otherOwners,
+        ...messageData
+    }: CreateDialogRequestDto): Promise<CreateDialogResponseDto> {
         const owner = await this.userRepository.findOne(user.id);
         if (!owner) {
             throw new BadRequestException(`Пользователя ${user.id} не существует`);
@@ -57,7 +60,7 @@ export class DialogsService {
 
     async updateDialog(
         user: UserEntity,
-        { dialogId, ...dto }: UpdateDialogRequestDto
+        { dialogId, ...dto }: UpdateDialogRequestDto,
     ): Promise<UpdateDialogResponseDto> {
         const dialog = await this.dialogsRepository.findOne({ id: dialogId });
         if (!dialog) {
@@ -78,7 +81,7 @@ export class DialogsService {
 
     async updateDialogOwners(
         user: UserEntity,
-        { dialogId, owners }: UpdateOwnersRequestDto
+        { dialogId, owners }: UpdateOwnersRequestDto,
     ): Promise<UpdateOwnersResponseDto | undefined> {
         const oldDialog = await this.dialogsRepository.findOne({ id: dialogId });
         if (!oldDialog) {

@@ -1,20 +1,18 @@
-import { IsOptional, IsString, Validate } from 'class-validator';
-import { IsObjectId } from '../../../../common/validator-helpers/object-id';
-import { Types } from 'mongoose';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateDialogRequestDto {
 
     @IsString()
-    text: string
+    text: string;
 
     @IsString()
-    dialogId: string
-
-    @IsString()
-    @IsOptional()
-    image: string
+    dialogId: string;
 
     @IsString()
     @IsOptional()
-    file: string
+    image: string;
+
+    @IsString()
+    @IsOptional()
+    file: string;
 }

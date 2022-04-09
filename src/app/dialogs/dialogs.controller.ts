@@ -32,7 +32,7 @@ export class DialogsController {
     @UseGuards(JwtAuthGuard)
     @SwaggerApi({
         description: 'Create dialog',
-        type: CreateDialogResponseDto
+        type: CreateDialogResponseDto,
     })
     async createDialog(
         @User() user: UserEntity,
@@ -45,7 +45,7 @@ export class DialogsController {
     @UseGuards(JwtAuthGuard)
     @SwaggerApi({
         description: 'Get dialogs',
-        type: [GetDialogsResponseDto]
+        type: [GetDialogsResponseDto],
     })
     async getDialogs(
         @User() user: UserEntity,
@@ -57,7 +57,7 @@ export class DialogsController {
     @UseGuards(JwtAuthGuard)
     @SwaggerApi({
         description: 'Get dialog',
-        type: GetDialogResponseDto
+        type: GetDialogResponseDto,
     })
     async getDialog(
         @Param('id', IdValidationPipe) id: string,
@@ -70,7 +70,7 @@ export class DialogsController {
     @UseGuards(JwtAuthGuard)
     @SwaggerApi({
         description: 'Update owners',
-        type: UpdateOwnersResponseDto
+        type: UpdateOwnersResponseDto,
     })
     async updateDialogOwners(
         @User() user: UserEntity,
