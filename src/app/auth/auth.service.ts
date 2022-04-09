@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { AuthRegisterRequestDto } from './dto/auth-register-request.dto';
+import { AuthRegisterRequestDto } from './dto/auth-register/auth-register.request.dto';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { AuthLoginRequestDto } from './dto/auth-login-request.dto';
+import { AuthLoginRequestDto } from './dto/auth-login/auth-login.request.dto';
 import { UsersRepository } from '../users/users.repository';
 import { ProfileRepository } from '../profile/profile.repository';
 import { PostsRepository } from '../posts/posts.repository';
