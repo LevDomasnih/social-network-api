@@ -3,30 +3,31 @@ import {
     Body,
     Controller,
     Get,
-    Headers,
     Param,
     Post,
     Put,
-    Res,
     UploadedFile,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Express, Response } from 'express';
+import { Express } from 'express';
 import { diskStorage } from 'multer';
-import { CreatePostRequestDto } from './dto/create-post-request.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { FileUploadDto } from './dto/file-upload.dto';
-import { CreateCommentRequestDto } from './dto/create-comment-request.dto';
-import { UpdatePostRequestDto } from './dto/update-post-request.dto';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 import { User } from '../../common/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
-import { PostWithCommentsDto } from './dto/post-with-comments.dto';
+import { GetPostsOfUserResponseDto } from './dto/get-posts-of-user/get-posts-of-user.response.dto';
+import { UpdatePostRequestDto } from './dto/update-post/update-post.request.dto';
+import { CreatePostRequestDto } from './dto/create-post/create-post.request.dto';
+import { UpdatePostResponseDto } from './dto/update-post/update-post.response.dto';
+import { CreatePostResponseDto } from './dto/create-post/create-post.response.dto';
+import { CreateCommentRequestDto } from './dto/create-comment/create-comment.request.dto';
+import { CreateCommentResponseDto } from './dto/create-comment/create-comment.response.dto';
 
 function SwaggerApi(createdResponse: ApiResponseOptions) {
     return applyDecorators(
@@ -52,12 +53,13 @@ export class PostsController {
     }))
     @SwaggerApi({
         description: 'Create Post',
+        type: CreatePostResponseDto,
     })
     async createPost(
         @User() user: UserEntity,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreatePostRequestDto,
-    ) {
+    ): Promise<CreatePostResponseDto> {
         return this.postsService.createPost(user, file, dto);
     }
 
@@ -68,13 +70,14 @@ export class PostsController {
     }))
     @SwaggerApi({
         description: 'Create comment',
+        type: CreateCommentResponseDto,
     })
     async createComment(
         @User() user: UserEntity,
         @Param('parentId', IdValidationPipe) parentId: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: CreateCommentRequestDto,
-    ) {
+    ): Promise<CreateCommentResponseDto> {
         return this.postsService.createComment(user, parentId, file, dto);
     }
 
@@ -85,34 +88,35 @@ export class PostsController {
     }))
     @SwaggerApi({
         description: 'Update post',
+        type: UpdatePostResponseDto,
     })
     async updatePost(
         @User() user: UserEntity,
-        @Headers('authorization') authorization: string,
         @Param('id', IdValidationPipe) postId: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() dto: UpdatePostRequestDto,
-    ) {
+    ): Promise<UpdatePostResponseDto> {
         return this.postsService.updatePost(user, postId, file, dto);
     }
 
-    @Get(':image')
-    @ApiCreatedResponse({
-        description: 'Get photo',
-        type: 'file',
-    })
-    async getPost(@Param('imageId') imageId: string, @Res() res: Response) {
-        res.sendFile(imageId, { root: './files' });
-    }
+    // TODO вернуть
+    // @Get(':image')
+    // @ApiCreatedResponse({
+    //     description: 'Get photo',
+    //     type: 'file',
+    // })
+    // async getPost(@Param('imageId') imageId: string, @Res() res: Response) {
+    //     res.sendFile(imageId, { root: './files' });
+    // }
 
     @Get('user/:id')
     @ApiCreatedResponse({
-        description: 'Get user posts',
-        type: [PostWithCommentsDto],
+        description: 'Get user posts by id',
+        type: [GetPostsOfUserResponseDto],
     })
     async getPostsOfUser(
         @Param('id', IdValidationPipe) userId: string,
-    ): Promise<PostWithCommentsDto> {
+    ): Promise<GetPostsOfUserResponseDto[]> {
         return this.postsService.getPostsOfUser(userId);
     }
 }

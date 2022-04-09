@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UpdateProfileRequestDto } from './dto/update-profile/update-profile-request.dto';
+import { UpdateProfileRequestDto } from './dto/update-profile/update-profile.request.dto';
 import { UserEntity } from '../users/user.entity';
 import { UsersRepository } from '../users/users.repository';
 import { ProfileRepository } from './profile.repository';
-import { UpdateProfileResponseDto } from './dto/update-profile/update-profile-response.dto';
-import { FindProfileResponseDto } from './dto/find-profile/find-profile-response.dto';
+import { UpdateProfileResponseDto } from './dto/update-profile/update-profile.response.dto';
+import { FindProfileResponseDto } from './dto/find-profile/find-profile.response.dto';
 
 @Injectable()
 export class ProfileService {

@@ -1,13 +1,13 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { UpdateProfileRequestDto } from './dto/update-profile/update-profile-request.dto';
+import { UpdateProfileRequestDto } from './dto/update-profile/update-profile.request.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '../../common/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
 import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
-import { UpdateProfileResponseDto } from './dto/update-profile/update-profile-response.dto';
-import { FindProfileResponseDto } from './dto/find-profile/find-profile-response.dto';
+import { UpdateProfileResponseDto } from './dto/update-profile/update-profile.response.dto';
+import { FindProfileResponseDto } from './dto/find-profile/find-profile.response.dto';
 
 @ApiTags('profile')
 @Controller('profile')
