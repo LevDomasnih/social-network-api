@@ -1,6 +1,4 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
-import { Types } from 'mongoose';
-import { IsObjectIds } from '../../../common/validator-helpers/object-id';
+import { ArrayMinSize, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDialogRequestDto {
@@ -13,14 +11,14 @@ export class CreateDialogRequestDto {
     @IsNotEmpty()
     @IsString({ each: true })
     @ArrayMinSize(1)
-    otherOwners: string[]
+    otherOwners: string[];
 
     // TODO Пересмотреть
     @IsString()
     @IsOptional()
-    image: string
+    image: string;
 
     @IsString()
     @IsOptional()
-    file: string
+    file: string;
 }

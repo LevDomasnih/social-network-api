@@ -1,8 +1,8 @@
 import { IsOptional, IsString, Validate } from 'class-validator';
-import { IsObjectId } from '../../../common/validator-helpers/object-id';
+import { IsObjectId } from '../../../../common/validator-helpers/object-id';
 import { Types } from 'mongoose';
 
-export class UpdateDialogResponseDto {
+export class UpdateDialogRequestDto {
 
     @IsString()
     text: string

@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { DialogsService } from './dialogs.service';
 import { User } from '../../common/decorators/user.decorator';
 import { JwtWsAuthGuard } from '../auth/guards/jwt-ws.guard';
-import { UpdateDialogResponseDto } from './dto/update-dialog-response.dto';
+import { UpdateDialogRequestDto } from './dto/update-dialog/update-dialog.request.dto';
 import { UserEntity } from '../users/user.entity';
 
 
@@ -33,7 +33,7 @@ export class DialogsGateway implements OnGatewayInit {
     @UseGuards(JwtWsAuthGuard)
     async handleMessage(
         @User() user: UserEntity,
-        @MessageBody() dto: UpdateDialogResponseDto,
+        @MessageBody() dto: UpdateDialogRequestDto,
     ) {
         try {
             const {

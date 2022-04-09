@@ -8,7 +8,7 @@ export class GetSqlResponse<T> {
      * метод возвращает первый элемент массива
      */
     // tslint:disable-next-line:no-any
-    getRow(json: SqlToJsonModel<T>[]):  { [p: string]: any } {
+    getRow(json: SqlToJsonModel<T>[]): T | {}  {
         return json?.[0]?.rows[0] ?? {}
     }
 
