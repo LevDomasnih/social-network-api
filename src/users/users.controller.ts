@@ -3,7 +3,10 @@ import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
-import { UserModel } from './user.model';
+import { FollowUsersModel } from './models/follow-users.model';
+import { UserEntity } from './user.entity';
+import { UserMeModel } from './models/user-me.model';
+import { GetUserMeResponseDto } from './dto/get-user-me-response.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -17,7 +20,7 @@ export class UsersController {
     @ApiCreatedResponse({
         description: 'Get users',
     })
-    async getUsers() {
+    async getUsers(): Promise<UserEntity[]> {
         return this.userService.getUsers();
     }
 
@@ -26,8 +29,9 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     @ApiCreatedResponse({
         description: 'Get me',
+        type: GetUserMeResponseDto
     })
-    async getMe(@User() user: UserModel) {
+    async getMe(@User() user: UserEntity): Promise<GetUserMeResponseDto> {
         return this.userService.getMe(user.id);
     }
 
@@ -35,7 +39,7 @@ export class UsersController {
     @ApiCreatedResponse({
         description: 'Get user by id',
     })
-    async getUserById(@Param('id') id: string) {
+    async getUserById(@Param('id') id: string): Promise<UserEntity> {
         return this.userService.getUserById(id);
     }
 
@@ -43,7 +47,7 @@ export class UsersController {
         description: 'Get members',
     })
     @Get('follow/:id')
-    async getFollowUsers(@Param('id') id: string) {
+    async getFollowUsers(@Param('id') id: string): Promise<FollowUsersModel[] | []> {
         return this.userService.getFollowUsers(id);
     }
 }

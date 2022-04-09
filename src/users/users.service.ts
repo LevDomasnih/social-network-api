@@ -2,8 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FollowEntity } from '../follow/follow.entity';
-import { createQueryBuilder, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { SubscribersEntity } from '../follow/subscribers.entity';
+import { UserMeModel } from './models/user-me.model';
+import { UserEntity } from './user.entity';
+import { FollowUsersModel } from './models/follow-users.model';
 
 @Injectable()
 export class UsersService {
@@ -14,40 +17,25 @@ export class UsersService {
     ) {
     }
 
-    async getMe(id: string) {
-        return this.usersRepository.findOne(id, {
+    async getMe(id: string): Promise<UserMeModel> {
+        return (await this.usersRepository.findOne(id, {
             relations: ['profile'],
-        });
+        })) as unknown as Promise<UserMeModel>;
     }
 
-    async getUserById(id: string) {
+    async getUserById(id: string): Promise<UserEntity> {
         const user = await this.usersRepository.findOne(id);
-
         if (!user) {
             throw new BadRequestException('Пользователя не существует');
         }
-
         return user;
     }
 
-    async getUsers() {
+    async getUsers(): Promise<UserEntity[]> {
         return this.usersRepository.find({});
     }
 
-    async getFollowUsers(id: string) {
-        // const entityManager = getManager();
-        // const someQuery = await entityManager.query(`
-        //     SELECT u.* FROM follow f
-        //     INNER JOIN subscribers s ON f.id = s."subscriberId"
-        //     INNER JOIN users u ON u.id = f."ownerId"
-        //     WHERE f.id = '3cdcacc9-bedf-4314-98fe-d0eeaa0debde'
-        // `)
-        return createQueryBuilder()
-            .select()
-            .from(FollowEntity, 'follow')
-            .where('follow.id = :id', { id })
-            .innerJoinAndSelect('follow.subscriber', '')
-            .innerJoinAndSelect('follow.owner', 'owner')
-            .execute();
+    async getFollowUsers(id: string): Promise<FollowUsersModel[] | []> {
+        return this.usersRepository.getFollowUser(id);
     }
 }
