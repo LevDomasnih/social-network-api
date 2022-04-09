@@ -1,41 +1,37 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ProfileEntity } from './profile.entity';
+import { UpdateProfileRequestDto } from './dto/update-profile/update-profile-request.dto';
 import { UserEntity } from '../users/user.entity';
+import { UsersRepository } from '../users/users.repository';
+import { ProfileRepository } from './profile.repository';
+import { UpdateProfileResponseDto } from './dto/update-profile/update-profile-response.dto';
+import { FindProfileResponseDto } from './dto/find-profile/find-profile-response.dto';
 
 @Injectable()
 export class ProfileService {
     constructor(
-        @InjectRepository(ProfileEntity) private readonly profileRepository: Repository<ProfileEntity>,
-        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+        private readonly profileRepository: ProfileRepository,
+        private readonly usersRepository: UsersRepository,
     ) {
     }
 
-    async updateProfile(user: UserEntity, dto: UpdateProfileRequestDto) {
-        const owner = await this.userRepository.findOne(user.id);
-
+    async updateProfile(user: UserEntity, dto: UpdateProfileRequestDto): Promise<UpdateProfileResponseDto> {
+        const owner = await this.usersRepository.findOne(user.id);
         if (!owner) {
             throw new BadRequestException('Профиль отсутствует');
         }
-
         const profile = await this.profileRepository.update(
             { owner },
             { ...dto },
         );
-
-        return profile.affected === 1;
+        return { updated: profile.affected === 1 };
     }
 
-    async findProfile(userId: string) {
-        const owner = await this.userRepository.findOne(userId);
+    async findProfile(userId: string): Promise<FindProfileResponseDto> {
+        const owner = await this.usersRepository.findOne(userId);
         const profile = await this.profileRepository.findOne({ owner });
-
         if (!profile) {
             throw new BadRequestException('Профиль отсутствует');
         }
-
         return profile;
     }
 }

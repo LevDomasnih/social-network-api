@@ -23,8 +23,6 @@ import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from
 import { FileUploadDto } from './dto/file-upload.dto';
 import { CreateCommentRequestDto } from './dto/create-comment-request.dto';
 import { UpdatePostRequestDto } from './dto/update-post-request.dto';
-import { UpdatePostResponseDto } from './dto/update-post-response.dto';
-import { GetUserPostsResponseDto } from './dto/get-user-posts-response.dto';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 import { User } from '../../common/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
@@ -87,7 +85,6 @@ export class PostsController {
     }))
     @SwaggerApi({
         description: 'Update post',
-        type: UpdatePostResponseDto,
     })
     async updatePost(
         @User() user: UserEntity,

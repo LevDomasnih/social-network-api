@@ -3,10 +3,11 @@ import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from '../../common/decorators/user.decorator';
-import { FollowUsersModel } from './models/follow-users.model';
 import { UserEntity } from './user.entity';
-import { UserMeModel } from './models/user-me.model';
-import { GetUserMeResponseDto } from './dto/get-user-me-response.dto';
+import { GetUsersResponseDto } from './dto/get-users/get-users-response.dto';
+import { GetMeResponseDto } from './dto/get-me/get-me-response.dto';
+import { GetUserByIdResponseDto } from './dto/get-user-by-id/get-user-by-id-response.dto';
+import { GetFollowUsersResponseDto } from './dto/get-follow-users/get-follow-users-response.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -19,8 +20,9 @@ export class UsersController {
     @Get()
     @ApiCreatedResponse({
         description: 'Get users',
+        type: [GetUsersResponseDto],
     })
-    async getUsers(): Promise<UserEntity[]> {
+    async getUsers(): Promise<GetUsersResponseDto[]> {
         return this.userService.getUsers();
     }
 
@@ -29,25 +31,27 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     @ApiCreatedResponse({
         description: 'Get me',
-        type: GetUserMeResponseDto
+        type: GetMeResponseDto,
     })
-    async getMe(@User() user: UserEntity): Promise<GetUserMeResponseDto> {
+    async getMe(@User() user: UserEntity): Promise<GetMeResponseDto> {
         return this.userService.getMe(user.id);
     }
 
     @Get(':id')
     @ApiCreatedResponse({
         description: 'Get user by id',
+        type: GetUserByIdResponseDto,
     })
-    async getUserById(@Param('id') id: string): Promise<UserEntity> {
+    async getUserById(@Param('id') id: string): Promise<GetUserByIdResponseDto> {
         return this.userService.getUserById(id);
     }
 
     @ApiCreatedResponse({
         description: 'Get members',
+        type: [GetFollowUsersResponseDto],
     })
     @Get('follow/:id')
-    async getFollowUsers(@Param('id') id: string): Promise<FollowUsersModel[] | []> {
+    async getFollowUsers(@Param('id') id: string): Promise<GetFollowUsersResponseDto[]> {
         return this.userService.getFollowUsers(id);
     }
 }
