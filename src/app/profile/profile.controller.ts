@@ -3,9 +3,9 @@ import { ProfileService } from './profile.service';
 import { UpdateProfileRequestDto } from './dto/update-profile-request.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { User } from '../decorators/user.decorator';
+import { User } from '../../common/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
-import { IdValidationPipe } from '../pipes/id-validation.pipe';
+import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
 
 @ApiTags('profile')
 @Controller('profile')

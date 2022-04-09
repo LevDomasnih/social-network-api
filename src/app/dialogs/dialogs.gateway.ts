@@ -2,7 +2,7 @@ import { MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSock
 import { Logger, UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { DialogsService } from './dialogs.service';
-import { User } from '../decorators/user.decorator';
+import { User } from '../../common/decorators/user.decorator';
 import { JwtWsAuthGuard } from '../auth/guards/jwt-ws.guard';
 import { UpdateDialogResponseDto } from './dto/update-dialog-response.dto';
 import { UserEntity } from '../users/user.entity';

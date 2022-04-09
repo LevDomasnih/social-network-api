@@ -18,7 +18,7 @@ import { Express, Response } from 'express';
 import { diskStorage } from 'multer';
 import { CreatePostRequestDto } from './dto/create-post-request.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { IdValidationPipe } from '../pipes/id-validation.pipe';
+import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { FileUploadDto } from './dto/file-upload.dto';
 import { CreateCommentRequestDto } from './dto/create-comment-request.dto';
@@ -26,7 +26,7 @@ import { UpdatePostRequestDto } from './dto/update-post-request.dto';
 import { UpdatePostResponseDto } from './dto/update-post-response.dto';
 import { GetUserPostsResponseDto } from './dto/get-user-posts-response.dto';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
-import { User } from '../decorators/user.decorator';
+import { User } from '../../common/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
 import { PostWithCommentsDto } from './dto/post-with-comments.dto';
 

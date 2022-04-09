@@ -2,7 +2,7 @@ import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { User } from '../decorators/user.decorator';
+import { User } from '../../common/decorators/user.decorator';
 import { FollowUsersModel } from './models/follow-users.model';
 import { UserEntity } from './user.entity';
 import { UserMeModel } from './models/user-me.model';

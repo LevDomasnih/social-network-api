@@ -2,9 +2,9 @@ import { Controller, Delete, Param, Put, UseGuards } from '@nestjs/common';
 import { FollowService } from './follow.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { User } from '../decorators/user.decorator';
+import { User } from '../../common/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
-import { IdValidationPipe } from '../pipes/id-validation.pipe';
+import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
 
 @ApiTags('follow')
 @Controller('follow')

@@ -1,14 +1,14 @@
 import { applyDecorators, Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { DialogsService } from './dialogs.service';
 import { CreateDialogRequestDto } from './dto/create-dialog-request.dto';
-import { IdValidationPipe } from '../pipes/id-validation.pipe';
+import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
 import { UpdateOwnersRequestDto } from './dto/update-owners-request.dto';
 import { CreateDialogResponseDto } from './dto/create-dialog-response.dto';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { GetDialogResponseDto } from './dto/get-dialog-response-dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ApiResponseOptions } from '@nestjs/swagger/dist/decorators/api-response.decorator';
-import { User } from '../decorators/user.decorator';
+import { User } from '../../common/decorators/user.decorator';
 import { UserModel } from '../users/user.model';
 import { UserEntity } from '../users/user.entity';
 
