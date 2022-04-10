@@ -7,6 +7,7 @@ import { UsersRepository } from '../users/users.repository';
 import { ProfileRepository } from '../profile/profile.repository';
 import { PostsRepository } from '../posts/posts.repository';
 import { FollowRepository } from '../follow/follow.repository';
+import { IsValidFieldsRequestDto } from './dto/is-valid-fields/is-valid-fields.request.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
     }
 
     async register(dto: AuthRegisterRequestDto) {
-        const oldUser = await this.findUser(dto.email);
+        const oldUser = (await this.findUser({email: dto.email}))[0];
 
         if (oldUser) {
             throw new BadRequestException('Данный пользователь уже зарегистрирован!');
@@ -47,8 +48,10 @@ export class AuthService {
         }
     }
 
-    async isValidEmail(dto: { email: string }) {
-        return this.userRepository.existsByOptions(dto);
+    async isValidFields(dto: IsValidFieldsRequestDto) {
+        return {
+            valid: await this.userRepository.existsByOptions(dto)
+        };
     }
 
     private async createAccessToken(email: string) {
@@ -82,12 +85,12 @@ export class AuthService {
         }
     }
 
-    private async findUser(login: string) {
-        return this.userRepository.findOne({ login }, { select: ['passwordHash', 'email'] });
+    private async findUser(options: {[key: string]: string}) {
+        return this.userRepository.find({where: Object.keys(options).map(e => ({[e]: options[e]})),  select: ['passwordHash', 'email'] });
     }
 
     private async validateUser(login: string, password: string) {
-        const user = await this.findUser(login);
+        const user = (await this.findUser({login}))[0];
         if (!user) {
             throw new UnauthorizedException('Данного пользователя не существует');
         }
