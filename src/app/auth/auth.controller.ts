@@ -1,10 +1,12 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthRegisterRequestDto } from './dto/auth-register/auth-register.request.dto';
 import { AuthLoginResponseDto } from './dto/auth-login/auth-login.response.dto';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { AuthRegisterResponseDto } from './dto/auth-register/auth-register.response.dto';
 import { AuthLoginRequestDto } from './dto/auth-login/auth-login.request.dto';
+import { IsValidFieldsRequestDto } from './dto/is-valid-fields/is-valid-fields.request.dto';
+import { IsValidFieldsResponseDto } from './dto/is-valid-fields/is-valid-fields.response.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,12 +33,12 @@ export class AuthController {
     }
 
     @HttpCode(200)
-    @Post('validate')
+    @Get('validate')
     @ApiCreatedResponse({
-        description: 'is valid email',
-        type: Boolean,
+        description: 'is valid fields',
+        type: IsValidFieldsResponseDto,
     })
-    async isValidEmail(@Body() dto: {email: string}): Promise<boolean> {
-        return this.authService.isValidEmail(dto)
+    async isValidFields(@Query() query: {[key: string]: string}): Promise<IsValidFieldsResponseDto> {
+        return this.authService.isValidFields(query)
     }
 }
