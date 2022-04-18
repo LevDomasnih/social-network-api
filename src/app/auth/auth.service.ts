@@ -20,8 +20,8 @@ export class AuthService {
     ) {
     }
 
-    async login({ login, password }: AuthLoginRequestDto) {
-        const { email } = await this.validateUser(login, password);
+    async login({ loginOrEmail, password }: AuthLoginRequestDto) {
+        const { email } = await this.validateUser(loginOrEmail, password);
         return this.createAccessToken(email);
     }
 
@@ -61,13 +61,13 @@ export class AuthService {
         };
     }
 
-    private async createUser({ email, password, login, ...dto }: AuthRegisterRequestDto) {
+    private async createUser({ email, password, ...dto }: AuthRegisterRequestDto) {
         const salt = await genSalt(10);
         try {
             const userInstance = this.userRepository.create({
                 email: email,
                 passwordHash: await hash(password, salt),
-                login,
+                login: email,
             });
             const user = await this.userRepository.save(userInstance);
             const follow = await this.followRepository.create({
@@ -89,8 +89,8 @@ export class AuthService {
         return this.userRepository.find({where: Object.keys(options).map(e => ({[e]: options[e]})),  select: ['passwordHash', 'email'] });
     }
 
-    private async validateUser(login: string, password: string) {
-        const user = (await this.findUser({login}))[0];
+    private async validateUser(loginOrEmail: string, password: string) {
+        const user = (await this.findUser({login: loginOrEmail, email: loginOrEmail}))[0];
         if (!user) {
             throw new UnauthorizedException('Данного пользователя не существует');
         }

@@ -5,10 +5,6 @@ export class AuthRegisterRequestDto {
 
     @IsString()
     @ApiProperty()
-    login: string
-
-    @IsString()
-    @ApiProperty()
     firstName: string
 
     @IsString()
