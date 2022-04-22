@@ -1,14 +1,46 @@
 version: '3.1'
 
 services:
+  backend:
+    build: .
+    ports:
+      - 3000:3000
+    volumes:
+       - ./.env:/opt/app/.env
+    networks:
+      - back
+      - reverse-proxy
+    depends_on:
+      - postgres
+      - mongo
+
   pg_network1:
     image: postgres
     restart: always
-    environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
-      - POSTGRES_HOST=127.0.0.1
-      - POSTGRES_PORT=5432
+    env_file: .env
     ports:
       - ${POSTGRES_PORT:-5432}:5432
+
+  mongo:
+    image: mongo:4.4.4
+    container_name: mongo
+    restart: always
+    env_file: .env
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo-data-4.4:/data/db
+    command: --wiredTigerCacheSizeGB 1.5
+
+networks:
+  reverse-proxy:
+    external:
+      name: reverse-proxy
+  back:
+    driver: bridge
+
+volumes:
+  postgres:
