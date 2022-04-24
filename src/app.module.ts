@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypegooseModule } from 'nestjs-typegoose';
-import { getMongoConfig } from './common/configs/mongo.config';
 import { AuthModule } from './app/auth/auth.module';
 import { ProfileModule } from './app/profile/profile.module';
 import { UsersModule } from './app/users/users.module';
@@ -15,11 +13,6 @@ import { typeOrmConfig } from './common/configs/typeorm.config';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    // TypegooseModule.forRootAsync({
-    //   imports: [ConfigModule],
-    //   inject: [ConfigService],
-    //   useFactory: getMongoConfig
-    // }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: typeOrmConfig,
