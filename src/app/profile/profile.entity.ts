@@ -38,7 +38,7 @@ export class ProfileEntity extends BaseEntity {
     about?: string;
 
     @ApiProperty()
-    @Column({ nullable: true })
+    @Column({ type: 'timestamp' ,nullable: true })
     birthday?: string;
 
     @ApiProperty()

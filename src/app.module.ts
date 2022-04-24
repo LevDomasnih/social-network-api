@@ -15,11 +15,11 @@ import { typeOrmConfig } from './common/configs/typeorm.config';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypegooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: getMongoConfig
-    }),
+    // TypegooseModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: getMongoConfig
+    // }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: typeOrmConfig,
