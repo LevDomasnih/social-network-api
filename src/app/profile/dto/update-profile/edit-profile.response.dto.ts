@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateProfileResponseDto {
+export class EditProfileResponseDto {
     @ApiProperty({
         description: 'профиль обновлен',
         example: true

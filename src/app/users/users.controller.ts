@@ -35,7 +35,7 @@ export class UsersController {
         type: GetMeResponseDto,
     })
     async getMe(@User() user: UserEntity): Promise<GetMeResponseDto> {
-        return this.userService.getMe(user.id);
+        return this.userService.getUserById(user.id);
     }
 
     @Get(':id')

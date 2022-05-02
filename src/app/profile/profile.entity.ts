@@ -22,6 +22,10 @@ export class ProfileEntity extends BaseEntity {
     lastName: string
 
     @ApiProperty()
+    @Column({name: 'middle_name', nullable: true})
+    middleName: string
+
+    @ApiProperty()
     @Column()
     phone: string
 

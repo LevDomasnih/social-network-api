@@ -11,12 +11,6 @@ export class UsersService {
     ) {
     }
 
-    async getMe(id: string): Promise<UserMeModel> {
-        return (await this.usersRepository.findOne(id, {
-            relations: ['profile'],
-        })) as unknown as Promise<UserMeModel>;
-    }
-
     async getUserById(id: string): Promise<UserEntity> {
         const user = await this.usersRepository.findOne(id);
         if (!user) {

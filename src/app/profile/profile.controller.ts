@@ -6,7 +6,7 @@ import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '../../common/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
 import { IdValidationPipe } from '../../common/pipes/id-validation.pipe';
-import { UpdateProfileResponseDto } from './dto/update-profile/update-profile.response.dto';
+import { EditProfileResponseDto } from './dto/update-profile/edit-profile.response.dto';
 import { FindProfileResponseDto } from './dto/find-profile/find-profile.response.dto';
 
 @ApiTags('profile')
@@ -15,18 +15,18 @@ export class ProfileController {
     constructor(private readonly profileService: ProfileService) {
     }
 
-    @Post('update')
+    @Post('edit')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @ApiCreatedResponse({
         description: 'Update user profile',
-        type: UpdateProfileResponseDto,
+        type: EditProfileResponseDto,
     })
-    async update(
+    async edit(
         @User() user: UserEntity,
         @Body() dto: UpdateProfileRequestDto,
-    ): Promise<UpdateProfileResponseDto> {
-        return this.profileService.updateProfile(user, dto);
+    ): Promise<EditProfileResponseDto> {
+        return this.profileService.editProfile(user, dto);
     }
 
     @Get(':userId')

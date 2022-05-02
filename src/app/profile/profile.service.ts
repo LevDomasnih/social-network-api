@@ -3,7 +3,7 @@ import { UpdateProfileRequestDto } from './dto/update-profile/update-profile.req
 import { UserEntity } from '../users/user.entity';
 import { UsersRepository } from '../users/users.repository';
 import { ProfileRepository } from './profile.repository';
-import { UpdateProfileResponseDto } from './dto/update-profile/update-profile.response.dto';
+import { EditProfileResponseDto } from './dto/update-profile/edit-profile.response.dto';
 import { FindProfileResponseDto } from './dto/find-profile/find-profile.response.dto';
 
 @Injectable()
@@ -14,16 +14,23 @@ export class ProfileService {
     ) {
     }
 
-    async updateProfile(user: UserEntity, dto: UpdateProfileRequestDto): Promise<UpdateProfileResponseDto> {
+    async editProfile(
+        user: UserEntity,
+        { email, login, middleName, ...dto }: UpdateProfileRequestDto
+    ): Promise<EditProfileResponseDto> {
         const owner = await this.usersRepository.findOne(user.id);
         if (!owner) {
             throw new BadRequestException('Профиль отсутствует');
         }
+        const updatedUser = await this.usersRepository.update(
+            user.id,
+            {email, login}
+        );
         const profile = await this.profileRepository.update(
             { owner },
             { ...dto },
         );
-        return { updated: profile.affected === 1 };
+        return { updated: profile.affected === 1 && updatedUser.affected === 1 };
     }
 
     async findProfile(userId: string): Promise<FindProfileResponseDto> {
