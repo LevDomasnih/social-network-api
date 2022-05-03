@@ -9,6 +9,7 @@ import { DialogsModule } from './app/dialogs/dialogs.module';
 import { MessagesModule } from './app/messages/messages.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './common/configs/typeorm.config';
+import { FilesModule } from './app/files/files.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { typeOrmConfig } from './common/configs/typeorm.config';
     FollowModule,
     PostsModule,
     DialogsModule,
-    MessagesModule
+    MessagesModule,
+    FilesModule
   ]
 })
 export class AppModule {}

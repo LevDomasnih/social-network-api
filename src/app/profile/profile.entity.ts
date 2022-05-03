@@ -42,7 +42,7 @@ export class ProfileEntity extends BaseEntity {
     about?: string;
 
     @ApiProperty()
-    @Column({ type: 'timestamp' ,nullable: true })
+    @Column({ type: 'timestamp', nullable: true })
     birthday?: string;
 
     @ApiProperty()
@@ -60,4 +60,8 @@ export class ProfileEntity extends BaseEntity {
     @ApiProperty()
     @Column({ nullable: true })
     school?: string;
+
+    @ApiProperty()
+    @Column({ name: 'main_image', nullable: true })
+    mainImage?: string
 }
