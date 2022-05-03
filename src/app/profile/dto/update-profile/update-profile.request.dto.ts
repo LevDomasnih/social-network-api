@@ -21,10 +21,6 @@ export class UpdateProfileRequestDto {
 
     @ApiProperty()
     @IsString()
-    avatar: string
-
-    @ApiProperty()
-    @IsString()
     email: string
 
     @ApiProperty()
@@ -55,11 +51,6 @@ export class UpdateProfileRequestDto {
     @IsString()
     @IsOptional()
     school?: string
-
-    @ApiProperty()
-    @IsString()
-    @IsOptional()
-    mainImage?: string
 
     @ApiProperty()
     @IsString()

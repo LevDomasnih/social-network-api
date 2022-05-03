@@ -11,6 +11,7 @@ import { FindProfileResponseDto } from './dto/find-profile/find-profile.response
 import { EditAvatarResponse } from './dto/edit-avatar/edit-avatar.response';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express'
+import { EditMainImageResponseDto } from './dto/edit-main-image/edit-main-image.response.dto';
 
 @ApiTags('profile')
 @Controller('profile')
@@ -51,5 +52,17 @@ export class ProfileController {
     })
     async editAvatar(@UploadedFiles() files: Express.Multer.File[], @User() user: UserEntity) {
         return this.profileService.editAvatar(files, user);
+    }
+
+    @Post('editMainImage')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FilesInterceptor('mainImage'))
+    @ApiCreatedResponse({
+        description: 'Update mainImage',
+        type: EditMainImageResponseDto,
+    })
+    async editMainImage(@UploadedFiles() files: Express.Multer.File[], @User() user: UserEntity) {
+        return this.profileService.editMainImage(files, user);
     }
 }
