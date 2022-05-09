@@ -15,9 +15,9 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
             SELECT json_agg(
                                    row_to_json(d)::jsonb ||
                                    (SELECT row_to_json(dou)
-                                    FROM dialogs_owners_users dou
-                                    WHERE d.id = dou."dialogsId"
-                                      AND dou."usersId" = $1)::jsonb ||
+                                    FROM dialogs_users du
+                                    WHERE d.id = du.dialogs_id
+                                      AND du.users_id = $1)::jsonb ||
                                    json_build_object(
                                            'lastMessage',
                                            (SELECT json_agg(row_to_json(m) ORDER BY id) FROM messages m)::json -> 0
@@ -33,9 +33,9 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
             SELECT json_agg(
                                    row_to_json(d)::jsonb ||
                                    (SELECT row_to_json(dou)
-                                    FROM dialogs_owners_users dou
-                                    WHERE d.id = dou."dialogsId"
-                                      AND dou."usersId" = $1)::jsonb ||
+                                    FROM dialogs_users du
+                                    WHERE d.id = du.dialogs_id
+                                      AND dou.users_id = $1)::jsonb ||
                                    json_build_object(
                                            'messages',
                                            (SELECT json_agg(row_to_json(m) ORDER BY id) FROM messages m)

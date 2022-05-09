@@ -1,11 +1,10 @@
-import { BaseEntity } from './base.entity';
 import { DeepPartial, EntityManager, getManager, Repository } from 'typeorm';
 import { SaveOptions } from 'typeorm/repository/SaveOptions';
 import { BadRequestException } from '@nestjs/common';
 import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
-import { BaseInterface } from '@app/nest-postgre/entities';
+import { BaseInterface, BaseModel } from '@app/nest-postgre/entities';
 
-export class BaseRepository<T extends BaseEntity> extends Repository<T> implements BaseInterface<T> {
+export class BaseRepository<T extends BaseModel> extends Repository<T> implements BaseInterface<T> {
     protected readonly db: EntityManager;
 
     constructor() {

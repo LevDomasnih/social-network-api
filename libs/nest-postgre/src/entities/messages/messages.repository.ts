@@ -1,4 +1,4 @@
-import { MessagesEntity } from './messages.entity';
+import { MessagesEntity } from './messages.entity'
 import { EntityRepository } from 'typeorm';
 import { BaseRepository, MessagesRepositoryInterface } from '@app/nest-postgre/entities';
 

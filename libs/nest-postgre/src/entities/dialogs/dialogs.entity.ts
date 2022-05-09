@@ -1,7 +1,7 @@
-import { Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, JoinColumn, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
-import { MessagesEntity } from '@app/nest-postgre/entities';
+import { BaseCustomEntity, MessagesEntity } from '@app/nest-postgre/entities';
 
 // class Options {
 //
@@ -11,14 +11,20 @@ import { MessagesEntity } from '@app/nest-postgre/entities';
 // }
 
 @Entity('dialogs')
-export class DialogsEntity {
-    @ApiProperty()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
+export class DialogsEntity extends BaseCustomEntity {
     @ApiProperty({ type: () => [UserEntity] })
     @ManyToMany(() => UserEntity, user => user.dialogs, { onDelete: 'CASCADE', cascade: true })
-    @JoinTable()
+    @JoinTable({
+        name: 'dialogs_users',
+        joinColumn: {
+            name: 'dialogs_id',
+            referencedColumnName: 'id'
+        },
+        inverseJoinColumn: {
+            name: 'users_id',
+            referencedColumnName: 'id'
+        }
+    })
     owners: UserEntity[];
 
     @ApiProperty({ type: () => [MessagesEntity] })

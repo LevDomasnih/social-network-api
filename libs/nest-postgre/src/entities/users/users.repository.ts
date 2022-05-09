@@ -19,7 +19,7 @@ export class UsersRepository extends BaseRepository<UserEntity> implements UserR
         return this.db.query(`
             SELECT u.id, u.email, u.login
             FROM follow f
-                     INNER JOIN subscribers s ON f.id = s."subscriberId"
+                     INNER JOIN subscribers s ON f.id = s."subscriber_id"
                      INNER JOIN users u ON u.id = f."ownerId"
             WHERE f.id = $1
         `, [id]);

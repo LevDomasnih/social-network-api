@@ -1,64 +1,72 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateProfileRequestDto {
 
     @ApiProperty()
     @IsString()
-    middleName: string
+    middleName: string;
 
     @ApiProperty()
     @IsString()
-    firstName: string
+    firstName: string;
 
     @ApiProperty()
     @IsString()
-    lastName: string
+    lastName: string;
 
     @ApiProperty()
     @IsString()
-    phone: string
+    phone: string;
 
     @ApiProperty()
     @IsString()
-    email: string
+    email: string;
 
     @ApiProperty()
     @IsString()
-    login: string
-
-    @ApiProperty()
-    @IsString()
-    @IsOptional()
-    birthday?: string
+    login: string;
 
     @ApiProperty()
     @IsString()
     @IsOptional()
-    country?: string
+    birthday?: string;
 
     @ApiProperty()
     @IsString()
     @IsOptional()
-    city?: string
+    country?: string;
 
     @ApiProperty()
     @IsString()
     @IsOptional()
-    relatives?: string
+    city?: string;
 
     @ApiProperty()
     @IsString()
     @IsOptional()
-    school?: string
+    relatives?: string;
 
     @ApiProperty()
     @IsString()
     @IsOptional()
-    status?: string
+    school?: string;
 
     @ApiProperty()
     @IsString()
     @IsOptional()
-    about?: string
+    status?: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsOptional()
+    about?: string;
+
+    @ApiProperty({ type: Date })
+    @IsDateString()
+    createdAt: Date;
+
+    @ApiProperty({ type: Date })
+    @IsDateString()
+    updatedAt: Date;
 }

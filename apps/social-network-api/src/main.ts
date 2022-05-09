@@ -3,13 +3,17 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
+import { join } from 'path'
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe({
     forbidNonWhitelisted: true,
     whitelist: true,
+    transform: true,
   }));
+  app.useStaticAssets(join(__dirname, '../../../../../../..', 'social-network-files', 'public'))
   const config = new DocumentBuilder()
       .setTitle('Social network')
       .setDescription('Social network API ')

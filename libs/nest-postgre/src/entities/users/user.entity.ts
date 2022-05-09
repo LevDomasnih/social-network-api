@@ -1,18 +1,16 @@
-import { Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProfileEntity } from '../profile/profile.entity';
 import { FollowEntity } from '../follow/follow.entity';
 import { PostEntity } from '../posts/post.entity';
 import { DialogsEntity } from '../dialogs/dialogs.entity';
-import { MessagesEntity } from '@app/nest-postgre/entities';
+import { BaseCustomEntity, MessagesEntity } from '@app/nest-postgre/entities';
+import { IsString } from 'class-validator';
 
 @Entity('users')
-export class UserEntity {
+export class UserEntity extends BaseCustomEntity {
     @ApiProperty()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
-    @ApiProperty()
+    @IsString()
     @Column()
     email: string;
 
@@ -20,6 +18,7 @@ export class UserEntity {
     passwordHash: string;
 
     @ApiProperty()
+    @IsString()
     @Column({ unique: true })
     login: string;
 

@@ -1,8 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { FileSystemServiceModule } from './file-system-service.module';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(FileSystemServiceModule);
-  await app.listen(3000);
+  const PORT = 3020
+  const app = await NestFactory.create(AppModule);
+  await app.startAllMicroservices();
+  await app.listen(PORT, () => {
+    // Logger.verbose(`Server FILEPARSER started on ${ PORT }`, 'FILEPARSER APPLICATION');
+  });
 }
 bootstrap();

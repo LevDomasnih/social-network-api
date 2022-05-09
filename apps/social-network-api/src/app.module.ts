@@ -9,9 +9,11 @@ import { DialogsModule } from './app/dialogs/dialogs.module';
 import { MessagesModule } from './app/messages/messages.module';
 import { FilesModule } from './app/files/files.module';
 import { NestPostgreModule } from '@app/nest-postgre';
+import { SharedModule } from '@app/common/shared.module';
 
 @Module({
   imports: [
+    SharedModule,
     ConfigModule.forRoot(),
     NestPostgreModule,
     AuthModule,

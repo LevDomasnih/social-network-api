@@ -1,20 +1,19 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
 import { DialogsEntity } from '../dialogs/dialogs.entity';
+import { BaseCustomEntity, FilesEntity } from '@app/nest-postgre/entities';
 
 @Entity('messages')
-export class MessagesEntity {
-    @ApiProperty()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
+export class MessagesEntity extends BaseCustomEntity {
     @ApiProperty({ type: () => [DialogsEntity], default: ['dialogId'] })
     @ManyToOne(() => DialogsEntity, dialog => dialog.messages)
+    @JoinColumn({name: 'dialog_id'})
     dialog: DialogsEntity;
 
     @ApiProperty({ type: () => UserEntity, default: 'owner_id' })
     @ManyToOne(() => UserEntity, user => user.messages)
+    @JoinColumn({name: 'owner_id'})
     owner: UserEntity;
 
     @ApiProperty()
@@ -22,10 +21,12 @@ export class MessagesEntity {
     text: string;
 
     @ApiProperty()
-    @Column({ default: '' })
+    @ApiProperty({type: () => FilesEntity})
+    @OneToOne(() => FilesEntity)
     image: string;
 
     @ApiProperty()
-    @Column({ default: '' })
+    @ApiProperty({type: () => FilesEntity})
+    @OneToOne(() => FilesEntity)
     file: string;
 }

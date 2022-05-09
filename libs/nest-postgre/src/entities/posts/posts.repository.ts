@@ -12,12 +12,12 @@ export class PostsRepository extends BaseRepository<PostEntity> implements Posts
                     coalesce(
                             (SELECT json_agg(row_to_json(postChild))
                              FROM posts postChild
-                             WHERE postChild."parentPostsId" = p.id),
+                             WHERE postChild.parent_posts_id = p.id),
                             '[]'::json)
                 )::jsonb)
                              FROM posts p
-                             WHERE p."ownerId" = u.id
-                               AND p."parentPostsId" IS NULL), '[]'::json) as rows
+                             WHERE p.owner_id = u.id
+                               AND p.parent_posts_id IS NULL), '[]'::json) as rows
             FROM users u
             WHERE id = $1;
         `, [userId]);

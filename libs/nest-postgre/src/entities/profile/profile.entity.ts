@@ -1,37 +1,40 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
+import { BaseCustomEntity, FilesEntity } from '@app/nest-postgre/entities';
 
 @Entity('profiles')
-export class ProfileEntity extends BaseEntity {
-    @ApiProperty()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
+export class ProfileEntity extends BaseCustomEntity {
     @ApiProperty({ type: () => UserEntity, default: 'ownerId' })
     @OneToOne(() => UserEntity, user => user.profile)
-    @JoinColumn()
-    owner: UserEntity
+    @JoinColumn({name: 'owner_id'})
+    owner: UserEntity;
 
     @ApiProperty()
-    @Column({name: 'first_name'})
-    firstName: string
+    @Column({ name: 'first_name' })
+    firstName: string;
 
     @ApiProperty()
-    @Column({name: 'last_name'})
-    lastName: string
+    @Column({ name: 'last_name' })
+    lastName: string;
 
     @ApiProperty()
-    @Column({name: 'middle_name', nullable: true})
-    middleName: string
+    @Column({ name: 'middle_name', nullable: true })
+    middleName: string;
 
     @ApiProperty()
     @Column()
-    phone: string
+    phone: string;
 
-    @ApiProperty()
-    @Column({ nullable: true })
-    avatar?: string
+    @ApiProperty({type: () => FilesEntity})
+    @OneToOne(() => FilesEntity)
+    @JoinColumn({ name: 'avatar_id' })
+    avatar: FilesEntity;
+
+    @ApiProperty({type: () => FilesEntity})
+    @OneToOne(() => FilesEntity)
+    @JoinColumn({ name: 'main_image_id' })
+    mainImage: FilesEntity;
 
     @ApiProperty()
     @Column({ nullable: true })
@@ -42,8 +45,8 @@ export class ProfileEntity extends BaseEntity {
     about?: string;
 
     @ApiProperty()
-    @Column({ type: 'timestamp', nullable: true })
-    birthday?: string;
+    @Column({ type: 'timestamp', nullable: true, default: new Date(0) })
+    birthday?: Date;
 
     @ApiProperty()
     @Column({ nullable: true })
@@ -60,8 +63,4 @@ export class ProfileEntity extends BaseEntity {
     @ApiProperty()
     @Column({ nullable: true })
     school?: string;
-
-    @ApiProperty()
-    @Column({ name: 'main_image', nullable: true })
-    mainImage?: string
 }

@@ -1,17 +1,13 @@
-import { Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
-import { SubscribersEntity } from '@app/nest-postgre/entities';
+import { BaseCustomEntity, SubscribersEntity } from '@app/nest-postgre/entities';
 
 @Entity('follow')
-export class FollowEntity {
-    @ApiProperty()
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
-
+export class FollowEntity extends BaseCustomEntity {
     @ApiProperty({ type: () => UserEntity, default: 'owner_id' })
     @OneToOne(() => UserEntity, user => user.follow)
-    @JoinColumn()
+    @JoinColumn({name: 'owner_id'})
     owner: UserEntity;
 
     @ApiProperty({ type: () => SubscribersEntity, default: ['userId'] })
@@ -20,5 +16,6 @@ export class FollowEntity {
 
     @ApiProperty({ type: () => SubscribersEntity, default: ['userId'] })
     @OneToMany(() => SubscribersEntity, follow => follow.subscriberOwner)
+    @JoinColumn({name: 'subscriber_owner_id'})
     subscriberOwner: FollowEntity[];
 }

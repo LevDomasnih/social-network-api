@@ -42,27 +42,29 @@ export class ProfileController {
         return this.profileService.findProfile(userId);
     }
 
-    @Post('editAvatar')
+    @Post('editImg/:field')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FilesInterceptor('avatar'))
+    @UseInterceptors(FilesInterceptor('image'))
     @ApiCreatedResponse({
-        description: 'Update avatar',
+        description: 'Update img',
         type: EditAvatarResponse,
     })
-    async editAvatar(@UploadedFiles() files: Express.Multer.File[], @User() user: UserEntity) {
-        return this.profileService.editAvatar(files, user);
+    async editImg(
+        @Param('field') field: 'avatar' | 'mainImage',
+        @UploadedFiles() files: Express.Multer.File[], @User() user: UserEntity) {
+        return this.profileService.editImage(files, user, field);
     }
 
-    @Post('editMainImage')
-    @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FilesInterceptor('mainImage'))
-    @ApiCreatedResponse({
-        description: 'Update mainImage',
-        type: EditMainImageResponseDto,
-    })
-    async editMainImage(@UploadedFiles() files: Express.Multer.File[], @User() user: UserEntity) {
-        return this.profileService.editMainImage(files, user);
-    }
+    // @Post('editMainImage')
+    // @ApiBearerAuth()
+    // @UseGuards(JwtAuthGuard)
+    // @UseInterceptors(FilesInterceptor('mainImage'))
+    // @ApiCreatedResponse({
+    //     description: 'Update mainImage',
+    //     type: EditMainImageResponseDto,
+    // })
+    // async editMainImage(@UploadedFiles() files: Express.Multer.File[], @User() user: UserEntity) {
+    //     return this.profileService.editMainImage(files, user);
+    // }
 }

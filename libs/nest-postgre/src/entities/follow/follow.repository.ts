@@ -8,9 +8,9 @@ export class FollowRepository extends BaseRepository<FollowEntity> implements Fo
         const userFollow = await this.createQueryBuilder()
             .select('s.id', 'id')
             .from(FollowEntity, 'follow')
-            .where('follow.id = :followId', { followId: subscriberId })
+            .where('follow.id = :follow_id', { follow_id: subscriberId })
             .innerJoinAndSelect('follow.subscriber', 's')
-            .andWhere('s.subscriberOwnerId = :ownerId', { ownerId: subscriberOwnerId })
+            .andWhere('s.subscriber_owner_id = :owner_id', { owner_id: subscriberOwnerId })
             .getRawOne();
         return !!userFollow
     }
@@ -19,9 +19,9 @@ export class FollowRepository extends BaseRepository<FollowEntity> implements Fo
         return createQueryBuilder()
             .select('s.id', 'id')
             .from(FollowEntity, 'follow')
-            .where('follow.id = :followId', { followId: subscriberId })
+            .where('follow.id = :follow_id', { follow_id: subscriberId })
             .innerJoinAndSelect('follow.subscriber', 's')
-            .andWhere('s.subscriberOwnerId = :ownerId', { ownerId: subscriberOwnerId })
+            .andWhere('s.subscriber_owner_id = :owner_id', { owner_id: subscriberOwnerId })
             .getRawOne();
     }
 }
