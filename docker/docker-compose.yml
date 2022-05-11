@@ -38,7 +38,11 @@ services:
       - data:/var/lib/rabbitmq
       - dataLogs:/var/log/rabbitmq
     ports:
-      - 5672:5672
+      - "4369:4369"
+      - "5672:5672"
+      - "15672:15672"
+      - "25672:25672"
+      - "35197:35197"
 #networks:
 #  reverse-proxy:
 #    external:
