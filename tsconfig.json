@@ -26,6 +26,12 @@
       ],
       "@app/nest-postgre/*": [
         "libs/nest-postgre/src/*"
+      ],
+      "@app/amqp-contracts": [
+        "libs/amqp-contracts/src"
+      ],
+      "@app/amqp-contracts/*": [
+        "libs/amqp-contracts/src/*"
       ]
     }
   }

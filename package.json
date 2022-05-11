@@ -96,7 +96,8 @@
     ],
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/nest-postgre(|/.*)$": "<rootDir>/libs/nest-postgre/src/$1"
+      "^@app/nest-postgre(|/.*)$": "<rootDir>/libs/nest-postgre/src/$1",
+      "^@app/amqp-contracts(|/.*)$": "<rootDir>/libs/amqp-contracts/src/$1"
     }
   }
 }

@@ -42,6 +42,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/nest-postgre/tsconfig.lib.json"
       }
+    },
+    "amqp-contracts": {
+      "type": "library",
+      "root": "libs/amqp-contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/amqp-contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/amqp-contracts/tsconfig.lib.json"
+      }
     }
   }
 }

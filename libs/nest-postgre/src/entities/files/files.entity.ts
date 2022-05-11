@@ -8,6 +8,12 @@ export enum Status {
     REJECTED = 'REJECTED',
 }
 
+export enum FolderName {
+    PUBLIC = 'public',
+    PRIVATE = 'private',
+    TEMP = 'temp'
+}
+
 @Entity('files')
 export class FilesEntity extends BaseCustomEntity {
     @ApiProperty({ type: () => UserEntity, default: 'ownerId' })

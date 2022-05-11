@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BaseFileWorkerService } from '../base-file-worker/base-file-worker.service';
-import { ISaveFileRequest } from '../base-file-worker/base-file-worker.interface';
+import { ISaveFileRequest, ISaveFileResponse } from '../base-file-worker/base-file-worker.interface';
 
 @Injectable()
 export class UpdateProfileService {
@@ -11,7 +11,7 @@ export class UpdateProfileService {
     ) {
     }
 
-    async updateFile(args: ISaveFileRequest) {
+    async updateFile(args: ISaveFileRequest): Promise<ISaveFileResponse> {
         return this.baseFileWorkerService.saveFile(args);
     }
 }

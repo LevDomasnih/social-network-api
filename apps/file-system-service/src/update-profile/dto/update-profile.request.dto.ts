@@ -1,9 +1,9 @@
-import { ISaveFileRequest } from '../../base-file-worker/base-file-worker.interface';
-import { UserEntity } from '@app/nest-postgre';
-import { IsOptional, IsString, ValidateNested } from 'class-validator';
+import { FolderName, UserEntity } from '@app/nest-postgre';
+import { IsEnum, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { UpdateProfileFileContract } from '@app/amqp-contracts';
 
-export class UpdateProfileRequestDto implements ISaveFileRequest {
+export class UpdateProfileRequestDto implements UpdateProfileFileContract.RequestPayload {
     @ValidateNested()
     @Type(() => Buffer)
     buffer: Buffer;
@@ -11,9 +11,9 @@ export class UpdateProfileRequestDto implements ISaveFileRequest {
     @IsString()
     fileField: string;
 
-    @IsString()
+    @IsEnum(FolderName)
     @IsOptional()
-    folder?: string;
+    folder?: FolderName;
 
     @IsString()
     oldPath: string;

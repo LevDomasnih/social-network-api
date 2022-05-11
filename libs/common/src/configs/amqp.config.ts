@@ -1,11 +1,9 @@
 import { registerAs } from '@nestjs/config';
 import { RabbitMQConfig, RabbitMQExchangeConfig } from '@golevelup/nestjs-rabbitmq';
+import { FILE_SYSTEM_EXCHANGE } from '@app/amqp-contracts';
 
 export const AMQP_CONFIG_EXCHANGES: RabbitMQExchangeConfig[] = [
-    {
-        name: 'file-system',
-        type: 'direct',
-    },
+    FILE_SYSTEM_EXCHANGE
 ];
 
 export const amqpConfig = registerAs('amqp', (): RabbitMQConfig => ({

@@ -1,20 +1,10 @@
-import { Status, UserEntity } from '@app/nest-postgre';
+import { UserEntity } from '@app/nest-postgre';
+import { UpdateProfileFileContract } from '@app/amqp-contracts';
 
-export interface ISaveFileRequest {
-    buffer: Buffer;
-    user: UserEntity;
-    fileField: string;
-    oldPath?: string;
-    folder?: string;
+export interface ISaveFileRequest extends UpdateProfileFileContract.RequestPayload {
 }
 
-export interface ISaveFileResponse {
-    path: string;
-    name: string;
-    status: Status;
-    lastProlong: Date;
-    mime: string;
-    size: number;
+export interface ISaveFileResponse extends UpdateProfileFileContract.ResponsePayload{
 }
 
 export interface IMakeDirRequest {

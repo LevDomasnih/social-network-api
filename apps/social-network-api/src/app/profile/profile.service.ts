@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { FilesRepository, ProfileRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
 import { EditAvatarResponse, EditProfileResponseDto, FindProfileResponseDto, UpdateProfileRequestDto } from './dto';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { UpdateProfileFileContract } from '@app/amqp-contracts';
 
 @Injectable()
 export class ProfileService {
@@ -59,9 +60,9 @@ export class ProfileService {
             throw new BadRequestException('Профиля не существует');
         }
 
-        const newFile = await this.amqpConnection.request({
-            exchange: 'file-system',
-            routingKey: 'update-profile-file',
+        const newFile = await this.amqpConnection.request<UpdateProfileFileContract.ResponsePayload>({
+            exchange: UpdateProfileFileContract.queue.exchange,
+            routingKey: UpdateProfileFileContract.queue.routingKey,
             payload: {
                 buffer: file[0].buffer,
                 user: user,
@@ -83,7 +84,6 @@ export class ProfileService {
         }
 
         return {
-            // @ts-ignore
             fileName: this.url + '/' + newFile.name,
         };
     }
