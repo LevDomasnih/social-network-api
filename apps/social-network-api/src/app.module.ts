@@ -10,6 +10,7 @@ import { MessagesModule } from './app/messages/messages.module';
 import { FilesModule } from './app/files/files.module';
 import { NestPostgreModule } from '@app/nest-postgre';
 import { SharedModule } from '@app/common/shared.module';
+import { StaticModule } from './app/static/static.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { SharedModule } from '@app/common/shared.module';
     PostsModule,
     DialogsModule,
     MessagesModule,
-    FilesModule
+    FilesModule,
+    StaticModule,
   ]
 })
 export class AppModule {}

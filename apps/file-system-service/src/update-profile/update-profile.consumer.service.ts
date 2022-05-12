@@ -1,14 +1,11 @@
-import {
-    AmqpConnection,
-    Nack,
-    RabbitRPC,
-} from '@golevelup/nestjs-rabbitmq';
+import { AmqpConnection, Nack, RabbitRPC } from '@golevelup/nestjs-rabbitmq';
 import { UpdateProfileService } from './update-profile.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { classToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { UpdateProfileRequestDto } from './dto/update-profile.request.dto';
 import { UpdateProfileFileContract } from '@app/amqp-contracts';
+import { FolderName, Status } from '@app/nest-postgre';
 
 @Injectable()
 export class UpdateProfileConsumerService {
@@ -22,9 +19,21 @@ export class UpdateProfileConsumerService {
 
     @RabbitRPC(UpdateProfileFileContract.queue)
     async updateFile(
-        request: UpdateProfileFileContract.RequestPayload
+        request: UpdateProfileFileContract.RequestPayload,
     ): Promise<UpdateProfileFileContract.ResponsePayload | Nack> {
-        const errors = await validate(plainToClass(UpdateProfileRequestDto, request));
+        const requestWithDefaultValue = new UpdateProfileRequestDto(
+            {
+                folder: FolderName.PUBLIC,
+                status: Status.SAVED,
+                lastProlong: new Date(),
+                ...request,
+            });
+        // this.logger.verbose({
+        //     query: UpdateProfileFileContract.queue.routingKey,
+        //     request: requestWithDefaultValue
+        // })
+        console.dir(requestWithDefaultValue) // FIXME вынести в логгер
+        const errors = await validate(classToClass(requestWithDefaultValue));
         if (errors.length) {
             this.logger.warn({
                 query: UpdateProfileFileContract.queue.routingKey,
@@ -32,6 +41,7 @@ export class UpdateProfileConsumerService {
             });
             return new Nack(false);
         }
-        return this.updateProfileService.updateFile(request);
+
+        return this.updateProfileService.updateFile(requestWithDefaultValue);
     }
 }

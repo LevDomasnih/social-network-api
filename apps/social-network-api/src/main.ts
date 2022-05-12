@@ -13,7 +13,9 @@ async function bootstrap() {
     whitelist: true,
     transform: true,
   }));
-  app.useStaticAssets(join(__dirname, '../../../../../../..', 'social-network-files', 'public'))
+  // app.useStaticAssets(join(__dirname, '../../../../../../..', 'social-network-files', 'PUBLIC'), {
+  //   prefix: '/PUBLIC'
+  // })
   const config = new DocumentBuilder()
       .setTitle('Social network')
       .setDescription('Social network API ')

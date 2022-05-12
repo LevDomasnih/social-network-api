@@ -10,7 +10,7 @@ export const AMQP_CONNECTION_SERVICE_FACTORY = (configIdent: string) => ({
         if (amqpConfig) {
             const amqpConnection = new AmqpConnection(amqpConfig);
             Logger.verbose('AMQP Init...', 'Amqp_Connection');
-            // Logger.debug({ amqpConfig });
+            Logger.debug({ amqpConfig });
             await amqpConnection.init().catch((error) => {
                 Logger.error('connection fail', error, 'RABBIT MQ Connection factory');
             });

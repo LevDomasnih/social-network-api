@@ -47,14 +47,20 @@ export namespace UpdateProfileFileContract {
         fileField: string;
         /** Старый путь к файлу (прим. обновился аватар, надо удалить старый) */
         oldPath?: string;
-        /** В какую папку сохранить, отвечает за уровень доступа (public по умолчанию) */
+        /** В какую папку сохранить, отвечает за уровень доступа (PUBLIC по умолчанию) */
         folder?: FolderName;
+        /** Статус файла (SAVED по умолчанию) */
+        status?: Status;
+        /** Дата конечной пролонгации (new Date() по умолчанию) */
+        lastProlong?: Date;
 
     }
 
     /** Тело ответа */
     export interface ResponsePayload {
 
+        /** В какую папку сохранить, отвечает за уровень доступа (PUBLIC по умолчанию) */
+        folder: FolderName;
         /** Путь к файлу */
         path: string;
         /** Имя файла */

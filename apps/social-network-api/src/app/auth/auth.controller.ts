@@ -1,12 +1,13 @@
 import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthRegisterRequestDto } from './dto/auth-register/auth-register.request.dto';
-import { AuthLoginResponseDto } from './dto/auth-login/auth-login.response.dto';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { AuthRegisterResponseDto } from './dto/auth-register/auth-register.response.dto';
-import { AuthLoginRequestDto } from './dto/auth-login/auth-login.request.dto';
-import { IsValidFieldsRequestDto } from './dto/is-valid-fields/is-valid-fields.request.dto';
-import { IsValidFieldsResponseDto } from './dto/is-valid-fields/is-valid-fields.response.dto';
+import {
+    AuthLoginRequestDto,
+    AuthLoginResponseDto,
+    AuthRegisterRequestDto,
+    AuthRegisterResponseDto,
+    IsValidFieldsResponseDto,
+} from './dto';
 
 @ApiTags('auth')
 @Controller('auth')

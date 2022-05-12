@@ -9,9 +9,9 @@ export enum Status {
 }
 
 export enum FolderName {
-    PUBLIC = 'public',
-    PRIVATE = 'private',
-    TEMP = 'temp'
+    PUBLIC = 'PUBLIC',
+    PRIVATE = 'PRIVATE',
+    TEMP = 'TEMP'
 }
 
 @Entity('files')
@@ -48,4 +48,12 @@ export class FilesEntity extends BaseCustomEntity {
     @ApiProperty()
     @Column({ type: 'timestamp', name: 'last_prolong' })
     lastProlong: Date;
+
+    @ApiProperty()
+    @Column({
+        type: 'enum',
+        enum: FolderName,
+        default: FolderName.PUBLIC
+    })
+    folder: FolderName
 }

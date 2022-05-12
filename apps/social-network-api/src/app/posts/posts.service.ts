@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Express } from 'express';
 import { unlink } from 'fs/promises';
-import { PostsRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
+import { FolderName, PostsRepository, Status, UserEntity, UsersRepository } from '@app/nest-postgre';
 import {
     CreateCommentRequestDto,
     CreateCommentResponseDto,
@@ -10,13 +10,43 @@ import {
     GetPostsOfUserResponseDto,
     UpdatePostResponseDto,
 } from './dto';
+import { UpdateProfileFileContract } from '@app/amqp-contracts';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { add } from 'date-fns';
 
 @Injectable()
 export class PostsService {
+    private readonly url = process.env.API_URL || 'http://localhost:3000';
     constructor(
         private readonly usersRepository: UsersRepository,
         private readonly postRepository: PostsRepository,
+        private readonly amqpConnection: AmqpConnection,
     ) {
+    }
+
+    async saveTempPostFiles(
+        user: UserEntity,
+        files: Express.Multer.File[],
+    ) {
+        const paths: Array<string> = []
+
+        for (const file of files) {
+            const newFile = await this.amqpConnection.request<UpdateProfileFileContract.ResponsePayload>({
+                exchange: UpdateProfileFileContract.queue.exchange,
+                routingKey: UpdateProfileFileContract.queue.routingKey,
+                payload: {
+                    buffer: file.buffer,
+                    user: user,
+                    fileField: 'post-created', //FIXME uuid с фронта??
+                    folder: FolderName.TEMP,
+                    status: Status.PROLONG,
+                    lastProlong: add(new Date(), { minutes: 5 })
+                },
+            });
+            paths.push(this.url + '/' + newFile.name)
+        }
+
+        return paths
     }
 
     async createPost(

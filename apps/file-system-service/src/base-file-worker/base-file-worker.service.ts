@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Status } from '@app/nest-postgre';
 import * as mime from 'mime';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -19,9 +18,11 @@ export class BaseFileWorkerService implements BaseFileWorkerInterface {
     constructor() {
     }
 
-    async saveFile({ buffer, user, fileField, oldPath, folder }: ISaveFileRequest): Promise<ISaveFileResponse> {
+    async saveFile(
+        { buffer, user, fileField, oldPath, folder, status, lastProlong }: ISaveFileRequest
+    ): Promise<ISaveFileResponse> {
         const { fileName, filePath } = this.makeDir({
-            user: user, fileMethod: fileField, folder: folder || 'public',
+            user: user, fileMethod: fileField, folder: folder,
         });
 
         try {
@@ -37,25 +38,26 @@ export class BaseFileWorkerService implements BaseFileWorkerInterface {
         }
 
         return {
+            folder: folder,
             path: filePath,
             name: fileName,
-            status: Status.SAVED,
-            lastProlong: new Date(),
+            status: status,
+            lastProlong: lastProlong,
             mime: mime.lookup(filePath),
             size: fs.statSync(filePath).size,
         };
     }
 
     private makeDir({ user, fileMethod, folder }: IMakeDirRequest): IMakeDirResponse {
-        const publicMid = path.resolve(this.dirPath, folder);
+        const dir = path.resolve(this.dirPath, folder);
 
-        if (!fs.existsSync(publicMid)) {
-            fs.mkdirSync(publicMid, { recursive: true });
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
         }
 
         const timestamp = Math.floor(new Date().getTime() / 1000).toString();
         const fileName = user.id + `_${fileMethod.toUpperCase()}_` + timestamp;
-        const filePath = path.resolve(publicMid, fileName);
+        const filePath = path.resolve(dir, fileName);
 
         return {
             fileName,

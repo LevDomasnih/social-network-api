@@ -44,8 +44,8 @@ export class ProfileService {
         }
         return {
             ...profile,
-            avatar: this.url + '/' + (profile.avatar?.name || ''),
-            mainImage: this.url + '/' + (profile.mainImage?.name || ''),
+            avatar: this.url + '/' + profile.avatar.folder + '/' + (profile.avatar?.name || ''),
+            mainImage: this.url + '/' + profile.avatar.folder + '/' + (profile.mainImage?.name || ''),
         };
     }
 
@@ -84,7 +84,7 @@ export class ProfileService {
         }
 
         return {
-            fileName: this.url + '/' + newFile.name,
+            fileName: this.url + '/' + newFile.folder + '/' + newFile.name,
         };
     }
 }

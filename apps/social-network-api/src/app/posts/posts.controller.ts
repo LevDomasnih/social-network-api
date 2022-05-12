@@ -6,12 +6,12 @@ import {
     Param,
     Post,
     Put,
-    UploadedFile,
+    UploadedFile, UploadedFiles,
     UseGuards,
     UseInterceptors,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
@@ -45,6 +45,16 @@ export class PostsController {
     constructor(
         private readonly postsService: PostsService,
     ) {
+    }
+
+    @Post('saveTempImage')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FilesInterceptor('files'))
+    saveTempPostFiles(
+        @User() user: UserEntity,
+        @UploadedFiles() files: Express.Multer.File[],
+    ) {
+        return this.postsService.saveTempPostFiles(user, files)
     }
 
     @Post()

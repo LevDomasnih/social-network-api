@@ -3,13 +3,7 @@ import { ProfileService } from './profile.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import {
-    EditAvatarResponse,
-    EditMainImageResponseDto,
-    EditProfileResponseDto,
-    FindProfileResponseDto,
-    UpdateProfileRequestDto,
-} from './dto';
+import { EditAvatarResponse, EditProfileResponseDto, FindProfileResponseDto, UpdateProfileRequestDto } from './dto';
 import { IdValidationPipe, User } from '@app/common';
 import { UserEntity } from '@app/nest-postgre';
 
@@ -55,16 +49,4 @@ export class ProfileController {
         @UploadedFiles() files: Express.Multer.File[], @User() user: UserEntity) {
         return this.profileService.editImage(files, user, field);
     }
-
-    // @Post('editMainImage')
-    // @ApiBearerAuth()
-    // @UseGuards(JwtAuthGuard)
-    // @UseInterceptors(FilesInterceptor('mainImage'))
-    // @ApiCreatedResponse({
-    //     description: 'Update mainImage',
-    //     type: EditMainImageResponseDto,
-    // })
-    // async editMainImage(@UploadedFiles() files: Express.Multer.File[], @User() user: UserEntity) {
-    //     return this.profileService.editMainImage(files, user);
-    // }
 }
