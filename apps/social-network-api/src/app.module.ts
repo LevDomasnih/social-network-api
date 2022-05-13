@@ -16,7 +16,7 @@ import { StaticModule } from './app/static/static.module';
   imports: [
     SharedModule,
     ConfigModule.forRoot(),
-    NestPostgreModule,
+    NestPostgreModule, // TODO TypeOrmModule.forFeature для всех репозиториев
     AuthModule,
     ProfileModule,
     UsersModule,

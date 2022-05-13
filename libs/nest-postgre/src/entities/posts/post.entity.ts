@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
-import { BaseCustomEntity, FilesEntity } from '@app/nest-postgre/entities';
+import { BaseCustomEntity, FilesEntity, PostTextBlocksEntity } from '@app/nest-postgre/entities';
 
 @Entity('posts')
 export class PostEntity extends BaseCustomEntity {
@@ -11,12 +11,32 @@ export class PostEntity extends BaseCustomEntity {
     owner: UserEntity;
 
     @ApiProperty()
-    @Column({ default: '' })
-    text: string;
+    @OneToMany(() => PostTextBlocksEntity, postText => postText.postOwner, { onDelete: 'CASCADE' })
+    @JoinColumn({name: 'text_blocks'})
+    textBlocks: string;
+
+    @ApiProperty()
+    @Column({
+        type: 'jsonb',
+        array: false,
+        default: () => "'[]'",
+        nullable: false,
+    })
+    headers: string[];
+
+    @ApiProperty()
+    @Column({
+        type: 'jsonb',
+        name: 'entity_map',
+        default: () => "'{}'",
+        nullable: false,
+    })
+    entityMap: {}
 
     @ApiProperty({type: () => FilesEntity})
     @OneToOne(() => FilesEntity)
-    image: string; // TODO file
+    @JoinColumn({name: 'main_image_id'})
+    mainImage: FilesEntity; // TODO file
 
     @ApiProperty()
     @Column({ default: 0 })

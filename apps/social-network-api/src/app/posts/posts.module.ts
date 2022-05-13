@@ -4,12 +4,17 @@ import { PostsService } from './posts.service';
 import { PostsGateway } from './posts.gateway';
 import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PostsRepository, UsersRepository } from '@app/nest-postgre';
+import { FilesRepository, PostsRepository, PostTextBlocksRepository, UsersRepository } from '@app/nest-postgre';
 
 @Module({
     controllers: [PostsController],
     imports: [
-        TypeOrmModule.forFeature([PostsRepository, UsersRepository]),
+        TypeOrmModule.forFeature([
+            PostsRepository,
+            UsersRepository,
+            PostTextBlocksRepository,
+            FilesRepository,
+        ]),
         AuthModule,
     ],
     providers: [PostsService, PostsGateway],

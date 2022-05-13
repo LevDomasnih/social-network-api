@@ -11,7 +11,6 @@ export enum Status {
 export enum FolderName {
     PUBLIC = 'PUBLIC',
     PRIVATE = 'PRIVATE',
-    TEMP = 'TEMP'
 }
 
 @Entity('files')

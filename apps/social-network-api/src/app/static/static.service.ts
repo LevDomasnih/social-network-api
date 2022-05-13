@@ -17,7 +17,7 @@ export class StaticService {
         if (!file) {
             return new BadRequestException('Файла не существует или доступ к нему ограничен');
         }
-        const fileStream = createReadStream(join(file.path));
+        const fileStream = createReadStream(join(file.path), {});
         return new StreamableFile(fileStream);
     }
 }

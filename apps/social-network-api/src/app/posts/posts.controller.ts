@@ -47,68 +47,66 @@ export class PostsController {
     ) {
     }
 
-    @Post('saveTempImage')
-    @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FilesInterceptor('files'))
-    saveTempPostFiles(
-        @User() user: UserEntity,
-        @UploadedFiles() files: Express.Multer.File[],
-    ) {
-        return this.postsService.saveTempPostFiles(user, files)
-    }
+    // @Post('saveTempImage')
+    // @UseGuards(JwtAuthGuard)
+    // @UseInterceptors(FilesInterceptor('files'))
+    // saveTempPostFiles(
+    //     @User() user: UserEntity,
+    //     @UploadedFiles() files: Express.Multer.File[],
+    // ) {
+    //     return this.postsService.saveTempPostFiles(user, files)
+    // }
 
     @Post()
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({ destination: './files' }),
-    }))
+    @UseInterceptors(FilesInterceptor('files')) // TODO РАСШИРИТЬ ДЛЯ ДРУГИХ ФОТО И ФАЙЛОВ
     @SwaggerApi({
         description: 'Create Post',
-        type: CreatePostResponseDto,
+        // type: CreatePostResponseDto,
     })
     async createPost(
         @User() user: UserEntity,
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFiles() files: Express.Multer.File[],
         @Body() dto: CreatePostRequestDto,
-    ): Promise<CreatePostResponseDto> {
-        return this.postsService.createPost(user, file, dto);
+    )/*: Promise<CreatePostResponseDto>*/ {
+        return this.postsService.createPost(user, files, dto);
     }
 
-    @Post(':parentId')
-    @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({ destination: './files' }),
-    }))
-    @SwaggerApi({
-        description: 'Create comment',
-        type: CreateCommentResponseDto,
-    })
-    async createComment(
-        @User() user: UserEntity,
-        @Param('parentId', IdValidationPipe) parentId: string,
-        @UploadedFile() file: Express.Multer.File,
-        @Body() dto: CreateCommentRequestDto,
-    ): Promise<CreateCommentResponseDto> {
-        return this.postsService.createComment(user, parentId, file, dto);
-    }
+    // @Post(':parentId')
+    // @UseGuards(JwtAuthGuard)
+    // @UseInterceptors(FileInterceptor('file', {
+    //     storage: diskStorage({ destination: './files' }),
+    // }))
+    // @SwaggerApi({
+    //     description: 'Create comment',
+    //     type: CreateCommentResponseDto,
+    // })
+    // async createComment(
+    //     @User() user: UserEntity,
+    //     @Param('parentId', IdValidationPipe) parentId: string,
+    //     @UploadedFile() file: Express.Multer.File,
+    //     @Body() dto: CreateCommentRequestDto,
+    // ): Promise<CreateCommentResponseDto> {
+    //     return this.postsService.createComment(user, parentId, file, dto);
+    // }
 
-    @Put(':id')
-    @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({ destination: './files' }),
-    }))
-    @SwaggerApi({
-        description: 'Update post',
-        type: UpdatePostResponseDto,
-    })
-    async updatePost(
-        @User() user: UserEntity,
-        @Param('id', IdValidationPipe) postId: string,
-        @UploadedFile() file: Express.Multer.File,
-        @Body() dto: UpdatePostRequestDto,
-    ): Promise<UpdatePostResponseDto> {
-        return this.postsService.updatePost(user, postId, file, dto);
-    }
+    // @Put(':id')
+    // @UseGuards(JwtAuthGuard)
+    // @UseInterceptors(FileInterceptor('file', {
+    //     storage: diskStorage({ destination: './files' }),
+    // }))
+    // @SwaggerApi({
+    //     description: 'Update post',
+    //     type: UpdatePostResponseDto,
+    // })
+    // async updatePost(
+    //     @User() user: UserEntity,
+    //     @Param('id', IdValidationPipe) postId: string,
+    //     @UploadedFile() file: Express.Multer.File,
+    //     @Body() dto: UpdatePostRequestDto,
+    // ): Promise<UpdatePostResponseDto> {
+    //     return this.postsService.updatePost(user, postId, file, dto);
+    // }
 
     // TODO вернуть
     // @Get(':image')

@@ -15,15 +15,6 @@ export class StaticController {
     ) {
     }
 
-    @Get('TEMP/:fileName') // TODO МОЖНО REGEX ОПИСАТЬ
-    @ApiCreatedResponse({ description: 'Get static files' })
-    getTempStaticFile(
-        @Param('fileName') fileName: string,
-        @User() user: UserEntity,
-    ) {
-        return this.staticService.accessCheckAndGetFile(user, fileName);
-    }
-
     @Get('PRIVATE/:fileName')
     @ApiCreatedResponse({ description: 'Get static files' })
     getPrivateStaticFile(
