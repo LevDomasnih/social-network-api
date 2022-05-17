@@ -3,8 +3,8 @@ import { ApiProperty, OmitType } from '@nestjs/swagger';
 
 export class FindProfileResponseDto extends OmitType(ProfileEntity, ['avatar', 'mainImage'] as const) {
     @ApiProperty()
-    avatar: string
+    avatar: string | null
 
     @ApiProperty()
-    mainImage: string
+    mainImage: string | null
 }

@@ -53,6 +53,8 @@ export namespace UpdateProfileFileContract {
         status?: Status;
         /** Дата конечной пролонгации (new Date() по умолчанию) */
         lastProlong?: Date;
+        // /** Тип файла (UTF-8 по умолчанию) */
+        // encoding?: BufferEncoding
 
     }
 

@@ -1,6 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, IsUUID, ValidateIf, ValidateNested } from 'class-validator';
+import { IsDateString, IsNumber, IsString, IsUUID, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { PostTextBlocksEntity } from '@app/nest-postgre/entities';
+
+class PostsProfile {
+    @ApiProperty({
+        description: 'ссылка на фото пользователя',
+        example: '../file/name',
+    })
+    @IsString()
+    avatar: string | null;
+    @ApiProperty({
+        description: 'Имя',
+        example: 'Иван',
+    })
+    @IsString()
+    firstName: string | null;
+    @ApiProperty({
+        description: 'Фамилия',
+        example: 'Иванов',
+    })
+    @IsString()
+    lastName: string | null;
+    @ApiProperty({
+        description: 'Имя',
+        example: 'Иванович',
+    })
+    @IsString()
+    middleName: string | null;
+}
 
 export class PostsWithCommentsModel {
     @ApiProperty({
@@ -10,50 +38,37 @@ export class PostsWithCommentsModel {
     @IsString()
     @IsUUID()
     id: string;
-    @ApiProperty({
-        description: 'текст поста',
-        example: 'Всем привет!',
-    })
-    @IsString()
-    text: string;
-    @ApiProperty({
-        description: 'ссылка на файл',
-        example: '../file/name',
-    })
-    @IsString()
-    image: string;
+    @ApiProperty({ type: Date })
+    @IsDateString()
+    createdAt: Date;
+    @ApiProperty({ type: Date })
+    @IsDateString()
+    updatedAt: Date;
+    @ApiProperty({})
+    entityMap: Record<string, unknown>;
+    @IsNumber()
     @ApiProperty({
         description: 'количество лайков',
-        example: 4,
+        example: 20,
     })
-    @IsNumber()
-    likes: 0;
+    likes: number;
     @ApiProperty({
         description: 'количество просмотров',
         example: 20,
     })
     @IsNumber()
-    views: 0;
-    @ApiProperty({
-        description: 'id владельца поста',
-        example: 'e8c4986b-1b5f-47c9-a533-d22329df0da7',
-    })
-    @IsUUID()
-    @IsString()
-    ownerId: string;
-    @ApiProperty({
-        description: 'комментарии под постом',
-        type: [PostsWithCommentsModel],
-    })
+    views: number;
     @ValidateNested({ each: true })
-    @Type(() => PostsWithCommentsModel)
-    comments: PostsWithCommentsModel[];
+    @Type(() => PostTextBlocksEntity)
+    textBlocks: PostTextBlocksEntity[];
     @ApiProperty({
-        description: 'под каким постом оставлен данный пост',
-        example: '859d0610-86bd-4733-b954-ab5a491f8e56',
+        description: 'ссылка на основное фото',
+        example: '../file/name',
     })
-    @IsUUID()
     @IsString()
-    @ValidateIf((object, value) => value !== null)
-    parentPostsId: string | null;
+    mainImage: string | null;
+    comments: unknown[];
+    @ValidateNested({ each: true })
+    @Type(() => PostsProfile)
+    profile: PostsProfile;
 }

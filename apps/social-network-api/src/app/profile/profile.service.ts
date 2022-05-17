@@ -44,8 +44,10 @@ export class ProfileService {
         }
         return {
             ...profile,
-            avatar: this.url + '/' + profile.avatar.folder + '/' + (profile.avatar?.name || ''),
-            mainImage: this.url + '/' + profile.avatar.folder + '/' + (profile.mainImage?.name || ''),
+            avatar: profile?.avatar?.folder ?
+                this.url + '/' + profile.avatar.folder + '/' + (profile.avatar?.name || '') : null,
+            mainImage: profile?.mainImage?.folder ?
+                this.url + '/' + profile.mainImage.folder + '/' + (profile.mainImage?.name || '') : null,
         };
     }
 

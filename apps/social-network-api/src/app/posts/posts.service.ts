@@ -105,7 +105,10 @@ export class PostsService {
             })
         }
 
-        return this.postRepository.findOne(newPost.id, {relations: ['textBlocks', 'mainImage'], })
+        return this.postRepository.getPostsAndCommentsByUserId(user.id)
+            .then(posts => posts
+                .sort((postPrev, postNext) =>
+                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()))
     }
 
     // async createComment(
@@ -152,8 +155,11 @@ export class PostsService {
 
     }
 
-    async getPostsOfUser(userId: string): Promise<GetPostsOfUserResponseDto[]> {
-        return this.postRepository.getPostsAndCommentsByUserId(userId);
+    async getPostsOfUser(userId: string) {
+        return this.postRepository.getPostsAndCommentsByUserId(userId)
+            .then(posts => posts
+                .sort((postPrev, postNext) =>
+                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()))
     }
 
     async getPosts() {
