@@ -1,7 +1,7 @@
 import {
     applyDecorators,
     Body,
-    Controller,
+    Controller, Delete,
     Get,
     Param,
     Post,
@@ -70,6 +70,18 @@ export class PostsController {
         @Body() dto: CreatePostRequestDto,
     )/*: Promise<CreatePostResponseDto>*/ {
         return this.postsService.createPost(user, files, dto);
+    }
+
+    @Delete(':id')
+    @UseGuards(JwtAuthGuard)
+    @SwaggerApi({
+        description: 'Delete Post',
+    })
+    async deletePost(
+        @User() user: UserEntity,
+        @Param('id', IdValidationPipe) postId: string,
+    ) {
+        return this.postsService.deletePost(user, postId)
     }
 
     // @Post(':parentId')

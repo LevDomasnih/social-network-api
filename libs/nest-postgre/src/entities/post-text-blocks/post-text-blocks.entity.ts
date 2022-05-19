@@ -11,7 +11,7 @@ export class InlineStyleRanges {
 @Entity('post_text_blocks')
 export class PostTextBlocksEntity extends BaseCustomEntity {
     @ApiProperty({ type: () => PostEntity })
-    @ManyToOne(() => PostEntity, post => post.textBlocks)
+    @ManyToOne(() => PostEntity, post => post.textBlocks, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'post_owner' })
     postOwner: PostEntity;
 

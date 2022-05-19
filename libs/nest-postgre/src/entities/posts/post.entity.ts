@@ -34,7 +34,7 @@ export class PostEntity extends BaseCustomEntity {
     entityMap: {}
 
     @ApiProperty({type: () => FilesEntity})
-    @OneToOne(() => FilesEntity)
+    @OneToOne(() => FilesEntity, { onDelete: 'CASCADE' })
     @JoinColumn({name: 'main_image_id'})
     mainImage: FilesEntity; // TODO file
 
@@ -52,7 +52,7 @@ export class PostEntity extends BaseCustomEntity {
     parentPosts: PostEntity;
 
     // @ApiProperty({ type: () => [PostEntity] })
-    @OneToMany(() => PostEntity, post => post.parentPosts)
+    @OneToMany(() => PostEntity, post => post.parentPosts, { onDelete: 'CASCADE' })
     @JoinColumn({name: 'children_posts'})
     childrenPosts: PostEntity[];
 }

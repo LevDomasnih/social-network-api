@@ -111,6 +111,11 @@ export class PostsService {
                     new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()))
     }
 
+    async deletePost(user: UserEntity, postId: string) {
+        const deleteResult = await this.postRepository.delete({owner: user, id: postId})
+        return deleteResult.affected // FIXME добавить структуру к удалению
+    }
+
     // async createComment(
     //     user: UserEntity, parentId: string,
     //     file: Express.Multer.File, dto: CreateCommentRequestDto,
@@ -163,10 +168,6 @@ export class PostsService {
     }
 
     async getPosts() {
-
-    }
-
-    async deletePost() {
 
     }
 }
