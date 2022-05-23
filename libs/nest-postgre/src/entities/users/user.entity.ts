@@ -2,7 +2,7 @@ import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { ProfileEntity } from '../profile/profile.entity';
 import { FollowEntity } from '../follow/follow.entity';
-import { PostEntity } from '../posts/post.entity';
+import { BlogEntity } from '../blog/blog.entity';
 import { DialogsEntity } from '../dialogs/dialogs.entity';
 import { BaseCustomEntity, MessagesEntity } from '@app/nest-postgre/entities';
 import { IsString } from 'class-validator';
@@ -30,9 +30,9 @@ export class UserEntity extends BaseCustomEntity {
     @OneToOne(() => FollowEntity, follow => follow.owner, { onDelete: 'CASCADE' })
     follow: FollowEntity;
 
-    // @ApiProperty({ type: () => [PostEntity], default: ['postId'] })
-    @OneToMany(() => PostEntity, post => post.owner, { onDelete: 'CASCADE' })
-    posts: PostEntity[];
+    // @ApiProperty({ type: () => [BlogEntity], default: ['postId'] })
+    @OneToMany(() => BlogEntity, blog => blog.owner, { onDelete: 'CASCADE' })
+    blogs: BlogEntity[];
 
     // @ApiProperty({ type: () => [DialogsEntity], default: ['dialogId'] })
     @ManyToMany(() => DialogsEntity, dialogs => dialogs.owners, { onDelete: 'CASCADE' })

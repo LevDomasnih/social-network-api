@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { FollowRepository, PostsRepository, ProfileRepository, UsersRepository } from '@app/nest-postgre';
+import { FollowRepository, BlogRepository, ProfileRepository, UsersRepository } from '@app/nest-postgre';
 import { AuthLoginRequestDto, AuthRegisterRequestDto, IsValidFieldsRequestDto } from './dto';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class AuthService {
     constructor(
         private readonly userRepository: UsersRepository,
         private readonly profileRepository: ProfileRepository,
-        private readonly postsRepository: PostsRepository,
+        private readonly postsRepository: BlogRepository,
         private readonly followRepository: FollowRepository,
         private readonly jwtService: JwtService,
     ) {
