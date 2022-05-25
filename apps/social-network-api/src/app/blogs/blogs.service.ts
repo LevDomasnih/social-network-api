@@ -1,26 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Express } from 'express';
-import { unlink } from 'fs/promises';
 import {
-    FilesRepository,
-    FolderName,
     BlogRepository,
     BlogTextBlockRepository,
-    Status,
+    FilesRepository,
     UserEntity,
     UsersRepository,
 } from '@app/nest-postgre';
-import {
-    CreateCommentRequestDto,
-    CreateCommentResponseDto,
-    CreateBlogRequestDto,
-    CreateBlogResponseDto,
-    GetBlogsOfUserResponseDto,
-    UpdateBlogResponseDto,
-} from './dto';
+import { CreateBlogRequestDto } from './dto';
 import { UpdateProfileFileContract } from '@app/amqp-contracts';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
-import { add } from 'date-fns';
 
 @Injectable()
 export class BlogsService {

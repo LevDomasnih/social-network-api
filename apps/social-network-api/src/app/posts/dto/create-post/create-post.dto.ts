@@ -1,5 +1,6 @@
-import { IsString, ValidateIf } from 'class-validator';
+import { IsOptional, IsString, ValidateIf } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class CreatePostDto {
     @ApiProperty()
@@ -8,6 +9,6 @@ export class CreatePostDto {
 
     @ApiProperty()
     @IsString()
-    @ValidateIf((object, value) => value !== null)
-    parentPost: string | null;
+    @IsOptional()
+    parentPost: string;
 }
