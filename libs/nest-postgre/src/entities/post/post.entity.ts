@@ -20,12 +20,22 @@ export class PostEntity extends BaseCustomEntity {
     files: FilesEntity;
 
     @ApiProperty()
-    @Column({ default: 0 })
-    likes: number;
+    @Column({
+        type: 'jsonb',
+        array: false,
+        default: () => "'[]'",
+        nullable: false,
+    })
+    likes: string[];
 
     @ApiProperty()
-    @Column({ default: 0 })
-    views: number;
+    @Column({
+        type: 'jsonb',
+        array: false,
+        default: () => "'[]'",
+        nullable: false,
+    })
+    views: string[];
 
     @ApiProperty()
     @Column({ type: 'text' })

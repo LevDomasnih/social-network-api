@@ -30,14 +30,14 @@ export class PostsController {
 
     @Get(':postId')
     async getPost(
-        @Param('postId', IdValidationPipe) postId: string
+        @Param('postId', IdValidationPipe) postId: string,
     ) {
         return this.postsService.getPost(postId)
     }
 
     @Get('user/:userId')
     async getPosts(
-        @Param('userId', IdValidationPipe) userId: string
+        @Param('userId', IdValidationPipe) userId: string,
     ): Promise<GetPostsDto[] | BadRequestException> {
         return this.postsService.getPosts(userId);
     }
@@ -51,7 +51,7 @@ export class PostsController {
     async createPost(
         @User() user: UserEntity,
         @UploadedFiles() files: Express.Multer.File[],
-        @Body() dto: CreatePostDto
+        @Body() dto: CreatePostDto,
     ) {
         return this.postsService.createPost(user, dto)
     }
@@ -62,7 +62,7 @@ export class PostsController {
         description: 'Edit post',
     })
     async editPost(
-        @Param('postId', IdValidationPipe) postId: string
+        @Param('postId', IdValidationPipe) postId: string,
     ) {
 
     }
@@ -73,8 +73,20 @@ export class PostsController {
         description: 'Delete post',
     })
     async deletePost(
-        @Param('postId', IdValidationPipe) postId: string
+        @Param('postId', IdValidationPipe) postId: string,
     ) {
 
+    }
+
+    @Put('changeLike/:postId')
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({
+        description: 'Change like',
+    })
+    async changeLike(
+        @User() user: UserEntity,
+        @Param('postId', IdValidationPipe) postId: string,
+    ) {
+        return this.postsService.changeLike(user, postId)
     }
 }

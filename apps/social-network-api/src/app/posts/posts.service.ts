@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PostRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
 import { CreatePostDto } from './dto/create-post/create-post.dto';
 import { GetPostsDto } from './dto/get-posts/get-posts.dto';
+import { use } from 'passport';
 
 @Injectable()
 export class PostsService {
@@ -13,7 +14,13 @@ export class PostsService {
     }
 
     getPost(postId: string) {
-        return this.postRepository.findOne(postId)
+        return this.postRepository.findOne({
+            where: {id: postId},
+            order: {
+                createdAt: 'DESC'
+            },
+            relations: ['owner', 'owner.profile', 'owner.profile.avatar']
+        })
     }
 
     async getPosts(userId: string): Promise<GetPostsDto[] | BadRequestException> {
@@ -24,7 +31,7 @@ export class PostsService {
         const posts = await this.postRepository.find({
             where: {owner: user},
             order: {
-                updatedAt: 'DESC'
+                createdAt: 'DESC'
             },
             relations: ['owner', 'owner.profile', 'owner.profile.avatar']
         })
@@ -32,8 +39,9 @@ export class PostsService {
             id: post.id,
             createdAt: post.createdAt,
             updatedAt: post.updatedAt,
-            likes: post.likes,
-            views: post.views,
+            likes: post.likes.length,
+            isLiked: post.likes.includes(user.id),
+            views: post.views.length,
             text: post.text,
             profile: {
                 avatar: post.owner.profile.avatar?.folder ?
@@ -52,5 +60,25 @@ export class PostsService {
             text: dto.text,
             parentPosts: dto.parentPost ? await (this.postRepository.findOne(dto.parentPost)) : null
         })
+    }
+
+    async changeLike(user: UserEntity, postId: string) {
+        const post = await this.postRepository.findOne(postId);
+        let likes;
+        if (!post) {
+            return new BadRequestException('Нет поста')
+        }
+
+        if (post.likes.includes(user.id)) {
+            likes = post.likes.filter(e => e !== user.id)
+        } else {
+            likes = [...post.likes, user.id]
+        }
+
+        await this.postRepository.update(postId, {
+            likes: likes
+        })
+
+        return this.getPost(postId)
     }
 }

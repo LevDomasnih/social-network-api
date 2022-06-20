@@ -1,4 +1,4 @@
-import { IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 class Profile {
@@ -34,5 +34,8 @@ export class GetPostsDto {
     @ApiProperty()
     @IsNumber()
     views: number;
+    @ApiProperty()
+    @IsBoolean()
+    isLiked: boolean;
 }
 
