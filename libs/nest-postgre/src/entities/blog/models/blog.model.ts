@@ -60,7 +60,7 @@ export class BlogModel {
     views: number;
     @ValidateNested({ each: true })
     @Type(() => BlogTextBlockEntity)
-    textBlocks: BlogTextBlockEntity[];
+    text: BlogTextBlockEntity[];
     @ApiProperty({
         description: 'ссылка на основное фото',
         example: '../file/name',

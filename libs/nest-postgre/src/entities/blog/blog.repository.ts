@@ -41,7 +41,7 @@ export class BlogRepository extends BaseRepository<BlogEntity> implements BlogRe
                             ),
                             'mainImage',
                             'http://localhost:3000/PUBLIC/' || mainImage.name,
-                            'textBlocks',
+                            'text',
                             (SELECT json_agg(row_to_json(btb)) FROM blog_text_blocks btb WHERE b.id = btb.post_owner),
                             'entityMap',
                             b.entity_map
