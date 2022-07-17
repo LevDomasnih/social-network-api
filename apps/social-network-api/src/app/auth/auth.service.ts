@@ -95,4 +95,22 @@ export class AuthService {
         }
         return { email: user.email };
     }
+
+    async getAuth(id: string) { // FIXME DTO
+        const user = await this.userRepository.findOne(id,
+            { relations: ['profile', 'profile.avatar', 'profile.mainImage'],
+            });
+        if (!user) {
+            throw new BadRequestException('Пользователя не существует');
+        }
+        return {
+            id: user.id,
+            login: user.login,
+            email: user.email,
+            firstName: user.profile.firstName,
+            lastName: user.profile.lastName,
+            avatar: user.profile?.avatar?.getFilePath() || null,
+            notifications: 0 // FIXME MOCK!!!
+        }
+    }
 }

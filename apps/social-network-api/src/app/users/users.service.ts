@@ -8,16 +8,25 @@ export class UsersService {
     ) {
     }
 
-    async getUserById(id: string): Promise<UserEntity> {
-        const user = await this.usersRepository.findOne(id);
+    async getUserById(id: string)/*: Promise<UserEntity> */{ // FIXME ADD profile and avatar in DTO
+        const user = await this.usersRepository.findOne(id, {
+            relations: ['profile', 'profile.avatar', 'profile.mainImage']
+        });
         if (!user) {
             throw new BadRequestException('Пользователя не существует');
         }
-        return user;
+        return {
+            ...user,
+            profile: {
+                ...user.profile,
+                avatar: user.profile?.avatar?.getFilePath() || null,
+                mainImage: user.profile?.mainImage?.getFilePath() || null,
+            }
+        };
     }
 
-    async getUsers(): Promise<UserEntity[]> {
-        return this.usersRepository.find({});
+    async getUsers(): Promise<{}> { // FIXME DTO
+        return this.usersRepository.getUsersWithProfileAndAvatar();
     }
 
     async getFollowUsers(id: string): Promise<FollowUsersModel[] | []> {

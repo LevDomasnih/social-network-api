@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DialogsRepository, MessagesRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
+import { DialogsRepository, DialogType, MessagesRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
 import {
-    CreateDialogRequestDto,
-    CreateDialogResponseDto,
+    CreateDialogRequestDto, CreateDialogResponseDto,
     GetDialogResponseDto,
     GetDialogsResponseDto,
     UpdateDialogRequestDto,
@@ -24,37 +23,54 @@ export class DialogsService {
         return this.userRepository.find({ where: owners.map(id => ({ id })) });
     }
 
-    async createDialog(user: UserEntity, {
-        otherOwners,
+    async findDialogId(owner: UserEntity, secondOwner: UserEntity) {
+        const user = await this.userRepository.findOne({
+            relations: ['dialogs', 'dialogs.owners'],
+            where: {id: owner.id}
+        })
+        if (!user) {
+            throw new BadRequestException(`Пользователя ${owner.id} не существует`)
+        }
+        let dialogId = null;
+        user.dialogs.forEach(dialog => dialog.owners.forEach(userOwner => {
+            if (userOwner.id === secondOwner.id) {
+                dialogId = dialog.id
+            }
+        }))
+        return dialogId
+    }
+
+    async sendMessageInDialog(user: UserEntity, {
+        secondOwnerId,
         ...messageData
-    }: CreateDialogRequestDto): Promise<CreateDialogResponseDto> {
+    }: CreateDialogRequestDto): Promise<CreateDialogResponseDto | UpdateDialogResponseDto> {
         const owner = await this.userRepository.findOne(user.id);
-        if (!owner) {
+        const secondOwner = await this.userRepository.findOne(secondOwnerId);
+        if (!owner || !secondOwner) {
             throw new BadRequestException(`Пользователя ${user.id} не существует`);
         }
-        const validOwners = await this.validateOwners([user.id, ...otherOwners]);
+        const dialogId = await this.findDialogId(owner, secondOwner)
+        if (dialogId) {
+            return this.updateDialog(user, {dialogId, ...messageData})
+        }
+        return this.createDialog(owner, { secondOwnerId, ...messageData })
+    }
+
+    async createDialog(user: UserEntity, {
+        secondOwnerId,
+        ...messageData
+    }: CreateDialogRequestDto) {
+        const owner = await this.userRepository.findOne(user.id);
+        const validOwners = await this.validateOwners([user.id, secondOwnerId]);
+        if (!validOwners || !owner) {
+            throw new BadRequestException(`Пользователя ${user.id} не существует`);
+        }
         const newDialog = await this.dialogsRepository.save({
             owners: validOwners,
         });
         return this.messagesRepository.saveAndGet(
             { owner, dialog: newDialog, ...messageData },
         );
-    }
-
-    async getDialogs(user: UserEntity): Promise<GetDialogsResponseDto[]> {
-        try {
-            return this.dialogsRepository.getDialogsByUserId(user.id);
-        } catch (e) {
-            throw new BadRequestException(e);
-        }
-    }
-
-    async getDialog(user: UserEntity, id: string): Promise<{} | GetDialogResponseDto> {
-        const dialog = await this.dialogsRepository.getDialogsById(user.id, id);
-        if (Object.keys(dialog).length === 0) {
-            throw new BadRequestException('Диалога не существует');
-        }
-        return dialog;
     }
 
     async updateDialog(
@@ -77,6 +93,30 @@ export class DialogsService {
             owners: dialog.owners,
         };
     }
+
+
+    async getDialogs(user: UserEntity): Promise<GetDialogsResponseDto[]> {
+        try {
+            return this.dialogsRepository.getDialogsByUserId(user.id);
+        } catch (e) {
+            throw new BadRequestException(e);
+        }
+    }
+
+    async getUserDialog(user: UserEntity, secondUserId: string)/*: Promise<{} | GetDialogResponseDto>*/ {
+        const owner = await this.userRepository.findOne(user.id);
+        const secondOwner = await this.userRepository.findOne(secondUserId, {relations: ['profile', 'profile.avatar']});
+        if (!owner || !secondOwner) {
+            throw new BadRequestException(`Пользователя ${user.id} не существует`);
+        }
+        const dialogId = await this.findDialogId(owner, secondOwner)
+        if (!dialogId) {
+            return null
+        }
+        return this.dialogsRepository.getDialogByUsersId(user.id, secondOwner.id);
+    }
+
+
 
     async updateDialogOwners(
         user: UserEntity,

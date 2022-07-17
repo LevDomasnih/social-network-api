@@ -1,6 +1,6 @@
-import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import {
     AuthLoginRequestDto,
     AuthLoginResponseDto,
@@ -8,6 +8,9 @@ import {
     AuthRegisterResponseDto,
     IsValidFieldsResponseDto,
 } from './dto';
+import { JwtAuthGuard } from './guards/jwt.guard';
+import { User } from '@app/common';
+import { UserEntity } from '@app/nest-postgre';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -41,5 +44,16 @@ export class AuthController {
     })
     async isValidFields(@Query() query: {[key: string]: string}): Promise<IsValidFieldsResponseDto> {
         return this.authService.isValidFields(query)
+    }
+
+    @Get('userInfo')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @ApiCreatedResponse({
+        description: 'Get user auth info',
+        // type: GetMeResponseDto,
+    })
+    async getAuth(@User() user: UserEntity) { // FIXME DTO
+        return this.authService.getAuth(user.id);
     }
 }

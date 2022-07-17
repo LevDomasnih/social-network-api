@@ -9,6 +9,7 @@ import {
     CreateDialogResponseDto,
     GetDialogResponseDto,
     GetDialogsResponseDto,
+    UpdateDialogResponseDto,
     UpdateOwnersRequestDto,
     UpdateOwnersResponseDto,
 } from './dto';
@@ -38,8 +39,8 @@ export class DialogsController {
     async createDialog(
         @User() user: UserEntity,
         @Body() dto: CreateDialogRequestDto,
-    ): Promise<CreateDialogResponseDto> {
-        return this.dialogsService.createDialog(user, dto);
+    ): Promise<CreateDialogResponseDto | UpdateDialogResponseDto> {
+        return this.dialogsService.sendMessageInDialog(user, dto);
     }
 
     @Get()
@@ -63,8 +64,8 @@ export class DialogsController {
     async getDialog(
         @Param('id', IdValidationPipe) id: string,
         @User() user: UserEntity,
-    ): Promise<{} | GetDialogResponseDto> {
-        return this.dialogsService.getDialog(user, id);
+    )/*: Promise<{} | GetDialogResponseDto> */{
+        return this.dialogsService.getUserDialog(user, id);
     }
 
     @Put()

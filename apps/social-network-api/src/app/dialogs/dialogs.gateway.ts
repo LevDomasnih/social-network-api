@@ -36,12 +36,12 @@ export class DialogsGateway implements OnGatewayInit {
         @MessageBody() dto: UpdateDialogRequestDto,
     ) {
         try {
-            const {
-                newMessage,
-                owners,
-            } = await this.dialogsService.updateDialog(user, dto);
-
-            this.wss.to(owners.map(o => o.id)).emit('getMessage', newMessage);
+            // const {
+            //     newMessage,
+            //     owners,
+            // } = await this.dialogsService.updateDialog(user, dto);
+            //
+            // this.wss.to(owners.map(o => o.id)).emit('getMessage', newMessage);
         } catch (e) {
 
         }

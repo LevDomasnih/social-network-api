@@ -13,6 +13,8 @@ export enum FolderName {
     PRIVATE = 'PRIVATE',
 }
 
+const url = process.env.API_URL || 'http://localhost:3000'
+
 @Entity('files')
 export class FilesEntity extends BaseCustomEntity {
     @ApiProperty({ type: () => UserEntity, default: 'ownerId' })
@@ -55,4 +57,11 @@ export class FilesEntity extends BaseCustomEntity {
         default: FolderName.PUBLIC
     })
     folder: FolderName
+
+    getFilePath(): string | null {
+        if (!this.folder || !this.name) {
+            return null
+        }
+        return url + '/' + this.folder + '/' + this.name
+    }
 }

@@ -19,7 +19,7 @@ export class UsersController {
         description: 'Get users',
         type: [GetUsersResponseDto],
     })
-    async getUsers(): Promise<GetUsersResponseDto[]> {
+    async getUsers()/*: Promise<GetUsersResponseDto[]>*/ {
         return this.userService.getUsers();
     }
 
@@ -30,7 +30,7 @@ export class UsersController {
         description: 'Get me',
         type: GetMeResponseDto,
     })
-    async getMe(@User() user: UserEntity): Promise<GetMeResponseDto> {
+    async getMe(@User() user: UserEntity)/*: Promise<GetMeResponseDto> */{ // FIXME DTO
         return this.userService.getUserById(user.id);
     }
 
@@ -39,7 +39,7 @@ export class UsersController {
         description: 'Get user by id',
         type: GetUserByIdResponseDto,
     })
-    async getUserById(@Param('id', IdValidationPipe) id: string): Promise<GetUserByIdResponseDto> {
+    async getUserById(@Param('id', IdValidationPipe) id: string)/*: Promise<GetUserByIdResponseDto> */{ // FIXME DTO
         return this.userService.getUserById(id);
     }
 

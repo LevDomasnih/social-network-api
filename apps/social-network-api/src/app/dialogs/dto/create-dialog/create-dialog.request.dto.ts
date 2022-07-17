@@ -9,9 +9,8 @@ export class CreateDialogRequestDto {
 
     @ApiProperty()
     @IsNotEmpty()
-    @IsString({ each: true })
-    @ArrayMinSize(1)
-    otherOwners: string[];
+    @IsString()
+    secondOwnerId: string;
 
     // TODO Пересмотреть
     @IsString()
