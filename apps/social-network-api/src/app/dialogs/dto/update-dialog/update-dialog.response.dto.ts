@@ -1,6 +1,8 @@
-import { MessagesEntity, UserEntity } from '@app/nest-postgre';
+import { BaseCustomEntity } from '@app/nest-postgre';
 
-export class UpdateDialogResponseDto {
-    newMessage: MessagesEntity;
-    owners: UserEntity[];
+export class UpdateDialogResponseDto extends BaseCustomEntity {
+    dialogId: string;
+    id: string;
+    ownerId: string;
+    text: string;
 }

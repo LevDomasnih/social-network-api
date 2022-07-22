@@ -1,15 +1,30 @@
-import { MessageBody, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import {
+    ConnectedSocket,
+    MessageBody,
+    OnGatewayConnection, OnGatewayDisconnect,
+    OnGatewayInit,
+    SubscribeMessage,
+    WebSocketGateway,
+    WebSocketServer,
+} from '@nestjs/websockets';
 import { Logger, UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { DialogsService } from './dialogs.service';
 import { JwtWsAuthGuard } from '../auth/guards/jwt-ws.guard';
 import { User } from '@app/common';
 import { UserEntity } from '@app/nest-postgre';
-import { UpdateDialogRequestDto } from './dto';
+import { CreateDialogRequestDto, UpdateDialogRequestDto } from './dto';
 
 
-@WebSocketGateway({ namespace: '/dialogs' })
-export class DialogsGateway implements OnGatewayInit {
+@WebSocketGateway({
+    namespace: '/dialogs',
+    cors: {
+        origin: 'http://localhost:3001',
+        credentials: true,
+        allowedHeaders: ['my-custom-header']
+    }
+})
+export class DialogsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private readonly dialogsService: DialogsService,
     ) {
@@ -24,31 +39,46 @@ export class DialogsGateway implements OnGatewayInit {
         this.logger.log('Initialized!');
     }
 
+
+    handleDisconnect(client: Socket) {
+        this.logger.log(`Client disconnected: ${client.id}`);
+    }
+
+    handleConnection(client: Socket, ...args: any[]) {
+        this.logger.log(`Client connected: ${client.id}`);
+    }
+
     @SubscribeMessage('joinRoom')
-    handleJoinRoom(client: Socket, userId: string) {
-        client.join(userId);
+    @UseGuards(JwtWsAuthGuard)
+    handleJoinRoom(
+        @ConnectedSocket() client: Socket,
+        @User() user: UserEntity
+    ) {
+        client.join(user.id);
     }
 
     @SubscribeMessage('createMessage')
     @UseGuards(JwtWsAuthGuard)
     async handleMessage(
         @User() user: UserEntity,
-        @MessageBody() dto: UpdateDialogRequestDto,
+        @ConnectedSocket() client: Socket,
+        @MessageBody() dto: CreateDialogRequestDto
     ) {
         try {
-            // const {
-            //     newMessage,
-            //     owners,
-            // } = await this.dialogsService.updateDialog(user, dto);
-            //
-            // this.wss.to(owners.map(o => o.id)).emit('getMessage', newMessage);
+            const dialogs = await this.dialogsService.sendMessageInDialog(user, dto)
+            this.wss.to([dto.secondOwnerId, user.id]).emit('getMessage', dialogs);
         } catch (e) {
 
         }
     }
 
     @SubscribeMessage('leftRoom')
-    handleLeftRoom(client: Socket, userId: string) {
-        client.leave(userId);
+    @UseGuards(JwtWsAuthGuard)
+    handleLeftRoom(
+        @ConnectedSocket() client: Socket,
+        @User() user: UserEntity
+    ) {
+        client.leave(user.id);
     }
+
 }

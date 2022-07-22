@@ -77,7 +77,7 @@ export class DialogsService {
         user: UserEntity,
         { dialogId, ...dto }: UpdateDialogRequestDto,
     ): Promise<UpdateDialogResponseDto> {
-        const dialog = await this.dialogsRepository.findOne({ id: dialogId });
+        const dialog = await this.dialogsRepository.findOne({ id: dialogId }, {relations: ['owners']});
         if (!dialog) {
             throw new BadRequestException(`Диалог ${dialogId} отсутствует`);
         }
@@ -88,9 +88,11 @@ export class DialogsService {
         const newMessage = await this.messagesRepository.saveAndGet(
             { owner, dialog, ...dto },
         );
+
         return {
-            newMessage,
-            owners: dialog.owners,
+            ownerId: owner.id,
+            ...newMessage,
+            dialogId,
         };
     }
 

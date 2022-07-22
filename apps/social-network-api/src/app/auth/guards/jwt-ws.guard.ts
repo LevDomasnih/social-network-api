@@ -12,7 +12,7 @@ export class JwtWsAuthGuard extends AuthGuard('jwt') {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToWs().getClient()
-        const bearerToken = request.handshake.headers.authorization
+        const bearerToken = request.handshake.auth.authorization
         const user = await this.authService.verifyUser(bearerToken)
         request.user = user
 

@@ -47,9 +47,9 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                                                     m.text,
                                                                     'ownerId',
                                                                     m.owner_id,
-                                                                    'createAt',
+                                                                    'createdAt',
                                                                     m.create_at,
-                                                                    'updateAt',
+                                                                    'updatedAt',
                                                                     m.update_at
                                                                 ) ORDER BY create_at DESC)
                                             FROM messages m
@@ -72,9 +72,9 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                            d.id,
                                            'status',
                                            d.status,
-                                           'createAt',
+                                           'createdAt',
                                            d.create_at,
-                                           'updateAt',
+                                           'updatedAt',
                                            d.update_at
                                        )::jsonb ||
                                    (SELECT json_build_object(
@@ -93,9 +93,9 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                                                     m.text,
                                                                     'ownerId',
                                                                     m.owner_id,
-                                                                    'createAt',
+                                                                    'createdAt',
                                                                     m.create_at,
-                                                                    'updateAt',
+                                                                    'updatedAt',
                                                                     m.update_at
                                                                 ) ORDER BY id)
                                             FROM messages m)
@@ -156,9 +156,9 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                                              m.text,
                                                              'ownerId',
                                                              m.owner_id,
-                                                             'createAt',
+                                                             'createdAt',
                                                              m.create_at,
-                                                             'updateAt',
+                                                             'updatedAt',
                                                              m.update_at,
                                                              'dialogId',
                                                              m.dialog_id
