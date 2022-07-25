@@ -39,8 +39,8 @@ export class DialogsController {
     async createDialog(
         @User() user: UserEntity,
         @Body() dto: CreateDialogRequestDto,
-    ): Promise<CreateDialogResponseDto | UpdateDialogResponseDto> {
-        return this.dialogsService.sendMessageInDialog(user, dto);
+    )/*: Promise<CreateDialogResponseDto | UpdateDialogResponseDto>*/ {
+        // return this.dialogsService.sendMessageInDialog(user, dto);
     }
 
     @Get()

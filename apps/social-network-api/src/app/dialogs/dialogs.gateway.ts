@@ -57,16 +57,24 @@ export class DialogsGateway implements OnGatewayInit, OnGatewayConnection, OnGat
         client.join(user.id);
     }
 
-    @SubscribeMessage('createMessage')
+    @SubscribeMessage('sendMessage')
     @UseGuards(JwtWsAuthGuard)
     async handleMessage(
         @User() user: UserEntity,
         @ConnectedSocket() client: Socket,
-        @MessageBody() dto: CreateDialogRequestDto
+        @MessageBody() { secondOwnerId, ...messageData }: CreateDialogRequestDto
     ) {
         try {
-            const dialogs = await this.dialogsService.sendMessageInDialog(user, dto)
-            this.wss.to([dto.secondOwnerId, user.id]).emit('getMessage', dialogs);
+            const dialogId = await this.dialogsService.findDialogId(user.id, secondOwnerId)
+            if (dialogId) {
+                const message = await this.dialogsService.updateDialog(user, {dialogId, ...messageData})
+                this.wss.to([secondOwnerId, user.id]).emit('getMessage', message);
+            } else {
+                const newUsersDialog = await this.dialogsService.createDialog(user, {secondOwnerId, ...messageData})
+                for (const userDialog of newUsersDialog) {
+                    this.wss.to([userDialog.to]).emit('getNewDialog', userDialog.dialog);
+                }
+            }
         } catch (e) {
 
         }

@@ -36,7 +36,21 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                             WHERE d.id = du.dialogs_id
                                            ),
                                            'userId',
-                                           (SELECT du3.users_id FROM dialogs_users du3 WHERE du3.dialogs_id = d.id AND du3.users_id != $1)
+                                           (SELECT du3.users_id FROM dialogs_users du3 WHERE du3.dialogs_id = d.id AND du3.users_id != $1),
+                                           'info',
+                                           (SELECT json_build_object(
+                                                           'id',
+                                                           u.id,
+                                                           'image',
+                                                           'http://localhost:3000/PUBLIC/' || avatar.name,
+                                                           'name',
+                                                           p.first_name || ' ' || p.last_name
+                                                       )
+                                            FROM users u
+                                                     LEFT JOIN profiles p on u.id = p.owner_id
+                                                     LEFT JOIN files avatar on avatar.id = p.avatar_id
+                                            WHERE u.id = (SELECT du3.users_id FROM dialogs_users du3 WHERE du3.dialogs_id = d.id AND du3.users_id != $1)
+                                           )
                                        )::jsonb ||
                                    json_build_object(
                                            'lastMessage',
@@ -64,6 +78,9 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
         return new GetSqlResponse<GetDialogByUserIdModel>().getRows(response);
     }
 
+    /** @deprecated
+     * Обдумать
+     * */
     async getDialogsById(userId: string, id: string): Promise<{} | GetDialogByIdModel> {
         const response: SqlToJsonModel<GetDialogByIdModel>[] = await this.db.query(`
             SELECT json_agg(
@@ -114,16 +131,14 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                     d.id,
                                     'status',
                                     d.status,
-                                    'user',
+                                    'info',
                                     (SELECT json_build_object(
                                             'id',
                                             u.id,
-                                            'firstName',
-                                            p.first_name,
-                                            'lastName',
-                                            p.last_name,
-                                            'avatar',
-                                            'http://localhost:3000/PUBLIC/' || avatar.name
+                                            'image',
+                                            'http://localhost:3000/PUBLIC/' || avatar.name,
+                                            'name',
+                                            p.first_name || ' ' || p.last_name
                                         )
                                      FROM users u
                                      LEFT JOIN profiles p on u.id = p.owner_id
@@ -178,6 +193,9 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
         return new GetSqlResponse<{}>().getRow(response);
     }
 
+    /** @deprecated
+     * Обдумать
+     * */
     async findDialog(ownerId1: string, ownerId2: string) {
         const response: SqlToJsonModel<{}>[] = await this.db.query(`
             SELECT json_agg(row_to_json(rows)) as rows

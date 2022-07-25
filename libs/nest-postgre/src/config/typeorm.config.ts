@@ -5,7 +5,7 @@ const typeOrm = {
     entities: ['dist/apps/social-network-api/libs/nest-postgre/src/entities/**/*.entity{.ts,.js}'],
     synchronize: true,
     migrationsRun: false,
-    logging: true,
+    logging: false,
     migrations: ['dist/apps/social-network-api/apps/social-network-api/src/migrations/*{.ts,.js}'],
     cli: {
         migrationsDir: 'apps/social-network-api/src/migrations',
