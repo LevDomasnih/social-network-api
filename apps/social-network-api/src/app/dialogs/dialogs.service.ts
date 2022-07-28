@@ -1,11 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DialogsRepository, DialogType, MessagesRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
+import { DialogsRepository, MessagesRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
 import {
-    CreateDialogRequestDto, CreateDialogResponseDto,
-    GetDialogResponseDto,
-    GetDialogsResponseDto,
+    CreateDialogRequestDto,
     UpdateDialogRequestDto,
-    UpdateDialogResponseDto,
     UpdateOwnersRequestDto,
     UpdateOwnersResponseDto,
 } from './dto';
@@ -24,59 +21,51 @@ export class DialogsService {
         return this.userRepository.find({ where: owners.map(id => ({ id })), ...options });
     }
 
-    async findDialogId(ownerId: string, secondOwnerId: string) {
-        const owner = await this.userRepository.findOne(ownerId);
+    async findDialogId(ownerId: string, secondOwnerId: string): Promise<string | null> {
+        const owner = await this.userRepository.findOne({
+            relations: ['dialogs', 'dialogs.owners'],
+            where: { id: ownerId },
+        });
         const secondOwner = await this.userRepository.findOne(secondOwnerId);
         if (!owner || !secondOwner) {
             throw new BadRequestException(`Пользователя не существует`);
         }
-        const user = await this.userRepository.findOne({
-            relations: ['dialogs', 'dialogs.owners'],
-            where: {id: owner.id}
-        })
-        if (!user) {
-            throw new BadRequestException(`Пользователя ${owner.id} не существует`)
-        }
-        let dialogId = null;
-        user.dialogs.forEach(dialog => dialog.owners.forEach(userOwner => {
-            if (userOwner.id === secondOwner.id) {
-                dialogId = dialog.id
+        let dialogId: null | string = null;
+
+        for (const dialog of owner.dialogs) {
+            const isFind: boolean[] = dialog.owners.map(userOwner => {
+                return userOwner.id === owner.id || userOwner.id === secondOwner.id;
+            });
+            if (!isFind.some(e => !e)) {
+                if (isFind.length === 1) {
+                    if (owner.id === secondOwner.id) {
+                        dialogId = dialog.id;
+                        break;
+                    }
+                } else {
+                    dialogId = dialog.id;
+                    break;
+                }
             }
-        }))
-        return dialogId
+        }
+        return dialogId;
     }
 
-    // async sendMessageInDialog(user: UserEntity, {
-    //     secondOwnerId,
-    //     ...messageData
-    // }: CreateDialogRequestDto)/*: Promise<CreateDialogResponseDto | UpdateDialogResponseDto> */{
-    //     const owner = await this.userRepository.findOne(user.id);
-    //     const secondOwner = await this.userRepository.findOne(secondOwnerId);
-    //     if (!owner || !secondOwner) {
-    //         throw new BadRequestException(`Пользователя ${user.id} не существует`);
-    //     }
-    //     const dialogId = await this.findDialogId(owner, secondOwner)
-    //     if (dialogId) {
-    //         return this.updateDialog(user, {dialogId, ...messageData})
-    //     }
-    //     return this.createDialog(owner, { secondOwnerId, ...messageData })
-    // }
-
-    async createDialog(user: UserEntity, {
-        secondOwnerId,
-        ...messageData
-    }: CreateDialogRequestDto) {
+    async createDialog(
+        user: UserEntity,
+        { secondOwnerId, ...messageData }: CreateDialogRequestDto,
+    ) {
         const owner = await this.userRepository.findOne(
             user.id,
-            {relations: ['profile', 'profile.avatar']}
+            { relations: ['profile', 'profile.avatar'] },
         );
         const secondOwner = await this.userRepository.findOne(
             secondOwnerId,
-            {relations: ['profile', 'profile.avatar']}
+            { relations: ['profile', 'profile.avatar'] },
         );
         const validOwners = await this.validateOwners(
             [user.id, secondOwnerId],
-            {relations: ['profile', 'profile.avatar']}
+            { relations: ['profile', 'profile.avatar'] },
         );
         if (!validOwners || !owner || !secondOwner) {
             throw new BadRequestException(`Пользователя не существует`);
@@ -88,7 +77,7 @@ export class DialogsService {
             { owner, dialog: newDialog, ...messageData },
         );
 
-        return [
+        const userDialogs = [
             {
                 to: owner.id,
                 dialog: {
@@ -96,54 +85,58 @@ export class DialogsService {
                     messages: [{
                         ...message,
                         ownerId: owner.id,
-                        dialogId: newDialog.id
+                        dialogId: newDialog.id,
                     }],
                     status: 'CHAT',
                     info: {
                         id: secondOwner.id,
                         image: secondOwner.profile.avatar?.getFilePath() || null,
-                        name: secondOwner.profile.firstName + ' ' + secondOwner.profile.lastName
+                        name: secondOwner.profile.firstName + ' ' + secondOwner.profile.lastName,
                     },
                     users: validOwners.map(validOwner => ({
                         avatar: validOwner.profile.avatar?.getFilePath() || null,
                         firstName: validOwner.profile.firstName,
                         id: validOwner.id,
                         lastName: validOwner.profile.lastName,
-                    }))
-                }
+                    })),
+                },
             },
-            {
+        ];
+
+        if (owner.id !== secondOwner.id) {
+            userDialogs.push({
                 to: secondOwner.id,
                 dialog: {
                     id: newDialog.id,
                     messages: [{
                         ...message,
                         ownerId: owner.id,
-                        dialogId: newDialog.id
+                        dialogId: newDialog.id,
                     }],
                     status: 'CHAT',
                     info: {
                         id: owner.id,
                         image: owner.profile.avatar?.getFilePath() || null,
-                        name: owner.profile.firstName + ' ' + owner.profile.lastName
+                        name: owner.profile.firstName + ' ' + owner.profile.lastName,
                     },
                     users: validOwners.map(validOwner => ({
                         avatar: validOwner.profile.avatar?.getFilePath() || null,
                         firstName: validOwner.profile.firstName,
                         id: validOwner.id,
                         lastName: validOwner.profile.lastName,
-                    }))
-                }
-            }
-        ]
+                    })),
+                },
+            });
+        }
 
+        return userDialogs;
     }
 
     async updateDialog(
         user: UserEntity,
         { dialogId, ...dto }: UpdateDialogRequestDto,
     )/*: Promise<UpdateDialogResponseDto>*/ {
-        const dialog = await this.dialogsRepository.findOne({ id: dialogId }, {relations: ['owners']});
+        const dialog = await this.dialogsRepository.findOne({ id: dialogId }, { relations: ['owners'] });
         if (!dialog) {
             throw new BadRequestException(`Диалог ${dialogId} отсутствует`);
         }
@@ -163,48 +156,132 @@ export class DialogsService {
     }
 
 
-    async getDialogs(user: UserEntity): Promise<GetDialogsResponseDto[]> {
+    async getDialogs(user: UserEntity) {
         try {
-            return this.dialogsRepository.getDialogsByUserId(user.id);
+            const userDialogs = await this.userRepository.findOne(
+                user.id,
+                {
+                    relations: [
+                        'dialogs',
+                        'dialogs.owners',
+                        'dialogs.owners.profile',
+                        'dialogs.owners.profile.avatar',
+                    ],
+                },
+            );
+            if (!userDialogs) {
+                throw new BadRequestException('');
+            }
+
+            return Promise.all(
+                userDialogs.dialogs.map(async dialog => {
+                    let currentUser;
+
+                    if (dialog.owners.length === 1) {
+                        currentUser = dialog.owners[0];
+                    } else {
+                        dialog.owners.forEach(owner => {
+                            if (owner.id !== user.id) {
+                                currentUser = owner;
+                            }
+                        });
+                    }
+
+                    if (!currentUser) {
+                        throw new BadRequestException('');
+                    }
+
+                    const lastMessage = await this.messagesRepository.findOne({
+                        where: { dialog: dialog },
+                        order: {
+                            createdAt: 'DESC',
+                        },
+                        relations: ['owner'],
+                    });
+
+                    if (!lastMessage) {
+                        throw new BadRequestException('');
+                    }
+
+                    return {
+                        id: dialog.id,
+                        info: {
+                            id: currentUser.id,
+                            name: currentUser.profile.firstName + ' ' + currentUser.profile.lastName,
+                            image: currentUser.profile.avatar?.getFilePath() || null,
+                        },
+                        users: dialog.owners.map(owner => ({
+                            id: owner.id,
+                            avatar: owner.profile.avatar?.getFilePath() || null,
+                            lastName: owner.profile.lastName,
+                            firstName: owner.profile.firstName,
+                        })),
+                        status: dialog.status,
+                        userId: currentUser.id,
+                        lastMessage: {
+                            id: lastMessage.id,
+                            text: lastMessage.text,
+                            ownerId: lastMessage.owner.id,
+                            createdAt: lastMessage.createdAt,
+                            updatedAt: lastMessage.updatedAt,
+                        },
+                    };
+                }),
+            );
         } catch (e) {
             throw new BadRequestException(e);
         }
     }
 
     async getUserDialog(user: UserEntity, secondUserId: string)/*: Promise<{} | GetDialogResponseDto>*/ {
-        const owner = await this.userRepository.findOne(user.id, {relations: ['profile', 'profile.avatar']});
-        const secondOwner = await this.userRepository.findOne(secondUserId, {relations: ['profile', 'profile.avatar']});
+        const owner = await this.userRepository.findOne(user.id, { relations: ['profile', 'profile.avatar'] });
+        const secondOwner = await this.userRepository.findOne(secondUserId, { relations: ['profile', 'profile.avatar'] });
         if (!owner || !secondOwner) {
             throw new BadRequestException(`Пользователя ${user.id} не существует`);
         }
-        const dialogId = await this.findDialogId(owner.id, secondOwner.id)
-        if (!dialogId) {
-            return {
-                id: null,
-                messages: [],
-                status: 'CHAT',
-                info: {
-                    id: secondOwner.id,
-                    image: secondOwner.profile.avatar?.getFilePath() || null,
-                    name: secondOwner.profile.firstName + ' ' + secondOwner.profile.lastName
+        const dialogId = await this.findDialogId(owner.id, secondOwner.id);
+        let messages;
+        if (dialogId) {
+            messages = await this.messagesRepository.find({
+                where: { dialog: dialogId },
+                relations: ['owner', 'dialog'],
+                order: {
+                    createdAt: 'DESC',
                 },
-                users: [
-                    {
-                        avatar: secondOwner.profile.avatar?.getFilePath() || null,
-                        firstName: secondOwner.profile.firstName,
-                        id: secondOwner.id,
-                        lastName: secondOwner.profile.lastName,
-                    },
-                    {
-                        avatar: owner.profile.avatar?.getFilePath() || null,
-                        firstName: owner.profile.firstName,
-                        id: owner.id,
-                        lastName: owner.profile.lastName,
-                    }
-                ]
-            }
+            });
         }
-        return this.dialogsRepository.getDialogByUsersId(user.id, secondOwner.id);
+
+
+        return {
+            id: dialogId,
+            messages: messages?.map(message => ({
+                id: message.id,
+                text: message.text,
+                ownerId: message.owner.id,
+                createdAt: message.createdAt,
+                updatedAt: message.updatedAt,
+            })) || [],
+            status: 'CHAT',
+            info: {
+                id: secondOwner.id,
+                image: secondOwner.profile.avatar?.getFilePath() || null,
+                name: secondOwner.profile.firstName + ' ' + secondOwner.profile.lastName,
+            },
+            users: [
+                {
+                    avatar: secondOwner.profile.avatar?.getFilePath() || null,
+                    firstName: secondOwner.profile.firstName,
+                    id: secondOwner.id,
+                    lastName: secondOwner.profile.lastName,
+                },
+                {
+                    avatar: owner.profile.avatar?.getFilePath() || null,
+                    firstName: owner.profile.firstName,
+                    id: owner.id,
+                    lastName: owner.profile.lastName,
+                },
+            ],
+        };
     }
 
     async updateDialogOwners(

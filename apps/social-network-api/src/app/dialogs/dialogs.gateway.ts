@@ -68,7 +68,7 @@ export class DialogsGateway implements OnGatewayInit, OnGatewayConnection, OnGat
             const dialogId = await this.dialogsService.findDialogId(user.id, secondOwnerId)
             if (dialogId) {
                 const message = await this.dialogsService.updateDialog(user, {dialogId, ...messageData})
-                this.wss.to([secondOwnerId, user.id]).emit('getMessage', message);
+                this.wss.to([...new Set([secondOwnerId, user.id])]).emit('getMessage', message);
             } else {
                 const newUsersDialog = await this.dialogsService.createDialog(user, {secondOwnerId, ...messageData})
                 for (const userDialog of newUsersDialog) {

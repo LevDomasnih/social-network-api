@@ -13,66 +13,81 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
     async getDialogsByUserId(userId: string): Promise<GetDialogByUserIdModel[]> {
         const response: SqlToJsonModel<GetDialogByUserIdModel>[] = await this.db.query(`
             SELECT json_agg(
-                                   json_build_object(
-                                           'id',
-                                           d.id,
-                                           'status',
-                                           d.status,
-                                           'users',
-                                           (SELECT json_agg(json_build_object(
-                                                   'id',
-                                                   u.id,
-                                                   'firstName',
-                                                   p.first_name,
-                                                   'lastName',
-                                                   p.last_name,
-                                                   'avatar',
-                                                   'http://localhost:3000/PUBLIC/' || avatar.name
-                                               ))
-                                            FROM dialogs_users du
-                                                     LEFT JOIN users u on u.id = du.users_id
-                                                     LEFT JOIN profiles p on u.id = p.owner_id
-                                                     LEFT JOIN files avatar on avatar.id = p.avatar_id
-                                            WHERE d.id = du.dialogs_id
-                                           ),
-                                           'userId',
-                                           (SELECT du3.users_id FROM dialogs_users du3 WHERE du3.dialogs_id = d.id AND du3.users_id != $1),
-                                           'info',
-                                           (SELECT json_build_object(
-                                                           'id',
-                                                           u.id,
-                                                           'image',
-                                                           'http://localhost:3000/PUBLIC/' || avatar.name,
-                                                           'name',
-                                                           p.first_name || ' ' || p.last_name
-                                                       )
-                                            FROM users u
-                                                     LEFT JOIN profiles p on u.id = p.owner_id
-                                                     LEFT JOIN files avatar on avatar.id = p.avatar_id
-                                            WHERE u.id = (SELECT du3.users_id FROM dialogs_users du3 WHERE du3.dialogs_id = d.id AND du3.users_id != $1)
-                                           )
-                                       )::jsonb ||
-                                   json_build_object(
-                                           'lastMessage',
-                                           (SELECT json_agg(json_build_object(
-                                                                    'id',
-                                                                    m.id,
-                                                                    'text',
-                                                                    m.text,
-                                                                    'ownerId',
-                                                                    m.owner_id,
-                                                                    'createdAt',
-                                                                    m.create_at,
-                                                                    'updatedAt',
-                                                                    m.update_at
-                                                                ) ORDER BY create_at DESC)
-                                            FROM messages m
-                                            WHERE m.dialog_id = d.id
-                                            )::json -> 0
-                                       )::jsonb
+                               json_build_object(
+                                       'id',
+                                       d.id,
+                                       'status',
+                                       d.status,
+                                       'users',
+                                       (SELECT json_agg(json_build_object(
+                                               'id',
+                                               u.id,
+                                               'firstName',
+                                               p.first_name,
+                                               'lastName',
+                                               p.last_name,
+                                               'avatar',
+                                               'http://localhost:3000/PUBLIC/' || avatar.name
+                                           ))
+                                        FROM dialogs_users du
+                                                 LEFT JOIN users u on u.id = du.users_id
+                                                 LEFT JOIN profiles p on u.id = p.owner_id
+                                                 LEFT JOIN files avatar on avatar.id = p.avatar_id
+                                        WHERE d.id = du.dialogs_id),
+                                       'userId',
+                                       COALESCE((SELECT du3.users_id
+                                                 FROM dialogs_users du3
+                                                 WHERE du3.dialogs_id = d.id AND du3.users_id != $1), $1),
+                                       'info',
+                                       COALESCE((SELECT json_build_object(
+                                                                'id',
+                                                                u.id,
+                                                                'image',
+                                                                'http://localhost:3000/PUBLIC/' || avatar.name,
+                                                                'name',
+                                                                p.first_name || ' ' || p.last_name
+                                                            )
+                                                 FROM users u
+                                                          LEFT JOIN profiles p on u.id = p.owner_id
+                                                          LEFT JOIN files avatar on avatar.id = p.avatar_id
+                                                 WHERE u.id = (SELECT du3.users_id
+                                                               FROM dialogs_users du3
+                                                               WHERE du3.dialogs_id = d.id AND du3.users_id != $1)),
+                                                (SELECT json_build_object(
+                                                                'id',
+                                                                u.id,
+                                                                'image',
+                                                                'http://localhost:3000/PUBLIC/' || avatar.name,
+                                                                'name',
+                                                                p.first_name || ' ' || p.last_name
+                                                            )
+                                                 FROM users u
+                                                          LEFT JOIN profiles p on u.id = p.owner_id
+                                                          LEFT JOIN files avatar on avatar.id = p.avatar_id
+                                                 WHERE u.id = (SELECT du3.users_id
+                                                               FROM dialogs_users du3
+                                                               WHERE du3.dialogs_id = d.id AND du3.users_id = $1)))
+                                   )::jsonb ||
+                               json_build_object(
+                                       'lastMessage',
+                                       (SELECT json_agg(json_build_object(
+                                                                'id',
+                                                                m.id,
+                                                                'text',
+                                                                m.text,
+                                                                'ownerId',
+                                                                m.owner_id,
+                                                                'createdAt',
+                                                                m.create_at,
+                                                                'updatedAt',
+                                                                m.update_at
+                                                            ) ORDER BY create_at DESC)
+                                        FROM messages m
+                                        WHERE m.dialog_id = d.id)::json -> 0
+                                   )::jsonb
                        ) as rows
             FROM dialogs d
-            LEFT JOIN dialogs_users du2 on d.id = du2.dialogs_id
+                     LEFT JOIN dialogs_users du2 on d.id = du2.dialogs_id
             WHERE du2.users_id = $1;
         `, [userId]);
         return new GetSqlResponse<GetDialogByUserIdModel>().getRows(response);
@@ -133,18 +148,19 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                     d.status,
                                     'info',
                                     (SELECT json_build_object(
-                                            'id',
-                                            u.id,
-                                            'image',
-                                            'http://localhost:3000/PUBLIC/' || avatar.name,
-                                            'name',
-                                            p.first_name || ' ' || p.last_name
-                                        )
+                                                    'id',
+                                                    u.id,
+                                                    'image',
+                                                    'http://localhost:3000/PUBLIC/' || avatar.name,
+                                                    'name',
+                                                    p.first_name || ' ' || p.last_name
+                                                )
                                      FROM users u
-                                     LEFT JOIN profiles p on u.id = p.owner_id
-                                     LEFT JOIN files avatar on avatar.id = p.avatar_id
-                                     WHERE u.id = (SELECT du3.users_id FROM dialogs_users du3 WHERE du3.dialogs_id = d.id AND du3.users_id != $1)
-                                    ),
+                                              LEFT JOIN profiles p on u.id = p.owner_id
+                                              LEFT JOIN files avatar on avatar.id = p.avatar_id
+                                     WHERE u.id = (SELECT du3.users_id
+                                                   FROM dialogs_users du3
+                                                   WHERE du3.dialogs_id = d.id AND du3.users_id != $1)),
                                     'users',
                                     (SELECT json_agg(json_build_object(
                                             'id',
@@ -160,8 +176,7 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                               LEFT JOIN users u on u.id = du.users_id
                                               LEFT JOIN profiles p on u.id = p.owner_id
                                               LEFT JOIN files avatar on avatar.id = p.avatar_id
-                                     WHERE d.id = du.dialogs_id
-                                    )
+                                     WHERE d.id = du.dialogs_id)
                                 )::jsonb || json_build_object(
                                     'messages',
                                     (SELECT json_agg(json_build_object(
@@ -179,8 +194,7 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                                                              m.dialog_id
                                                          ) ORDER BY create_at DESC)
                                      FROM messages m
-                                     WHERE m.dialog_id = d.id
-                                    )
+                                     WHERE m.dialog_id = d.id)
                                 )::jsonb) as rows
             FROM dialogs d
             WHERE (SELECT du.dialogs_id
