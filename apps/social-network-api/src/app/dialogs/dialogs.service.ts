@@ -140,7 +140,7 @@ export class DialogsService {
         if (!dialog) {
             throw new BadRequestException(`Диалог ${dialogId} отсутствует`);
         }
-        const owner = await this.userRepository.findOne(user.id);
+        const owner = await this.userRepository.findOne(user.id, {relations: ['profile', 'profile.avatar']});
         if (!owner) {
             throw new BadRequestException(`Юзер ${user.id} отсутствует`);
         }
@@ -149,7 +149,12 @@ export class DialogsService {
         );
 
         return {
-            ownerId: owner.id,
+            user: {
+                id: owner.id,
+                avatar: owner.profile.avatar?.getFilePath() || null,
+                lastName: owner.profile.lastName,
+                firstName: owner.profile.firstName,
+            },
             ...newMessage,
             dialogId,
         };
