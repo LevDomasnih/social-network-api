@@ -1,4 +1,56 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "sourceRoot": "apps/social-network-api/src/app",
+  "monorepo": true,
+  "root": "apps/social-network-api",
+  "compilerOptions": {
+    "tsConfigPath": "apps/social-network-api/tsconfig.app.json"
+  },
+  "projects": {
+    "social-network-api": {
+      "type": "application",
+      "root": "apps/social-network-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/social-network-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/social-network-api/tsconfig.app.json"
+      }
+    },
+    "file-system-service": {
+      "type": "application",
+      "root": "apps/file-system-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/file-system-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/file-system-service/tsconfig.app.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    },
+    "nest-postgre": {
+      "type": "library",
+      "root": "libs/nest-postgre",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-postgre/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-postgre/tsconfig.lib.json"
+      }
+    },
+    "amqp-contracts": {
+      "type": "library",
+      "root": "libs/amqp-contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/amqp-contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/amqp-contracts/tsconfig.lib.json"
+      }
+    }
+  }
 }

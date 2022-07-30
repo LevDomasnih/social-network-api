@@ -13,6 +13,26 @@
     "incremental": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ],
+      "@app/nest-postgre": [
+        "libs/nest-postgre/src"
+      ],
+      "@app/nest-postgre/*": [
+        "libs/nest-postgre/src/*"
+      ],
+      "@app/amqp-contracts": [
+        "libs/amqp-contracts/src"
+      ],
+      "@app/amqp-contracts/*": [
+        "libs/amqp-contracts/src/*"
+      ]
+    }
   }
 }

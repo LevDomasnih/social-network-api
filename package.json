@@ -1,6 +1,6 @@
 {
   "name": "social-network-api",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "",
   "author": "Lev Domasnih",
   "private": true,
@@ -8,9 +8,9 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "start:social-network-api": "nest start social-network-api --watch",
+    "start:file-system-service": "nest start file-system-service --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "tslint --fix --project .",
@@ -18,9 +18,13 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/social-network-api/test/jest-e2e.json",
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --config libs/nest-postgre/src/config/typeorm.config.ts",
+    "typeorm:migrate": "npm run typeorm migration:generate -- -n",
+    "typeorm:run": "npm run typeorm migration:run"
   },
   "dependencies": {
+    "@golevelup/nestjs-rabbitmq": "~1.15.2",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.0.2",
     "@nestjs/core": "^8.0.0",
@@ -28,6 +32,7 @@
     "@nestjs/passport": "^8.0.1",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/platform-socket.io": "^8.1.2",
+    "@nestjs/serve-static": "^2.2.2",
     "@nestjs/swagger": "^5.1.4",
     "@nestjs/typeorm": "^8.0.3",
     "@nestjs/websockets": "^8.1.2",
@@ -35,6 +40,8 @@
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "date-fns": "^2.28.0",
+    "mime-types": "^2.1.35",
     "mongoose": "^6.0.11",
     "multer": "^1.4.3",
     "nestjs-typegoose": "^7.1.38",
@@ -75,7 +82,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -83,7 +90,16 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/apps/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/nest-postgre(|/.*)$": "<rootDir>/libs/nest-postgre/src/$1",
+      "^@app/amqp-contracts(|/.*)$": "<rootDir>/libs/amqp-contracts/src/$1"
+    }
   }
 }
