@@ -51,6 +51,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/amqp-contracts/tsconfig.lib.json"
       }
+    },
+    "graphql-lib": {
+      "type": "library",
+      "root": "libs/graphql-lib",
+      "entryFile": "index",
+      "sourceRoot": "libs/graphql-lib/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/graphql-lib/tsconfig.lib.json"
+      }
     }
   }
 }

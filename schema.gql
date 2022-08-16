@@ -1,0 +1,43 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type RegisterScheme {
+  access_token: String!
+}
+
+type LoginScheme {
+  access_token: String!
+}
+
+type IsValidScheme {
+  valid: Boolean!
+}
+
+type AuthScheme {
+  id: ID!
+  login: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  avatar: String
+  notifications: Int!
+}
+
+type Query {
+  login(loginOrEmail: String!, password: String!): LoginScheme!
+  isValidFields(fieldName: String!, fieldValue: String!): IsValidScheme!
+  getAuth: AuthScheme!
+}
+
+type Mutation {
+  register(register: register!): RegisterScheme!
+}
+
+input register {
+  firstName: String!
+  lastName: String!
+  phone: String!
+  email: String!
+  password: String!
+}

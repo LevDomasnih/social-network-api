@@ -25,6 +25,7 @@ import { SharedModule } from '@app/common/shared.module';
 import { StaticModule } from './app/static/static.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostsModule } from './app/posts/posts.module';
+import { GraphqlLibModule } from '@app/graphql-lib';
 
 @Global()
 @Module({
@@ -45,6 +46,7 @@ import { PostsModule } from './app/posts/posts.module';
             SubscribersRepository,
             FilesRepository,
         ]),
+        GraphqlLibModule,
         // модули доменов
         AuthModule,
         ProfileModule,
