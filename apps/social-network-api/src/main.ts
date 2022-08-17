@@ -9,9 +9,9 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalPipes(new ValidationPipe({
-    forbidNonWhitelisted: true,
-    whitelist: true,
-    transform: true,
+    // forbidNonWhitelisted: true,
+    // whitelist: true,
+    // transform: true,
   }));
   // app.useStaticAssets(join(__dirname, '../../../../../../..', 'social-network-files', 'PUBLIC'), {
   //   prefix: '/PUBLIC'

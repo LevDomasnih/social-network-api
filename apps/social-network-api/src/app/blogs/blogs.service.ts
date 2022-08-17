@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Express } from 'express';
 import {
     BlogRepository,
     BlogTextBlockRepository,
@@ -7,13 +6,17 @@ import {
     UserEntity,
     UsersRepository,
 } from '@app/nest-postgre';
-import { CreateBlogRequestDto } from './dto';
 import { UpdateProfileFileContract } from '@app/amqp-contracts';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { IFileUpload } from '@app/common/model/file-upload.interface';
+import { CreateBlogDto } from './dto/create-blog.dto';
+import { CreateBlogScheme } from './schemes';
+import { DeleteBlogScheme } from './schemes/delete-blog.scheme';
 
 @Injectable()
 export class BlogsService {
     private readonly url = process.env.API_URL || 'http://localhost:3000';
+
     constructor(
         private readonly usersRepository: UsersRepository,
         private readonly postRepository: BlogRepository,
@@ -50,9 +53,9 @@ export class BlogsService {
 
     async createBlog(
         user: UserEntity,
-        files: Express.Multer.File[],
-        dto: CreateBlogRequestDto,
-    )/*: Promise<CreatePostResponseDto> */{
+        files: IFileUpload[],
+        dto: CreateBlogDto,
+    ): Promise<CreateBlogScheme[]> {
 
         const newFile = await this.amqpConnection.request<UpdateProfileFileContract.ResponsePayload>({
             exchange: UpdateProfileFileContract.queue.exchange,
@@ -73,14 +76,14 @@ export class BlogsService {
         // TODO RX??
         const headers = dto.textBlocks
             .filter(block => block.type.includes('header'))
-            .map(block => block.text)
+            .map(block => block.text);
 
         const newPost = await this.postRepository.save({
             owner: user,
             headers,
             mainImage: image,
-            entityMap: dto.entityMap
-        })
+            entityMap: dto.entityMap,
+        });
         for (const block of dto.textBlocks) {
             await this.blogTextBlockRepository.save({
                 postOwner: newPost,
@@ -90,19 +93,21 @@ export class BlogsService {
                 entityRanges: block.entityRanges,
                 inlineStyleRanges: block.inlineStyleRanges,
                 text: block.text,
-                type: block.type
-            })
+                type: block.type,
+            });
         }
 
         return this.postRepository.getBlogsAndCommentsByUserId(user.id)
             .then(posts => posts
                 .sort((postPrev, postNext) =>
-                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()))
+                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()));
     }
 
-    async deleteBlog(user: UserEntity, postId: string) {
-        const deleteResult = await this.postRepository.delete({owner: user, id: postId})
-        return deleteResult.affected // FIXME добавить структуру к удалению
+    async deleteBlog(user: UserEntity, postId: string): Promise<DeleteBlogScheme> {
+        const deleteResult = await this.postRepository.delete({ owner: user, id: postId });
+        return {
+            deleted: !!deleteResult.affected,
+        }; // FIXME добавить структуру к удалению
     }
 
     // async createComment(
@@ -153,7 +158,7 @@ export class BlogsService {
         return this.postRepository.getBlogsAndCommentsByUserId(userId)
             .then(posts => posts
                 .sort((postPrev, postNext) =>
-                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()))
+                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()));
     }
 
     async getPosts() {

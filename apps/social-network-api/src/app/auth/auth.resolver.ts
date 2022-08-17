@@ -16,7 +16,7 @@ export class AuthResolver {
 
     @Mutation(returns => RegisterScheme)
     async register(
-        @Args('register') registerDto: RegisterDto,
+        @Args('registerData') registerDto: RegisterDto,
     ): Promise<RegisterScheme> {
         return this.authService.register(registerDto);
     }
@@ -31,7 +31,7 @@ export class AuthResolver {
         return this.authService.isValidFields(isValidDto);
     }
 
-    @Query(returns => AuthScheme)
+    @Query(returns => AuthScheme, {name: 'auth'})
     @UseGuards(JwtGqlGuard)
     getAuth(
         @UserGql() user: UserEntity

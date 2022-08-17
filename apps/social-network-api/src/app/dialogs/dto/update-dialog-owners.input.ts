@@ -1,19 +1,20 @@
+import { Field, InputType } from '@nestjs/graphql';
 import { ArrayMinSize, IsArray, IsNotEmpty, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateOwnersRequestDto {
+@InputType()
+export class UpdateDialogOwnersInput {
 
-    @ApiProperty({ type: 'string' })
     @IsNotEmpty()
     @IsString()
+    @Field()
     dialogId: string;
 
-    @ApiProperty({ type: ['string'] })
     @IsNotEmpty()
     @IsArray()
     @IsString({ each: true })
     @ArrayMinSize(1, {
         message: 'Чат не может состоять из одного пользователя',
     })
+    @Field(type => [String])
     owners: string[];
 }

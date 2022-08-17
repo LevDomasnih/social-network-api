@@ -1,0 +1,210 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type AuthScheme {
+    avatar: String
+    email: String!
+    firstName: String!
+    id: ID!
+    lastName: String!
+    login: String!
+    notifications: Int!
+}
+
+type BlogsOfUserScheme {
+    createdAt: String!
+    id: ID!
+    isLiked: Boolean!
+    likes: Int!
+    mainImage: String
+    profile: BlogsOfUserSchemeProfile!
+    text: [BlogsOfUserSchemeTextBlock!]!
+    updatedAt: String!
+    views: Int!
+}
+
+type BlogsOfUserSchemeInlineStyleRanges {
+    length: Float!
+    offset: Float!
+    style: String!
+}
+
+type BlogsOfUserSchemeProfile {
+    avatar: String
+    firstName: String
+    lastName: String
+    middleName: String
+}
+
+type BlogsOfUserSchemeTextBlock {
+    createdAt: String!
+    depth: Int!
+    id: ID!
+    inlineStyleRanges: BlogsOfUserSchemeInlineStyleRanges
+    key: String!
+    text: String!
+    type: String!
+    updatedAt: String!
+}
+
+type CreateBlogScheme {
+    createdAt: DateTime!
+    id: ID!
+    likes: Int!
+    mainImage: String
+    profile: CreateBlogSchemeProfile!
+    text: [CreateBlogSchemeTextBlock!]!
+    updatedAt: DateTime!
+    views: Int!
+}
+
+type CreateBlogSchemeInlineStyleRanges {
+    length: Float!
+    offset: Float!
+    style: String!
+}
+
+type CreateBlogSchemeProfile {
+    avatar: String
+    firstName: String
+    lastName: String
+    middleName: String
+}
+
+type CreateBlogSchemeTextBlock {
+    createdAt: DateTime!
+    depth: Int!
+    id: ID!
+    inlineStyleRanges: CreateBlogSchemeInlineStyleRanges
+    key: String!
+    text: String!
+    type: String!
+    updatedAt: DateTime!
+}
+
+type DeleteBlogScheme {
+    deleted: Boolean!
+}
+
+type GetDialogScheme {
+    id: ID
+    info: GetDialogSchemeInfo!
+    messages: [GetDialogSchemeMessages!]!
+    status: String!
+    users: [GetDialogSchemeUser!]!
+}
+
+type GetDialogSchemeInfo {
+    id: ID!
+    image: String
+    name: String!
+}
+
+type GetDialogSchemeMessages {
+    createdAt: DateTime!
+    id: ID!
+    ownerId: ID!
+    text: String!
+    updatedAt: DateTime!
+}
+
+type GetDialogSchemeUser {
+    avatar: String
+    firstName: String!
+    id: ID!
+    lastName: String!
+}
+
+type GetDialogsScheme {
+    id: ID!
+    info: GetDialogsSchemeInfo!
+    lastMessage: GetDialogsSchemeLastMessages!
+    status: String!
+    userId: ID!
+    users: [GetDialogsSchemeUser!]!
+}
+
+type GetDialogsSchemeInfo {
+    id: ID!
+    image: String
+    name: String!
+}
+
+type GetDialogsSchemeLastMessages {
+    createdAt: DateTime!
+    id: ID!
+    ownerId: ID!
+    text: String!
+    updatedAt: DateTime!
+}
+
+type GetDialogsSchemeUser {
+    avatar: String
+    firstName: String!
+    id: ID!
+    lastName: String!
+}
+
+type IsValidScheme {
+    valid: Boolean!
+}
+
+type LoginScheme {
+    access_token: String!
+}
+
+type Mutation {
+    createBlog(blogData: CreateBlogDto!, files: [Upload!]!): [CreateBlogScheme!]!
+    deleteBlog(id: String!): DeleteBlogScheme!
+    register(registerData: register!): RegisterScheme!
+}
+
+type Query {
+    auth: AuthScheme!
+    blogsOfUser(id: String!): [BlogsOfUserScheme!]!
+    getDialog(id: String!): GetDialogScheme!
+    getDialogs: [GetDialogsScheme!]!
+    isValidFields(fieldName: String!, fieldValue: String!): IsValidScheme!
+    login(loginOrEmail: String!, password: String!): LoginScheme!
+}
+
+type RegisterScheme {
+    access_token: String!
+}
+
+"A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format."
+scalar DateTime
+
+"The `Upload` scalar type represents a file upload."
+scalar Upload
+
+input CreateBlogDto {
+    textBlocks: [CreateBlogDtoTextBlocks!]!
+}
+
+input CreateBlogDtoInlineStyleRangesDto {
+    length: String!
+    offset: String!
+    style: String!
+}
+
+input CreateBlogDtoTextBlocks {
+    depth: Int!
+    entityRanges: [String!]!
+    inlineStyleRanges: [CreateBlogDtoInlineStyleRangesDto!]!
+    key: String!
+    text: String!
+    type: String!
+}
+
+input register {
+    email: String!
+    firstName: String!
+    lastName: String!
+    password: String!
+    phone: String!
+}
