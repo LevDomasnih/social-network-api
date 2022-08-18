@@ -9,7 +9,7 @@ import { CreateBlogScheme } from './schemes';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import gqlFileUploadConvert from '@app/common/helpers/gql-file-upload-convert';
 import { BlogsOfUserScheme } from './schemes/blogs-of-user.scheme';
-import { CreateBlogDto } from './dto/create-blog.dto';
+import { CreateBlogDto } from './dto';
 import { DeleteBlogScheme } from './schemes/delete-blog.scheme';
 
 

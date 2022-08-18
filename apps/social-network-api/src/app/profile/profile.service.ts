@@ -1,11 +1,13 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { FilesRepository, ProfileRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
-import { EditAvatarResponse, EditProfileResponseDto, FindProfileResponseDto, UpdateProfileRequestDto } from './dto';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { UpdateProfileFileContract } from '@app/amqp-contracts';
+import { IFileUpload } from '@app/common/model/file-upload.interface';
+import { EditProfileInterfaceDto } from './interfaces/edit-profile.interface';
+import { ProfileServiceInterface } from './interfaces/profile.service.interface';
 
 @Injectable()
-export class ProfileService {
+export class ProfileService implements ProfileServiceInterface {
     private readonly logger = new Logger(ProfileService.name);
     private readonly url = process.env.API_URL || 'http://localhost:3000';
 
@@ -19,8 +21,8 @@ export class ProfileService {
 
     async editProfile(
         user: UserEntity,
-        { email, login, ...dto }: UpdateProfileRequestDto,
-    ): Promise<EditProfileResponseDto> {
+        { email, login, ...dto }: EditProfileInterfaceDto,
+    ) {
         const owner = await this.usersRepository.findOne(user.id);
         if (!owner) {
             throw new BadRequestException('Профиль отсутствует');
@@ -36,7 +38,7 @@ export class ProfileService {
         return { updated: profile.affected === 1 && updatedUser.affected === 1 };
     }
 
-    async findProfile(userId: string): Promise<FindProfileResponseDto> {
+    async findProfile(userId: string) {
         const owner = await this.usersRepository.findOne(userId);
         const profile = await this.profileRepository.findOne({ owner }, { relations: ['avatar', 'mainImage'] });
         if (!profile) {
@@ -52,10 +54,10 @@ export class ProfileService {
     }
 
     async editImage(
-        file: Express.Multer.File[],
+        files: IFileUpload[],
         user: UserEntity,
         field: 'avatar' | 'mainImage',
-    ): Promise<EditAvatarResponse> {
+    ) {
         const profile = await this.profileRepository.findOne({ owner: user }, { relations: [field] });
 
         if (!profile) {
@@ -66,7 +68,7 @@ export class ProfileService {
             exchange: UpdateProfileFileContract.queue.exchange,
             routingKey: UpdateProfileFileContract.queue.routingKey,
             payload: {
-                buffer: file[0].buffer,
+                buffer: files[0].buffer,
                 user: user,
                 fileField: field,
                 oldPath: profile?.[field]?.path,

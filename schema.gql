@@ -24,6 +24,35 @@ type AuthScheme {
   notifications: Int!
 }
 
+type GetProfileScheme {
+  avatar: String
+  mainImage: String
+  firstName: String!
+  lastName: String!
+  middleName: String!
+  phone: String!
+  status: String
+  about: String
+  birthday: DateTime
+  country: String
+  city: String
+  relatives: String
+  school: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type EditProfileScheme {
+  updated: Boolean!
+}
+
+type EditImageScheme {
+  fileName: String!
+}
+
 type CreateBlogSchemeProfile {
   avatar: String
   firstName: String
@@ -41,11 +70,6 @@ type CreateBlogScheme {
   createdAt: DateTime!
   updatedAt: DateTime!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type CreateBlogSchemeTextBlock {
   id: ID!
@@ -163,19 +187,57 @@ type GetDialogsScheme {
   users: [GetDialogsSchemeUser!]!
 }
 
+type GetPostScheme {
+  likes: [String!]!
+  views: [String!]!
+  text: String!
+}
+
+type GetPostsSchemeProfile {
+  avatar: String
+  firstName: String!
+  lastName: String!
+}
+
+type GetPostsScheme {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  likes: Int!
+  isLiked: Boolean!
+  views: Int!
+  text: String!
+  profile: GetPostsSchemeProfile!
+}
+
+type CreatePostScheme {
+  text: String!
+}
+
+type ChangeLikeScheme {
+  text: String!
+}
+
 type Query {
   login(loginOrEmail: String!, password: String!): LoginScheme!
   isValidFields(fieldName: String!, fieldValue: String!): IsValidScheme!
   auth: AuthScheme!
+  get(userId: String!): GetProfileScheme!
   blogsOfUser(id: String!): [BlogsOfUserScheme!]!
   getDialog(id: String!): GetDialogScheme!
   getDialogs: [GetDialogsScheme!]!
+  getPost(postId: String!): GetPostScheme!
+  getPosts(userId: String!): [GetPostsScheme!]!
 }
 
 type Mutation {
   register(registerData: register!): RegisterScheme!
+  edit(data: EditProfileInput!): EditProfileScheme!
+  editImg(field: String!, files: [Upload!]!): EditImageScheme!
   createBlog(files: [Upload!]!, blogData: CreateBlogDto!): [CreateBlogScheme!]!
   deleteBlog(id: String!): DeleteBlogScheme!
+  createPost(files: [Upload!]!, data: CreatePostInput!): CreatePostScheme!
+  changeLike(postId: String!): ChangeLikeScheme!
 }
 
 input register {
@@ -184,6 +246,24 @@ input register {
   phone: String!
   email: String!
   password: String!
+}
+
+input EditProfileInput {
+  middleName: String!
+  firstName: String!
+  lastName: String!
+  phone: String!
+  email: String!
+  login: String!
+  birthday: String
+  country: String
+  city: String
+  relatives: String
+  school: String
+  status: String
+  about: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 """The `Upload` scalar type represents a file upload."""
@@ -206,4 +286,9 @@ input CreateBlogDtoInlineStyleRangesDto {
   length: String!
   offset: String!
   style: String!
+}
+
+input CreatePostInput {
+  text: String!
+  parentPost: String!
 }

@@ -1,72 +1,73 @@
+import { Field, InputType } from '@nestjs/graphql';
 import { IsDateString, IsOptional, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateProfileRequestDto {
+@InputType()
+export class EditProfileInput {
 
-    @ApiProperty()
+    @Field()
     @IsString()
     middleName: string;
 
-    @ApiProperty()
+    @Field()
     @IsString()
     firstName: string;
 
-    @ApiProperty()
+    @Field()
     @IsString()
     lastName: string;
 
-    @ApiProperty()
+    @Field()
     @IsString()
     phone: string;
 
-    @ApiProperty()
+    @Field()
     @IsString()
     email: string;
 
-    @ApiProperty()
+    @Field()
     @IsString()
     login: string;
 
-    @ApiProperty()
+    @Field({ nullable: true })
     @IsString()
     @IsOptional()
     birthday?: string;
 
-    @ApiProperty()
+    @Field({ nullable: true })
     @IsString()
     @IsOptional()
     country?: string;
 
-    @ApiProperty()
+    @Field({ nullable: true })
     @IsString()
     @IsOptional()
     city?: string;
 
-    @ApiProperty()
+    @Field({ nullable: true })
     @IsString()
     @IsOptional()
     relatives?: string;
 
-    @ApiProperty()
+    @Field({ nullable: true })
     @IsString()
     @IsOptional()
     school?: string;
 
-    @ApiProperty()
+    @Field({ nullable: true })
     @IsString()
     @IsOptional()
     status?: string;
 
-    @ApiProperty()
+    @Field({ nullable: true })
     @IsString()
     @IsOptional()
     about?: string;
 
-    @ApiProperty({ type: Date })
+    @Field(type => Date)
     @IsDateString()
     createdAt: Date;
 
-    @ApiProperty({ type: Date })
+    @Field(type => Date)
     @IsDateString()
     updatedAt: Date;
 }
