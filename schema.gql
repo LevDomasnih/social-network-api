@@ -53,6 +53,36 @@ type EditImageScheme {
   fileName: String!
 }
 
+type GetUsersSchemeProfile {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  avatar: String!
+  phone: String!
+  middleName: String!
+  mainImage: String
+  status: String
+  about: String
+  birthday: String
+  country: String
+  city: String
+  relatives: String
+  school: String
+}
+
+type GetUserScheme {
+  id: ID!
+  email: String!
+  login: String!
+  profile: GetUsersSchemeProfile!
+}
+
+type GetFollowScheme {
+  id: ID!
+  email: String!
+  login: String!
+}
+
 type CreateBlogSchemeProfile {
   avatar: String
   firstName: String
@@ -223,6 +253,10 @@ type Query {
   isValidFields(fieldName: String!, fieldValue: String!): IsValidScheme!
   auth: AuthScheme!
   get(userId: String!): GetProfileScheme!
+  getUsers: [GetUserScheme!]!
+  getMe: GetUserScheme!
+  getUserById(id: String!): GetUserScheme!
+  getFollowUsers(id: String!): [GetFollowScheme!]!
   blogsOfUser(id: String!): [BlogsOfUserScheme!]!
   getDialog(id: String!): GetDialogScheme!
   getDialogs: [GetDialogsScheme!]!

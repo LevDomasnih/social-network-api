@@ -3,6 +3,9 @@ import { UserEntity } from './user.entity';
 import { FindConditions } from 'typeorm/find-options/FindConditions';
 import { BaseRepository, BlogModel, FollowUsersModel, UserRepositoryInterface } from '@app/nest-postgre/entities';
 import { GetSqlResponse, SqlToJsonModel } from '@app/common';
+import {
+    GetUsersWithProfileAndAvatarModel
+} from '@app/nest-postgre/entities/users/models/get-users-with-profile-and-avatar.model';
 
 @EntityRepository(UserEntity)
 export class UsersRepository extends BaseRepository<UserEntity> implements UserRepositoryInterface {
@@ -27,7 +30,7 @@ export class UsersRepository extends BaseRepository<UserEntity> implements UserR
     }
 
     async getUsersWithProfileAndAvatar() {
-        const response: SqlToJsonModel<{}>[] = await this.db.query(`
+        const response: SqlToJsonModel<GetUsersWithProfileAndAvatarModel>[] = await this.db.query(`
             SELECT coalesce(
                 (SELECT
                     json_agg(
@@ -62,6 +65,6 @@ export class UsersRepository extends BaseRepository<UserEntity> implements UserR
             ) as rows
 
         `);
-        return new GetSqlResponse<{}>().getRows(response);
+        return new GetSqlResponse<GetUsersWithProfileAndAvatarModel>().getRows(response);
     }
 }
