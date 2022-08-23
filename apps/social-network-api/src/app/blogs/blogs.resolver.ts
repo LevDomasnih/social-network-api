@@ -1,30 +1,55 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { IdValidationPipe } from '@app/common';
 import { BlogsService } from './blogs.service';
-import { UseGuards } from '@nestjs/common';
+import { OnModuleInit, UseGuards } from '@nestjs/common';
 import { JwtGqlGuard } from '../auth/guards/jwt-gql.guard';
 import { UserGql } from '@app/common/decorators/user.gql.decorator';
-import { UserEntity } from '@app/nest-postgre';
+import { BlogEntity, BlogTextBlockEntity, UserEntity } from '@app/nest-postgre';
 import { CreateBlogScheme } from './schemes';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import gqlFileUploadConvert from '@app/common/helpers/gql-file-upload-convert';
 import { BlogsOfUserScheme } from './schemes/blogs-of-user.scheme';
 import { CreateBlogDto } from './dto';
 import { DeleteBlogScheme } from './schemes/delete-blog.scheme';
+import { BlogScheme } from '@app/graphql-lib/schemes/blog.scheme';
+import { UserScheme } from '@app/graphql-lib/schemes/user.scheme';
+import { UsersService } from '../users/users.service';
+import { ModuleRef } from '@nestjs/core';
 
 
-@Resolver()
-export class BlogsResolver {
+@Resolver(() => BlogEntity)
+export class BlogsResolver implements OnModuleInit {
+    private usersService: UsersService;
+
     constructor(
         private readonly blogsService: BlogsService,
+        private readonly moduleRef: ModuleRef,
     ) {
+    }
+
+    onModuleInit() {
+        this.usersService = this.moduleRef.get(UsersService, {strict: false});
     }
 
     @Query(returns => [BlogsOfUserScheme], { name: 'blogsOfUser' })
     async getBlogsOfUser(
-        @Args('id', { type: () => String }, IdValidationPipe) userId: string,
+        @Args('id', { type: () => ID }, IdValidationPipe) userId: string,
     ) {
         return this.blogsService.getBlogsOfUser(userId);
+    }
+
+    @ResolveField(returns => UserEntity, {name: 'owner'})
+    async getUserBlogs(
+        @Parent() blog: BlogEntity
+    ) {
+        return this.usersService.getUserById(blog.owner.id)
+    }
+
+    @ResolveField(returns => [BlogTextBlockEntity], {name: 'blogTextBlocks'})
+    async getBlogTextBlocksOfBlog(
+        @Parent() blog: BlogEntity
+    ) {
+        return this.blogsService.getBlogTextBlocksOfBlog(blog.id)
     }
 
     @Mutation(returns => [CreateBlogScheme])

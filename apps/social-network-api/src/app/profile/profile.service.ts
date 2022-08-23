@@ -40,7 +40,10 @@ export class ProfileService implements ProfileServiceInterface {
 
     async findProfile(userId: string) {
         const owner = await this.usersRepository.findOne(userId);
-        const profile = await this.profileRepository.findOne({ owner }, { relations: ['avatar', 'mainImage'] });
+        const profile = await this.profileRepository.findOne(
+            { owner },
+            { relations: ['avatar', 'mainImage', 'owner'] }
+        );
         if (!profile) {
             throw new BadRequestException('Профиль отсутствует');
         }

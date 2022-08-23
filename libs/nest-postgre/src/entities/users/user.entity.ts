@@ -5,40 +5,39 @@ import { FollowEntity } from '../follow/follow.entity';
 import { BlogEntity } from '../blog/blog.entity';
 import { DialogsEntity } from '../dialogs/dialogs.entity';
 import { BaseCustomEntity, MessagesEntity } from '@app/nest-postgre/entities';
-import { IsString } from 'class-validator';
+import { Field, ObjectType } from '@nestjs/graphql';
 
+@ObjectType()
 @Entity('users')
 export class UserEntity extends BaseCustomEntity {
-    @ApiProperty()
-    @IsString()
+    @Field(type => String)
     @Column()
     email: string;
 
     @Column({ name: 'password_hash', select: false })
     passwordHash: string;
 
-    @ApiProperty()
-    @IsString()
+    @Field(type => String)
     @Column({ unique: true })
     login: string;
 
-    // @ApiProperty({ type: () => ProfileEntity, default: 'ProfileId' })
+    @Field(type => ProfileEntity)
     @OneToOne(() => ProfileEntity, profile => profile.owner, { onDelete: 'CASCADE' })
     profile: ProfileEntity;
 
-    // @ApiProperty({ type: () => FollowEntity, default: 'followId' })
+    @Field(type => FollowEntity)
     @OneToOne(() => FollowEntity, follow => follow.owner, { onDelete: 'CASCADE' })
     follow: FollowEntity;
 
-    // @ApiProperty({ type: () => [BlogEntity], default: ['postId'] })
+    @Field(type => [BlogEntity])
     @OneToMany(() => BlogEntity, blog => blog.owner, { onDelete: 'CASCADE' })
     blogs: BlogEntity[];
 
-    // @ApiProperty({ type: () => [DialogsEntity], default: ['dialogId'] })
+    @Field(type => [DialogsEntity])
     @ManyToMany(() => DialogsEntity, dialogs => dialogs.owners, { onDelete: 'CASCADE' })
     dialogs: DialogsEntity[];
 
-    // @ApiProperty({ type: () => [MessagesEntity] })
+    @Field(type => [MessagesEntity])
     @OneToMany(() => MessagesEntity, message => message.owner)
     messages: MessagesEntity[];
 }

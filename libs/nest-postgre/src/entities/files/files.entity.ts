@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseCustomEntity, UserEntity } from '@app/nest-postgre/entities';
-import { ApiProperty } from '@nestjs/swagger';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 export enum Status {
     SAVED = 'SAVED',
@@ -12,45 +12,48 @@ export enum FolderName {
     PUBLIC = 'PUBLIC',
     PRIVATE = 'PRIVATE',
 }
+registerEnumType(Status, { name: 'Status' })
+registerEnumType(FolderName, { name: 'FolderName' })
 
 const url = process.env.API_URL || 'http://localhost:3000'
 
+@ObjectType()
 @Entity('files')
 export class FilesEntity extends BaseCustomEntity {
-    @ApiProperty({ type: () => UserEntity, default: 'ownerId' })
+    @Field(type => UserEntity)
     @ManyToOne(() => UserEntity, user => user.profile)
     @JoinColumn({ name: 'owner_id' })
     owner: UserEntity;
 
-    @ApiProperty()
+    @Field()
     @Column()
     name: string;
 
-    @ApiProperty()
+    @Field()
     @Column()
     path: string;
 
-    @ApiProperty()
+    @Field()
     @Column()
     size: number;
 
-    @ApiProperty()
+    @Field()
     @Column()
     mime: string;
 
-    @ApiProperty()
     @Column({
         type: 'enum',
         enum: Status,
         default: Status.SAVED
     })
+    @Field(type => Status)
     status: Status;
 
-    @ApiProperty()
+    @Field(type => Date)
     @Column({ type: 'timestamp', name: 'last_prolong' })
     lastProlong: Date;
 
-    @ApiProperty()
+    @Field(type => FolderName)
     @Column({
         type: 'enum',
         enum: FolderName,

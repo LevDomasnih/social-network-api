@@ -8,7 +8,7 @@ import { GraphQLUpload , graphqlUploadExpress } from 'graphql-upload'
     imports: [
         GraphQLModule.forRoot<ApolloDriverConfig>({
             driver: ApolloDriver,
-            autoSchemaFile: 'schema.gql',
+            autoSchemaFile: 'schema.graphql',
             installSubscriptionHandlers: true,
             debug: true,
             introspection: true,

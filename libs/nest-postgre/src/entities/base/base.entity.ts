@@ -1,19 +1,21 @@
 import { BaseEntity, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsDate, IsDateString, IsString } from 'class-validator';
+import { PartialType } from '@nestjs/swagger';
+import { IsDateString, IsString } from 'class-validator';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-export class BaseCustomEntity extends PartialType(BaseEntity)  {
-    @ApiProperty({ type: String })
+@ObjectType()
+export class BaseCustomEntity extends PartialType(BaseEntity) {
+    @Field(type => ID)
     @IsString()
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ApiProperty({ type: Date })
+    @Field(type => Date)
     @IsDateString()
     @CreateDateColumn({ type: 'timestamp', name: 'create_at' })
     createdAt: Date;
 
-    @ApiProperty({ type: Date })
+    @Field(type => Date)
     @IsDateString()
     @UpdateDateColumn({ type: 'timestamp', name: 'update_at' })
     updatedAt: Date;

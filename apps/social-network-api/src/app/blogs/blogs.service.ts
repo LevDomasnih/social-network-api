@@ -9,7 +9,7 @@ import {
 import { UpdateProfileFileContract } from '@app/amqp-contracts';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { IFileUpload } from '@app/common/model/file-upload.interface';
-import { CreateBlogDto } from './dto/create-blog.dto';
+import { CreateBlogDto } from './dto';
 import { CreateBlogScheme } from './schemes';
 import { DeleteBlogScheme } from './schemes/delete-blog.scheme';
 
@@ -19,7 +19,7 @@ export class BlogsService {
 
     constructor(
         private readonly usersRepository: UsersRepository,
-        private readonly postRepository: BlogRepository,
+        private readonly blogRepository: BlogRepository,
         private readonly amqpConnection: AmqpConnection,
         private readonly filesRepository: FilesRepository,
         private readonly blogTextBlockRepository: BlogTextBlockRepository,
@@ -78,7 +78,7 @@ export class BlogsService {
             .filter(block => block.type.includes('header'))
             .map(block => block.text);
 
-        const newPost = await this.postRepository.save({
+        const newPost = await this.blogRepository.save({
             owner: user,
             headers,
             mainImage: image,
@@ -97,14 +97,14 @@ export class BlogsService {
             });
         }
 
-        return this.postRepository.getBlogsAndCommentsByUserId(user.id)
+        return this.blogRepository.getBlogsAndCommentsByUserId(user.id)
             .then(posts => posts
                 .sort((postPrev, postNext) =>
                     new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()));
     }
 
     async deleteBlog(user: UserEntity, postId: string): Promise<DeleteBlogScheme> {
-        const deleteResult = await this.postRepository.delete({ owner: user, id: postId });
+        const deleteResult = await this.blogRepository.delete({ owner: user, id: postId });
         return {
             deleted: !!deleteResult.affected,
         }; // FIXME добавить структуру к удалению
@@ -154,12 +154,28 @@ export class BlogsService {
 
     }
 
-    async getBlogsOfUser(userId: string) {
-        return this.postRepository.getBlogsAndCommentsByUserId(userId)
-            .then(posts => posts
-                .sort((postPrev, postNext) =>
-                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()));
+    async getBlogTextBlocksOfBlog(blogId: string) {
+        return this.blogTextBlockRepository.find({
+            where: {
+                postOwner: blogId
+            },
+            order: {
+                createdAt: 'DESC',
+            }}
+        );
     }
+
+    async getBlogsOfUser(userId: string) {
+        return this.blogRepository.find({
+            where: {
+                owner: userId
+            },
+            relations: ['owner'],
+            order: {
+                createdAt: 'DESC',
+            }}
+        );
+    };
 
     async getPosts() {
 

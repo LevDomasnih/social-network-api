@@ -6,6 +6,7 @@ import { BlogsResolver } from './blogs.resolver';
 @Module({
     imports: [],
     providers: [BlogsService, BlogsGateway, BlogsResolver],
+    exports: [BlogsService],
 })
 export class BlogsModule {
 }
