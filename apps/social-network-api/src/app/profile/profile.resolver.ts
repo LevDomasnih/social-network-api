@@ -1,44 +1,60 @@
 import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { ProfileService } from './profile.service';
 import { IdValidationPipe } from '@app/common';
-import { OnModuleInit, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { JwtGqlGuard } from '../auth/guards/jwt-gql.guard';
 import { UserGql } from '@app/common/decorators/user.gql.decorator';
-import { BlogEntity, ProfileEntity, UserEntity } from '@app/nest-postgre';
+import {
+    FilesEntity,
+    FilesRepository,
+    ProfileEntity,
+    ProfileRepository,
+    UserEntity,
+    UsersRepository,
+} from '@app/nest-postgre';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import { EditProfileInput } from './dto/edit-profile.input';
 import gqlFileUploadConvert from '@app/common/helpers/gql-file-upload-convert';
 import { EditProfileScheme } from './schemes/edit-profile.scheme';
 import { EditImageScheme } from './schemes/edit-image.scheme';
-import { UsersService } from '../users/users.service';
-import { ModuleRef } from '@nestjs/core';
 
 @Resolver(() => ProfileEntity)
-export class ProfileResolver implements OnModuleInit {
-    private usersService: UsersService;
+export class ProfileResolver {
 
     constructor(
         private readonly profileService: ProfileService,
-        private readonly moduleRef: ModuleRef,
+        private readonly usersRepository: UsersRepository,
+        private readonly profileRepository: ProfileRepository,
+        private readonly filesRepository: FilesRepository,
     ) {
     }
 
-    onModuleInit() {
-        this.usersService = this.moduleRef.get(UsersService, {strict: false});
-    }
-
-    @Query(returns => ProfileEntity)
-    async get(
+    @Query(returns => ProfileEntity, { name: 'profile' })
+    async getProfile(
         @Args('userId', IdValidationPipe) userId: string,
     ) {
-        return this.profileService.findProfile(userId);
+        return this.profileRepository.getProfileByUserId(userId);
     }
 
-    @ResolveField(returns => UserEntity, {name: 'owner'})
+    @ResolveField(returns => UserEntity, { name: 'owner' })
     async getUserBlogs(
-        @Parent() profile: ProfileEntity
+        @Parent() profile: ProfileEntity,
     ) {
-        return this.usersService.getUserById(profile.owner.id)
+        return this.usersRepository.getUserById(profile.owner.id);
+    }
+
+    @ResolveField(returns => FilesEntity, { name: 'avatar' })
+    async getAvatar(
+        @Parent() profile: ProfileEntity,
+    ) {
+        return this.filesRepository.getFile(profile.avatar.id);
+    }
+
+    @ResolveField(returns => FilesEntity, { name: 'mainImage' })
+    async getMainImage(
+        @Parent() profile: ProfileEntity,
+    ) {
+        return this.filesRepository.getFile(profile.mainImage.id);
     }
 
     @Mutation(returns => EditProfileScheme)

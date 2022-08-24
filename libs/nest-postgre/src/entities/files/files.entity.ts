@@ -12,8 +12,8 @@ export enum FolderName {
     PUBLIC = 'PUBLIC',
     PRIVATE = 'PRIVATE',
 }
-registerEnumType(Status, { name: 'Status' })
-registerEnumType(FolderName, { name: 'FolderName' })
+// registerEnumType(Status, { name: 'Status' })
+// registerEnumType(FolderName, { name: 'FolderName' })
 
 const url = process.env.API_URL || 'http://localhost:3000'
 
@@ -29,15 +29,15 @@ export class FilesEntity extends BaseCustomEntity {
     @Column()
     name: string;
 
-    @Field()
+    // @Field()
     @Column()
     path: string;
 
-    @Field()
+    // @Field()
     @Column()
     size: number;
 
-    @Field()
+    // @Field()
     @Column()
     mime: string;
 
@@ -46,14 +46,14 @@ export class FilesEntity extends BaseCustomEntity {
         enum: Status,
         default: Status.SAVED
     })
-    @Field(type => Status)
+    // @Field(type => Status)
     status: Status;
 
-    @Field(type => Date)
+    // @Field(type => Date)
     @Column({ type: 'timestamp', name: 'last_prolong' })
     lastProlong: Date;
 
-    @Field(type => FolderName)
+    // @Field(type => FolderName)
     @Column({
         type: 'enum',
         enum: FolderName,

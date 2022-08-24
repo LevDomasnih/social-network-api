@@ -1,34 +1,33 @@
 import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { OnModuleInit, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { JwtGqlGuard } from '../auth/guards/jwt-gql.guard';
 import { UserGql } from '@app/common/decorators/user.gql.decorator';
-import { BlogEntity, ProfileEntity, UserEntity } from '@app/nest-postgre';
+import {
+    BlogEntity,
+    BlogRepository,
+    ProfileEntity,
+    ProfileRepository,
+    UserEntity,
+    UsersRepository,
+} from '@app/nest-postgre';
 import { IdValidationPipe } from '@app/common';
 import { GetFollowScheme } from './schemes/get-follow.scheme';
-import { BlogsService } from '../blogs/blogs.service';
-import { ModuleRef } from '@nestjs/core';
-import { ProfileService } from '../profile/profile.service';
 
 @Resolver(() => UserEntity)
-export class UsersResolver implements OnModuleInit {
-    private blogsService: BlogsService;
-    private profileService: ProfileService;
+export class UsersResolver {
 
     constructor(
         private readonly userService: UsersService,
-        private readonly moduleRef: ModuleRef,
+        private readonly usersRepository: UsersRepository,
+        private readonly profileRepository: ProfileRepository,
+        private readonly blogRepository: BlogRepository,
     ) {
-    }
-
-    onModuleInit() {
-        this.blogsService = this.moduleRef.get(BlogsService, { strict: false });
-        this.profileService = this.moduleRef.get(ProfileService, { strict: false });
     }
 
     @Query(returns => [UserEntity], { name: 'users' })
     async getUsers() {
-        return this.userService.getUsers();
+        return this.usersRepository.getUsers();
     }
 
     @Query(returns => UserEntity, { name: 'userMe' })
@@ -36,7 +35,7 @@ export class UsersResolver implements OnModuleInit {
     async getMe(
         @UserGql() user: UserEntity,
     ) {
-        return this.userService.getUserById(user.id);
+        return this.usersRepository.getUserById(user.id);
     }
 
     @Query(returns => UserEntity, { name: 'user' })
@@ -44,21 +43,21 @@ export class UsersResolver implements OnModuleInit {
     async getUserById(
         @Args('id', { type: () => String }, IdValidationPipe) id: string,
     ) {
-        return this.userService.getUserById(id);
+        return this.usersRepository.getUserById(id);
     }
 
     @ResolveField(returns => [BlogEntity], { name: 'blogs' })
     async getUserBlogs(
         @Parent() user: UserEntity,
     ) {
-        return this.blogsService.getBlogsOfUser(user.id);
+        return this.blogRepository.getBlogsByUser(user.id);
     }
 
     @ResolveField(returns => ProfileEntity, { name: 'profile' })
     async getUserProfile(
         @Parent() user: UserEntity,
     ) {
-        return this.profileService.findProfile(user.id);
+        return this.profileRepository.getProfileByUserId(user.id);
     }
 
     @Query(returns => [GetFollowScheme])

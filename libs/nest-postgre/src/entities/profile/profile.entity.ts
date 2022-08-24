@@ -1,5 +1,4 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
 import { BaseCustomEntity, FilesEntity } from '@app/nest-postgre/entities';
 import { Field, ObjectType } from '@nestjs/graphql';
@@ -9,7 +8,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 export class ProfileEntity extends BaseCustomEntity {
     @Field(type => UserEntity)
     @OneToOne(() => UserEntity, user => user.profile)
-    @JoinColumn({name: 'owner_id'})
+    @JoinColumn({ name: 'owner_id' })
     owner: UserEntity;
 
     @Field(type => String)
@@ -38,31 +37,31 @@ export class ProfileEntity extends BaseCustomEntity {
     @JoinColumn({ name: 'main_image_id' })
     mainImage: FilesEntity;
 
-    @Field(type => String, {nullable: true})
+    @Field(type => String, { nullable: true })
     @Column({ nullable: true })
     status?: string;
 
-    @Field(type => String, {nullable: true})
+    @Field(type => String, { nullable: true })
     @Column({ nullable: true })
     about?: string;
 
-    @Field(type => Date, {nullable: true})
+    @Field(type => Date, { nullable: true })
     @Column({ type: 'timestamp', nullable: true, default: new Date(0) })
     birthday?: Date;
 
-    @Field(type => String, {nullable: true})
+    @Field(type => String, { nullable: true })
     @Column({ nullable: true })
     country?: string;
 
-    @Field(type => String, {nullable: true})
+    @Field(type => String, { nullable: true })
     @Column({ nullable: true })
     city?: string;
 
-    @Field(type => String, {nullable: true})
+    @Field(type => String, { nullable: true })
     @Column({ nullable: true })
     relatives?: string;
 
-    @Field(type => String, {nullable: true})
+    @Field(type => String, { nullable: true })
     @Column({ nullable: true })
     school?: string;
 }

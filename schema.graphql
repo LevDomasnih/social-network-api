@@ -88,23 +88,7 @@ type FilesEntity {
   updatedAt: DateTime!
   owner: UserEntity!
   name: String!
-  path: String!
-  size: Float!
-  mime: String!
-  status: Status!
-  lastProlong: DateTime!
-  folder: FolderName!
-}
-
-enum Status {
-  SAVED
-  PROLONG
-  REJECTED
-}
-
-enum FolderName {
-  PUBLIC
-  PRIVATE
+  filePath: String!
 }
 
 type MessagesEntity {
@@ -239,25 +223,6 @@ type DeleteBlogScheme {
   deleted: Boolean!
 }
 
-type UserScheme {
-  id: ID!
-  blogs: [BlogScheme!]!
-  email: String!
-  login: String!
-  updatedAt: DateTime!
-  createdAt: DateTime!
-}
-
-type BlogScheme {
-  id: ID!
-  headers: [String!]!
-  likes: Float!
-  owner: UserScheme!
-  views: Int!
-  updatedAt: DateTime!
-  createdAt: DateTime!
-}
-
 type GetDialogSchemeMessages {
   id: ID!
   text: String!
@@ -351,7 +316,7 @@ type ChangeLikeScheme {
 type Query {
   login(loginOrEmail: String!, password: String!): LoginScheme!
   isValidFields(fieldName: String!, fieldValue: String!): IsValidScheme!
-  get(userId: String!): ProfileEntity!
+  profile(userId: String!): ProfileEntity!
   users: [UserEntity!]!
   userMe: UserEntity!
   user(id: String!): UserEntity!

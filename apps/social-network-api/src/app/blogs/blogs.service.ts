@@ -149,35 +149,4 @@ export class BlogsService {
     //         updated: updatedPost.affected === 1,
     //     }; // TODO
     // }
-
-    async getPost() {
-
-    }
-
-    async getBlogTextBlocksOfBlog(blogId: string) {
-        return this.blogTextBlockRepository.find({
-            where: {
-                postOwner: blogId
-            },
-            order: {
-                createdAt: 'DESC',
-            }}
-        );
-    }
-
-    async getBlogsOfUser(userId: string) {
-        return this.blogRepository.find({
-            where: {
-                owner: userId
-            },
-            relations: ['owner'],
-            order: {
-                createdAt: 'DESC',
-            }}
-        );
-    };
-
-    async getPosts() {
-
-    }
 }

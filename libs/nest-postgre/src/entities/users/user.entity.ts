@@ -1,5 +1,4 @@
 import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { ProfileEntity } from '../profile/profile.entity';
 import { FollowEntity } from '../follow/follow.entity';
 import { BlogEntity } from '../blog/blog.entity';

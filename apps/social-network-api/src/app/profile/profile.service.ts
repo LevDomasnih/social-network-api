@@ -38,24 +38,6 @@ export class ProfileService implements ProfileServiceInterface {
         return { updated: profile.affected === 1 && updatedUser.affected === 1 };
     }
 
-    async findProfile(userId: string) {
-        const owner = await this.usersRepository.findOne(userId);
-        const profile = await this.profileRepository.findOne(
-            { owner },
-            { relations: ['avatar', 'mainImage', 'owner'] }
-        );
-        if (!profile) {
-            throw new BadRequestException('Профиль отсутствует');
-        }
-        return {
-            ...profile,
-            avatar: profile?.avatar?.folder ?
-                this.url + '/' + profile.avatar.folder + '/' + (profile.avatar?.name || '') : null,
-            mainImage: profile?.mainImage?.folder ?
-                this.url + '/' + profile.mainImage.folder + '/' + (profile.mainImage?.name || '') : null,
-        };
-    }
-
     async editImage(
         files: IFileUpload[],
         user: UserEntity,
