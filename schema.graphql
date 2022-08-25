@@ -47,7 +47,6 @@ type BlogEntity {
   mainImage: FilesEntity!
   likes: Int!
   views: Int!
-  blogTextBlocks: [BlogTextBlockEntity!]!
 }
 
 """
@@ -62,8 +61,8 @@ type UserEntity {
   email: String!
   login: String!
   profile: ProfileEntity!
-  follow: FollowEntity!
   blogs: [BlogEntity!]!
+  posts: [PostEntity!]!
   dialogs: [DialogsEntity!]!
   messages: [MessagesEntity!]!
 }
@@ -120,6 +119,20 @@ type BlogTextBlockEntity {
   key: String!
   text: String!
   type: String!
+}
+
+type PostEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: UserEntity!
+  images: FilesEntity
+  files: FilesEntity
+  likes: [String!]
+  views: [String!]
+  text: String!
+  parentPost: PostEntity
+  childrenPosts: [PostEntity!]!
 }
 
 type RegisterScheme {
@@ -223,88 +236,6 @@ type DeleteBlogScheme {
   deleted: Boolean!
 }
 
-type GetDialogSchemeMessages {
-  id: ID!
-  text: String!
-  ownerId: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type GetDialogSchemeInfo {
-  id: ID!
-  image: String
-  name: String!
-}
-
-type GetDialogSchemeUser {
-  id: ID!
-  avatar: String
-  firstName: String!
-  lastName: String!
-}
-
-type GetDialogScheme {
-  id: ID
-  messages: [GetDialogSchemeMessages!]!
-  status: String!
-  info: GetDialogSchemeInfo!
-  users: [GetDialogSchemeUser!]!
-}
-
-type GetDialogsSchemeLastMessages {
-  id: ID!
-  text: String!
-  ownerId: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-type GetDialogsSchemeInfo {
-  id: ID!
-  image: String
-  name: String!
-}
-
-type GetDialogsSchemeUser {
-  id: ID!
-  avatar: String
-  firstName: String!
-  lastName: String!
-}
-
-type GetDialogsScheme {
-  id: ID!
-  userId: ID!
-  lastMessage: GetDialogsSchemeLastMessages!
-  status: String!
-  info: GetDialogsSchemeInfo!
-  users: [GetDialogsSchemeUser!]!
-}
-
-type GetPostScheme {
-  likes: [String!]!
-  views: [String!]!
-  text: String!
-}
-
-type GetPostsSchemeProfile {
-  avatar: String
-  firstName: String!
-  lastName: String!
-}
-
-type GetPostsScheme {
-  id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  likes: Int!
-  isLiked: Boolean!
-  views: Int!
-  text: String!
-  profile: GetPostsSchemeProfile!
-}
-
 type CreatePostScheme {
   text: String!
 }
@@ -322,10 +253,10 @@ type Query {
   user(id: String!): UserEntity!
   getFollowUsers(id: String!): [GetFollowScheme!]!
   blogsOfUser(id: ID!): [BlogsOfUserScheme!]!
-  getDialog(id: String!): GetDialogScheme!
-  getDialogs: [GetDialogsScheme!]!
-  getPost(postId: String!): GetPostScheme!
-  getPosts(userId: String!): [GetPostsScheme!]!
+  getDialog(id: String!): DialogsEntity!
+  getDialogs: [DialogsEntity!]!
+  getPost(postId: String!): PostEntity!
+  getPosts(userId: String!): [PostEntity!]!
 }
 
 type Mutation {

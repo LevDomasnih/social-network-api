@@ -5,7 +5,7 @@ import { JwtGqlGuard } from '../auth/guards/jwt-gql.guard';
 import { UserGql } from '@app/common/decorators/user.gql.decorator';
 import {
     BlogEntity,
-    BlogRepository,
+    BlogRepository, DialogsEntity, DialogsRepository, PostEntity, PostRepository,
     ProfileEntity,
     ProfileRepository,
     UserEntity,
@@ -22,6 +22,8 @@ export class UsersResolver {
         private readonly usersRepository: UsersRepository,
         private readonly profileRepository: ProfileRepository,
         private readonly blogRepository: BlogRepository,
+        private readonly postRepository: PostRepository,
+        private readonly dialogsRepository: DialogsRepository,
     ) {
     }
 
@@ -58,6 +60,20 @@ export class UsersResolver {
         @Parent() user: UserEntity,
     ) {
         return this.profileRepository.getProfileByUserId(user.id);
+    }
+
+    @ResolveField(returns => [PostEntity], { name: 'posts' })
+    async getUserPosts(
+        @Parent() user: UserEntity,
+    ) {
+        return this.postRepository.getPostsByUser(user.id);
+    }
+
+    @ResolveField(returns => [DialogsEntity], { name: 'dialogs' })
+    async getUserDialogs(
+        @Parent() user: UserEntity,
+    ) {
+        return this.usersRepository.getUserDialogsById(user.id);
     }
 
     @Query(returns => [GetFollowScheme])

@@ -23,12 +23,13 @@ export class UsersRepository extends BaseRepository<UserEntity> implements UserR
         return user;
     }
 
+    async getUserDialogsById(id: string) {
+        const user = await this.findOne(id, {relations: ['dialogs', 'dialogs.owners']});
+        return user?.dialogs || [];
+    }
+
     async getUsers() {
-        const users = await this.find();
-        if (!users) {
-            throw new BadRequestException('Что-то пошло не так');
-        }
-        return users;
+        return this.find();
     }
 
     async existsById(id: string | number): Promise<boolean> {

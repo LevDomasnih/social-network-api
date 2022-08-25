@@ -1,4 +1,4 @@
-import { EntityRepository } from 'typeorm';
+import { EntityRepository, In } from 'typeorm';
 import { DialogsEntity } from './dialogs.entity';
 import { GetSqlResponse, SqlToJsonModel } from '@app/common';
 import {
@@ -222,5 +222,24 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                    WHERE du1.dialogs_id = du.dialogs_id) = rows.id
         `, [ownerId1, ownerId2]);
         return new GetSqlResponse<{}>().getRow(response);
+    }
+
+    getDialogById(id: string): Promise<DialogsEntity | undefined> {
+        return this.findOne(id)
+    }
+    getDialogByUser(userConsumerId: string, userConsumedId: string): Promise<DialogsEntity | undefined> {
+        return this.findOne({
+            where: {
+                owners: In([userConsumerId, userConsumerId])
+            }
+        })
+    }
+
+    getDialogs(id: string): Promise<DialogsEntity[]> {
+        return this.find({
+            where: {
+                id: In(['f2f6fda5-b2c0-40af-8a86-a0ebe1fb1c7a'])
+            },
+        })
     }
 }

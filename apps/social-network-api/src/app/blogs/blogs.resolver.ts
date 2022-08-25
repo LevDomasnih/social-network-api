@@ -45,7 +45,7 @@ export class BlogsResolver {
         return this.usersRepository.getUserById(blog.owner.id);
     }
 
-    @ResolveField(returns => [BlogTextBlockEntity], { name: 'blogTextBlocks' })
+    @ResolveField(returns => [BlogTextBlockEntity], { name: 'textBlocks' })
     async getBlogTextBlocksOfBlog(
         @Parent() blog: BlogEntity,
     ) {
