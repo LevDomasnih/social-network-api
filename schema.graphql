@@ -74,6 +74,7 @@ type DialogsEntity {
   owners: [UserEntity!]!
   messages: [MessagesEntity!]!
   status: DialogType!
+  lastMessage: MessagesEntity!
 }
 
 enum DialogType {
@@ -97,8 +98,8 @@ type MessagesEntity {
   dialog: DialogsEntity!
   owner: UserEntity!
   text: String!
-  image: FilesEntity!
-  file: FilesEntity!
+  image: FilesEntity
+  file: FilesEntity
 }
 
 type InlineStyleRanges {
@@ -253,8 +254,8 @@ type Query {
   user(id: String!): UserEntity!
   getFollowUsers(id: String!): [GetFollowScheme!]!
   blogsOfUser(id: ID!): [BlogsOfUserScheme!]!
-  getDialog(id: String!): DialogsEntity!
-  getDialogs: [DialogsEntity!]!
+  dialog(id: String!): DialogsEntity!
+  dialogs: [DialogsEntity!]!
   getPost(postId: String!): PostEntity!
   getPosts(userId: String!): [PostEntity!]!
 }

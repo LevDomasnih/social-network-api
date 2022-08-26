@@ -5,8 +5,9 @@ import {
     BaseRepository,
     DialogsRepositoryInterface,
     GetDialogByIdModel,
-    GetDialogByUserIdModel,
+    GetDialogByUserIdModel, UserEntity, UsersRepository,
 } from '@app/nest-postgre/entities';
+import { BadRequestException } from '@nestjs/common';
 
 @EntityRepository(DialogsEntity)
 export class DialogsRepository extends BaseRepository<DialogsEntity> implements DialogsRepositoryInterface {
@@ -227,12 +228,38 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
     getDialogById(id: string): Promise<DialogsEntity | undefined> {
         return this.findOne(id)
     }
-    getDialogByUser(userConsumerId: string, userConsumedId: string): Promise<DialogsEntity | undefined> {
-        return this.findOne({
-            where: {
-                owners: In([userConsumerId, userConsumerId])
+
+    async getDialogByUser(userConsumerId: string, userConsumedId: string): Promise<DialogsEntity | undefined> {
+        const owner = await this.db.getRepository(UserEntity).findOne({
+            relations: ['dialogs', 'dialogs.owners'],
+            where: { id: userConsumerId },
+        });
+        const secondOwner = await this.db.getRepository(UserEntity).findOne(userConsumedId);
+        let dialogId: null | string = null;
+
+        if (!owner || !secondOwner) {
+            return;
+        }
+
+        for (const dialog of owner.dialogs) {
+            const isFind: boolean[] = dialog.owners.map(userOwner => {
+                return userOwner.id === owner.id || userOwner.id === secondOwner.id;
+            });
+            if (!isFind.some(e => !e)) {
+                if (isFind.length === 1) {
+                    if (owner.id === secondOwner.id) {
+                        dialogId = dialog.id;
+                        break;
+                    }
+                } else {
+                    dialogId = dialog.id;
+                    break;
+                }
             }
-        })
+        }
+        return dialogId ? (this.findOne(dialogId, {
+            relations: ['owners']
+        })) : undefined;
     }
 
     getDialogs(id: string): Promise<DialogsEntity[]> {

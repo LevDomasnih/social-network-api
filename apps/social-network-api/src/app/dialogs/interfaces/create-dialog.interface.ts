@@ -1,10 +1,10 @@
-import { DialogsEntity, UserEntity } from '@app/nest-postgre';
+import { DialogsEntity, FilesEntity, UserEntity } from '@app/nest-postgre';
 
 export interface CreateDialogInterfaceArgs {
     text: string;
     secondOwnerId: string;
-    image: string;
-    file: string;
+    image: FilesEntity;
+    file: FilesEntity;
 }
 
 export interface CreateDialogInterfaceReturn {
@@ -18,8 +18,8 @@ export interface CreateDialogInterfaceReturn {
             dialog: DialogsEntity,
             owner: UserEntity,
             text: string,
-            image: string,
-            file: string,
+            image: FilesEntity,
+            file: FilesEntity,
             ownerId: string,
             dialogId: string,
         }[]

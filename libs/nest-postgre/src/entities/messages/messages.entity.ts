@@ -22,11 +22,11 @@ export class MessagesEntity extends BaseCustomEntity {
     @Column()
     text: string;
 
-    @Field(type => FilesEntity)
+    @Field(type => FilesEntity, {nullable: true})
     @OneToOne(() => FilesEntity)
-    image: string;
+    image: FilesEntity;
 
-    @Field(type => FilesEntity)
+    @Field(type => FilesEntity, {nullable: true})
     @OneToOne(() => FilesEntity)
-    file: string;
+    file: FilesEntity;
 }

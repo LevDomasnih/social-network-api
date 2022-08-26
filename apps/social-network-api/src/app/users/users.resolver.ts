@@ -23,7 +23,6 @@ export class UsersResolver {
         private readonly profileRepository: ProfileRepository,
         private readonly blogRepository: BlogRepository,
         private readonly postRepository: PostRepository,
-        private readonly dialogsRepository: DialogsRepository,
     ) {
     }
 

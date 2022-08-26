@@ -1,11 +1,11 @@
 import { IsOptional, IsString } from 'class-validator';
-import { DialogsEntity, UserEntity } from '@app/nest-postgre';
+import { DialogsEntity, FilesEntity, UserEntity } from '@app/nest-postgre';
 
 export interface UpdateDialogsInterfaceArgs {
     text: string;
     dialogId: string;
-    image: string;
-    file: string;
+    image: FilesEntity;
+    file: FilesEntity;
 }
 
 export interface UpdateDialogsInterfaceReturn {
@@ -20,8 +20,8 @@ export interface UpdateDialogsInterfaceReturn {
     dialog: DialogsEntity
     text: string
     owner: UserEntity
-    file: string
-    image: string
+    file: FilesEntity
+    image: FilesEntity
     createdAt: Date
     updatedAt: Date
 }
