@@ -23,6 +23,22 @@ export class UsersRepository extends BaseRepository<UserEntity> implements UserR
         return user;
     }
 
+    async getUserBaseInfoById(id: string) {
+        const user = await this.findOne(id, {relations: ['profile', 'profile.avatar']});
+        if (!user) {
+            throw new BadRequestException('Пользователя не существует');
+        }
+        return {
+            id: user.id,
+            login: user.login,
+            email: user.email,
+            firstName: user.profile?.firstName,
+            lastName: user.profile?.lastName,
+            middleName: user.profile?.middleName,
+            avatar: user.profile?.avatar,
+        };
+    }
+
     async getUserDialogsById(id: string) {
         const user = await this.findOne(id, {relations: ['dialogs', 'dialogs.owners']});
         return user?.dialogs || [];

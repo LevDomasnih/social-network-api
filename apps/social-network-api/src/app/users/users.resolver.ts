@@ -1,4 +1,4 @@
-import { Args, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, ID, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtGqlGuard } from '../auth/guards/jwt-gql.guard';
@@ -13,6 +13,7 @@ import {
 } from '@app/nest-postgre';
 import { IdValidationPipe } from '@app/common';
 import { GetFollowScheme } from './schemes/get-follow.scheme';
+import { GetUserBaseInfo } from './schemes/get-user-base-info';
 
 @Resolver(() => UserEntity)
 export class UsersResolver {
@@ -39,10 +40,18 @@ export class UsersResolver {
         return this.usersRepository.getUserById(user.id);
     }
 
+    @Query(returns => GetUserBaseInfo, { name: 'userMeBaseInfo' })
+    @UseGuards(JwtGqlGuard)
+    async getMeBaseInfo(
+        @UserGql() user: UserEntity,
+    ) {
+        return this.usersRepository.getUserBaseInfoById(user.id);
+    }
+
     @Query(returns => UserEntity, { name: 'user' })
     @UseGuards(JwtGqlGuard)
     async getUserById(
-        @Args('id', { type: () => String }, IdValidationPipe) id: string,
+        @Args('id', { type: () => ID }, IdValidationPipe) id: string,
     ) {
         return this.usersRepository.getUserById(id);
     }

@@ -35,10 +35,10 @@ export class BlogEntity extends BaseCustomEntity {
     })
     entityMap: {}
 
-    @Field(type => FilesEntity)
+    @Field(type => FilesEntity, {nullable: true})
     @OneToOne(() => FilesEntity, { onDelete: 'CASCADE' })
     @JoinColumn({name: 'main_image_id'})
-    mainImage: FilesEntity; // TODO file
+    mainImage: FilesEntity;
 
     @Field(tye => Int)
     @Column({ default: 0 })

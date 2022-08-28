@@ -15,7 +15,6 @@ import {
 import { CreateBlogScheme } from './schemes';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import gqlFileUploadConvert from '@app/common/helpers/gql-file-upload-convert';
-import { BlogsOfUserScheme } from './schemes/blogs-of-user.scheme';
 import { CreateBlogDto } from './dto';
 import { DeleteBlogScheme } from './schemes/delete-blog.scheme';
 
@@ -31,11 +30,19 @@ export class BlogsResolver {
     ) {
     }
 
-    @Query(returns => [BlogsOfUserScheme], { name: 'blogsOfUser' })
+    @Query(returns => [BlogEntity], { name: 'blogsOfUser' })
     async getBlogsOfUser(
         @Args('id', { type: () => ID }, IdValidationPipe) userId: string,
     ) {
         return this.blogRepository.getBlogsByUser(userId);
+    }
+
+    @Query(returns => [BlogEntity], { name: 'blogsMe' })
+    @UseGuards(JwtGqlGuard)
+    async getBlogsOfMe(
+        @UserGql() user: UserEntity
+    ) {
+        return this.blogRepository.getBlogsByUser(user.id);
     }
 
     @ResolveField(returns => UserEntity, { name: 'owner' })

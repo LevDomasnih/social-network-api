@@ -7,13 +7,11 @@ import { UserGql } from '@app/common/decorators/user.gql.decorator';
 import {
     DialogsEntity,
     DialogsRepository,
-    MessagesEntity, MessagesRepository,
-    ProfileEntity,
+    MessagesEntity,
+    MessagesRepository,
     UserEntity,
     UsersRepository,
 } from '@app/nest-postgre';
-import { GetDialogScheme } from './schemes/get-dialog.scheme';
-import { GetDialogsScheme } from './schemes/get-dialogs.scheme';
 
 @Resolver(() => DialogsEntity)
 export class DialogsResolver {
@@ -25,7 +23,7 @@ export class DialogsResolver {
     ) {
     }
 
-    @Query(returns => DialogsEntity, {name: 'dialog'})
+    @Query(returns => DialogsEntity, { name: 'dialog' })
     @UseGuards(JwtGqlGuard)
     async getDialog(
         @Args('id', { type: () => String }, IdValidationPipe) id: string,
@@ -34,7 +32,7 @@ export class DialogsResolver {
         return this.dialogsRepository.getDialogByUser(user.id, id);
     }
 
-    @Query(returns => [DialogsEntity], {name: 'dialogs'})
+    @Query(returns => [DialogsEntity], { name: 'dialogs' })
     @UseGuards(JwtGqlGuard)
     async getDialogs(
         @UserGql() user: UserEntity,

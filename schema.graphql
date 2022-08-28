@@ -44,7 +44,7 @@ type BlogEntity {
   textBlocks: [BlogTextBlockEntity!]!
   headers: [String!]
   entityMap: JSON
-  mainImage: FilesEntity!
+  mainImage: FilesEntity
   likes: Int!
   views: Int!
 }
@@ -162,6 +162,16 @@ type GetFollowScheme {
   login: String!
 }
 
+type GetUserBaseInfo {
+  id: String!
+  login: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  middleName: String!
+  avatar: FilesEntity
+}
+
 type CreateBlogSchemeProfile {
   avatar: String
   firstName: String
@@ -197,42 +207,6 @@ type CreateBlogSchemeInlineStyleRanges {
   offset: Float!
 }
 
-type BlogsOfUserSchemeProfile {
-  avatar: String
-  firstName: String
-  lastName: String
-  middleName: String
-}
-
-type BlogsOfUserScheme {
-  id: ID!
-  likes: Int!
-  views: Int!
-  isLiked: Boolean!
-  text: [BlogsOfUserSchemeTextBlock!]!
-  mainImage: String
-  profile: BlogsOfUserSchemeProfile!
-  createdAt: String!
-  updatedAt: String!
-}
-
-type BlogsOfUserSchemeTextBlock {
-  id: ID!
-  createdAt: String!
-  updatedAt: String!
-  depth: Int!
-  inlineStyleRanges: BlogsOfUserSchemeInlineStyleRanges
-  key: String!
-  text: String!
-  type: String!
-}
-
-type BlogsOfUserSchemeInlineStyleRanges {
-  style: String!
-  length: Float!
-  offset: Float!
-}
-
 type DeleteBlogScheme {
   deleted: Boolean!
 }
@@ -251,13 +225,15 @@ type Query {
   profile(userId: String!): ProfileEntity!
   users: [UserEntity!]!
   userMe: UserEntity!
-  user(id: String!): UserEntity!
+  userMeBaseInfo: GetUserBaseInfo!
+  user(id: ID!): UserEntity!
   getFollowUsers(id: String!): [GetFollowScheme!]!
-  blogsOfUser(id: ID!): [BlogsOfUserScheme!]!
+  blogsOfUser(id: ID!): [BlogEntity!]!
+  blogsMe: [BlogEntity!]!
   dialog(id: String!): DialogsEntity!
   dialogs: [DialogsEntity!]!
-  getPost(postId: String!): PostEntity!
-  getPosts(userId: String!): [PostEntity!]!
+  post(postId: ID!): PostEntity!
+  posts(userId: ID!): [PostEntity!]!
 }
 
 type Mutation {

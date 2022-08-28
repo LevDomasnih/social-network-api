@@ -1,4 +1,4 @@
-import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { PostsService } from './posts.service';
 import { IdValidationPipe } from '@app/common';
 import { UseGuards } from '@nestjs/common';
@@ -28,16 +28,16 @@ export class PostsResolver {
     ) {
     }
 
-    @Query(returns => PostEntity)
+    @Query(returns => PostEntity, {name: 'post'})
     async getPost(
-        @Args('postId', IdValidationPipe) postId: string,
+        @Args('postId', {type: () => ID}, IdValidationPipe) postId: string,
     ): Promise<PostEntity | undefined> {
         return this.postRepository.getPostById(postId);
     }
 
-    @Query(returns => [PostEntity])
+    @Query(returns => [PostEntity], {name: 'posts'})
     async getPosts(
-        @Args('userId', IdValidationPipe) userId: string,
+        @Args('userId', {type: () => ID}, IdValidationPipe) userId: string,
     ): Promise<PostEntity[]> {
         return this.postRepository.getPostsByUser(userId);
     }
@@ -54,7 +54,7 @@ export class PostsResolver {
         @Parent() post: PostEntity,
     ) {
         if (!post.images) {
-            return null
+            return null;
         }
         return this.filesRepository.getFile(post.images.id);
     }
@@ -64,7 +64,7 @@ export class PostsResolver {
         @Parent() post: PostEntity,
     ) {
         if (!post.files) {
-            return null
+            return null;
         }
         return this.filesRepository.getFile(post.files.id);
     }
