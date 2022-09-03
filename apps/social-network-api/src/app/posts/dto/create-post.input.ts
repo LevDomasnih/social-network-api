@@ -7,7 +7,7 @@ export class CreatePostInput {
     @IsString()
     text: string;
 
-    @Field()
+    @Field({nullable: true})
     @IsString()
     @IsOptional()
     parentPost: string;

@@ -62,12 +62,4 @@ export class EditProfileInput {
     @IsString()
     @IsOptional()
     about?: string;
-
-    @Field(type => Date)
-    @IsDateString()
-    createdAt: Date;
-
-    @Field(type => Date)
-    @IsDateString()
-    updatedAt: Date;
 }

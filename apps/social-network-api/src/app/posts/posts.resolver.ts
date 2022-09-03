@@ -83,11 +83,11 @@ export class PostsResolver {
         return this.postRepository.getChildrenPosts(post.id);
     }
 
-    @Mutation(returns => CreatePostScheme)
+    @Mutation(returns => PostEntity)
     @UseGuards(JwtGqlGuard)
     async createPost(
         @UserGql() user: UserEntity,
-        @Args({ name: 'files', type: () => [GraphQLUpload] }) fileUpload: Promise<FileUpload>[],
+        @Args({ name: 'files', type: () => [GraphQLUpload], nullable: true }) fileUpload: Promise<FileUpload>[],
         @Args('data') createPostInput: CreatePostInput,
     ) {
         return this.postsService.createPost(user, createPostInput);

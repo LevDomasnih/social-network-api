@@ -12,8 +12,6 @@ export interface EditProfileInterfaceDto {
     school?: string;
     status?: string;
     about?: string;
-    createdAt: Date;
-    updatedAt: Date;
 }
 
 export interface EditProfileInterfaceReturn {

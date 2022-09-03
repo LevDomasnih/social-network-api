@@ -210,10 +210,6 @@ type DeleteBlogScheme {
   deleted: Boolean!
 }
 
-type CreatePostScheme {
-  text: String!
-}
-
 type ChangeLikeScheme {
   text: String!
 }
@@ -241,7 +237,7 @@ type Mutation {
   editImg(field: String!, file: Upload!): FilesEntity
   createBlog(files: [Upload!]!, blogData: CreateBlogDto!): [CreateBlogScheme!]!
   deleteBlog(id: String!): DeleteBlogScheme!
-  createPost(files: [Upload!]!, data: CreatePostInput!): CreatePostScheme!
+  createPost(files: [Upload!], data: CreatePostInput!): PostEntity!
   changeLike(postId: String!): ChangeLikeScheme!
 }
 
@@ -267,8 +263,6 @@ input EditProfileInput {
   school: String
   status: String
   about: String
-  createdAt: DateTime!
-  updatedAt: DateTime!
 }
 
 """The `Upload` scalar type represents a file upload."""
@@ -295,5 +289,5 @@ input CreateBlogDtoInlineStyleRangesDto {
 
 input CreatePostInput {
   text: String!
-  parentPost: String!
+  parentPost: String
 }
