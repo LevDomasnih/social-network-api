@@ -65,7 +65,7 @@ export class BlogRepository extends BaseRepository<BlogEntity> implements BlogRe
                 where: {
                     owner: userId,
                 },
-                relations: ['owner'],
+                relations: ['owner', 'mainImage'],
                 order: {
                     createdAt: 'DESC',
                 },

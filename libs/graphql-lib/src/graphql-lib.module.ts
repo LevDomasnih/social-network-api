@@ -1,8 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-// @ts-ignore
-import { GraphQLUpload , graphqlUploadExpress } from 'graphql-upload'
+import { graphqlUploadExpress } from 'graphql-upload';
 
 @Module({
     imports: [
@@ -12,16 +11,17 @@ import { GraphQLUpload , graphqlUploadExpress } from 'graphql-upload'
             installSubscriptionHandlers: true,
             debug: true,
             introspection: true,
-            context: ({ req }) => ({ req }),
+            cors: { origin: true, credentials: true },
+            context: ({ req, res }) => ({ req, res }),
             formatError: error => {
-                console.error('error', error)
-                return error
+                console.error('error', error);
+                return error;
             },
         }),
     ],
 })
 export class GraphqlLibModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(graphqlUploadExpress()).forRoutes('graphql')
+        consumer.apply(graphqlUploadExpress()).forRoutes('graphql');
     }
 }

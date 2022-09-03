@@ -9,10 +9,10 @@ type ProfileEntity {
   owner: UserEntity!
   firstName: String!
   lastName: String!
-  middleName: String!
+  middleName: String
   phone: String!
-  avatar: FilesEntity!
-  mainImage: FilesEntity!
+  avatar: FilesEntity
+  mainImage: FilesEntity
   status: String
   about: String
   birthday: DateTime
@@ -75,11 +75,18 @@ type DialogsEntity {
   messages: [MessagesEntity!]!
   status: DialogType!
   lastMessage: MessagesEntity!
+  info: DialogInfoSchema!
 }
 
 enum DialogType {
   CHAT
   DIALOGS
+}
+
+type DialogInfoSchema {
+  id: ID!
+  image: FilesEntity
+  name: String!
 }
 
 type FilesEntity {
@@ -146,14 +153,6 @@ type LoginScheme {
 
 type IsValidScheme {
   valid: Boolean!
-}
-
-type EditProfileScheme {
-  updated: Boolean!
-}
-
-type EditImageScheme {
-  fileName: String!
 }
 
 type GetFollowScheme {
@@ -230,7 +229,7 @@ type Query {
   getFollowUsers(id: String!): [GetFollowScheme!]!
   blogsOfUser(id: ID!): [BlogEntity!]!
   blogsMe: [BlogEntity!]!
-  dialog(id: String!): DialogsEntity!
+  dialog(id: ID!): DialogsEntity!
   dialogs: [DialogsEntity!]!
   post(postId: ID!): PostEntity!
   posts(userId: ID!): [PostEntity!]!
@@ -238,8 +237,8 @@ type Query {
 
 type Mutation {
   register(registerData: register!): RegisterScheme!
-  edit(data: EditProfileInput!): EditProfileScheme!
-  editImg(field: String!, files: [Upload!]!): EditImageScheme!
+  edit(data: EditProfileInput!): UserEntity!
+  editImg(field: String!, file: Upload!): FilesEntity
   createBlog(files: [Upload!]!, blogData: CreateBlogDto!): [CreateBlogScheme!]!
   deleteBlog(id: String!): DeleteBlogScheme!
   createPost(files: [Upload!]!, data: CreatePostInput!): CreatePostScheme!

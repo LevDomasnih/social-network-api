@@ -8,7 +8,7 @@ import {
     BlogEntity,
     BlogRepository,
     BlogTextBlockEntity,
-    BlogTextBlockRepository,
+    BlogTextBlockRepository, FilesEntity, FilesRepository, ProfileEntity,
     UserEntity,
     UsersRepository,
 } from '@app/nest-postgre';
@@ -27,6 +27,7 @@ export class BlogsResolver {
         private readonly blogRepository: BlogRepository,
         private readonly usersRepository: UsersRepository,
         private readonly blogTextBlockRepository: BlogTextBlockRepository,
+        private readonly filesRepository: FilesRepository,
     ) {
     }
 
@@ -57,6 +58,13 @@ export class BlogsResolver {
         @Parent() blog: BlogEntity,
     ) {
         return this.blogTextBlockRepository.getBlogTextBlocksByBlog(blog.id);
+    }
+
+    @ResolveField(returns => FilesEntity, { name: 'mainImage', nullable: true  })
+    async getMainImage(
+        @Parent() blog: BlogEntity,
+    ) {
+        return this.filesRepository.getFile(blog.mainImage.id);
     }
 
     @Mutation(returns => [CreateBlogScheme])

@@ -43,21 +43,27 @@ export class ProfileResolver {
         return this.usersRepository.getUserById(profile.owner.id);
     }
 
-    @ResolveField(returns => FilesEntity, { name: 'avatar' })
+    @ResolveField(returns => FilesEntity, { name: 'avatar', nullable: true })
     async getAvatar(
         @Parent() profile: ProfileEntity,
     ) {
+        if (!profile.avatar) {
+            return null
+        }
         return this.filesRepository.getFile(profile.avatar.id);
     }
 
-    @ResolveField(returns => FilesEntity, { name: 'mainImage' })
+    @ResolveField(returns => FilesEntity, { name: 'mainImage', nullable: true })
     async getMainImage(
         @Parent() profile: ProfileEntity,
     ) {
+        if (!profile.avatar) {
+            return null
+        }
         return this.filesRepository.getFile(profile.mainImage.id);
     }
 
-    @Mutation(returns => EditProfileScheme)
+    @Mutation(returns => UserEntity)
     @UseGuards(JwtGqlGuard)
     async edit(
         @UserGql() user: UserEntity,
@@ -66,15 +72,14 @@ export class ProfileResolver {
         return this.profileService.editProfile(user, dto);
     }
 
-    @Mutation(returns => EditImageScheme)
+    @Mutation(returns => FilesEntity, {nullable: true})
     @UseGuards(JwtGqlGuard)
     async editImg(
         @UserGql() user: UserEntity,
         @Args('field') field: 'avatar' | 'mainImage',
-        @Args({ name: 'files', type: () => [GraphQLUpload] }) fileUpload: Promise<FileUpload>[],
+        @Args({ name: 'file', type: () => GraphQLUpload }) fileUpload: FileUpload,
     ) {
-        const filesAwaited = await Promise.all(fileUpload);
-        const files = await gqlFileUploadConvert(filesAwaited);
-        return this.profileService.editImage(files, user, field);
+        const file = await gqlFileUploadConvert(fileUpload);
+        return this.profileService.editImage(file, user, field);
     }
 }

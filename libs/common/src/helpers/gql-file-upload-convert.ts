@@ -43,7 +43,6 @@ const gqlFileUploadConvert: gqlFileUploadConvertType = async (fileUpload) => {
             })
         );
     } else {
-        console.log(fileUpload.createReadStream);
         const stream = fileUpload.createReadStream();
         // @ts-ignore
         const chunks = [];

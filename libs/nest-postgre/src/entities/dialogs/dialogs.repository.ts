@@ -8,6 +8,7 @@ import {
     GetDialogByUserIdModel, UserEntity, UsersRepository,
 } from '@app/nest-postgre/entities';
 import { BadRequestException } from '@nestjs/common';
+import { DialogInfoSchema } from '@app/graphql-lib/schemes/dialog-info.schema';
 
 @EntityRepository(DialogsEntity)
 export class DialogsRepository extends BaseRepository<DialogsEntity> implements DialogsRepositoryInterface {
@@ -268,5 +269,26 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                 id: In(['f2f6fda5-b2c0-40af-8a86-a0ebe1fb1c7a'])
             },
         })
+    }
+
+    async getInfo(dialogId: string, userConsumerId: string): Promise<DialogInfoSchema | undefined> {
+        const dialog = await this.findOne(dialogId, {
+            relations: ['owners', 'owners.profile', 'owners.profile.avatar']
+        });
+        if (!dialog) {
+            return;
+        }
+        const userConsumed = dialog.owners.find(own => own.id !== userConsumerId)
+            || dialog.owners.find(own => own.id === userConsumerId)
+        if (!userConsumed) {
+            return;
+        }
+
+        return {
+            id: userConsumed.id,
+            image: userConsumed.profile.avatar,
+            name: `${userConsumed.profile.firstName} ${userConsumed.profile.lastName}`
+
+        }
     }
 }

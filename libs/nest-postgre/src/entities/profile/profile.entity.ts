@@ -19,9 +19,9 @@ export class ProfileEntity extends BaseCustomEntity {
     @Column({ name: 'last_name' })
     lastName: string;
 
-    @Field(type => String)
+    @Field(type => String, {nullable: true})
     @Column({ name: 'middle_name', nullable: true })
-    middleName: string;
+    middleName?: string;
 
     @Field(type => String)
     @Column()

@@ -27,19 +27,19 @@ export class ProfileService implements ProfileServiceInterface {
         if (!owner) {
             throw new BadRequestException('Профиль отсутствует');
         }
-        const updatedUser = await this.usersRepository.update(
+        await this.usersRepository.update(
             user.id,
             { email, login },
         );
-        const profile = await this.profileRepository.update(
+        await this.profileRepository.update(
             { owner },
             { ...dto },
         );
-        return { updated: profile.affected === 1 && updatedUser.affected === 1 };
+        return this.usersRepository.findOne(owner.id)
     }
 
     async editImage(
-        files: IFileUpload[],
+        file: IFileUpload,
         user: UserEntity,
         field: 'avatar' | 'mainImage',
     ) {
@@ -53,12 +53,14 @@ export class ProfileService implements ProfileServiceInterface {
             exchange: UpdateProfileFileContract.queue.exchange,
             routingKey: UpdateProfileFileContract.queue.routingKey,
             payload: {
-                buffer: files[0].buffer,
+                buffer: file.buffer,
                 user: user,
                 fileField: field,
                 oldPath: profile?.[field]?.path,
             },
         });
+
+        let fileId;
 
         if (!profile[field]) {
             const image = await this.filesRepository.save({
@@ -66,14 +68,14 @@ export class ProfileService implements ProfileServiceInterface {
                 ...newFile,
             });
             await this.profileRepository.update({ id: profile.id }, { [field]: image });
+            fileId = image.id;
         } else {
             await this.filesRepository.update({ id: profile[field].id }, {
                 ...newFile,
             });
+            fileId = profile[field].id
         }
 
-        return {
-            fileName: this.url + '/' + newFile.folder + '/' + newFile.name,
-        };
+        return this.filesRepository.findOne(fileId)
     }
 }
