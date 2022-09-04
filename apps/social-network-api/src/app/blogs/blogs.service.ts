@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
+    BlogEntity,
     BlogRepository,
     BlogTextBlockRepository,
     FilesRepository,
@@ -55,7 +56,7 @@ export class BlogsService {
         user: UserEntity,
         files: IFileUpload[],
         dto: CreateBlogDto,
-    ): Promise<CreateBlogScheme[]> {
+    ): Promise<BlogEntity> {
 
         const newFile = await this.amqpConnection.request<UpdateProfileFileContract.ResponsePayload>({
             exchange: UpdateProfileFileContract.queue.exchange,
@@ -78,7 +79,7 @@ export class BlogsService {
             .filter(block => block.type.includes('header'))
             .map(block => block.text);
 
-        const newPost = await this.blogRepository.save({
+        const newBlog = await this.blogRepository.save({
             owner: user,
             headers,
             mainImage: image,
@@ -86,7 +87,7 @@ export class BlogsService {
         });
         for (const block of dto.textBlocks) {
             await this.blogTextBlockRepository.save({
-                postOwner: newPost,
+                postOwner: newBlog,
                 key: block.key,
                 data: block.data,
                 depth: block.depth,
@@ -97,10 +98,13 @@ export class BlogsService {
             });
         }
 
-        return this.blogRepository.getBlogsAndCommentsByUserId(user.id)
-            .then(posts => posts
-                .sort((postPrev, postNext) =>
-                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()));
+        const blog = await this.blogRepository.findOne(newBlog.id, {relations: ['owner', 'mainImage']})
+
+        if (!blog) {
+            throw new BadRequestException('Блог не создался')
+        }
+
+        return blog
     }
 
     async deleteBlog(user: UserEntity, postId: string): Promise<DeleteBlogScheme> {

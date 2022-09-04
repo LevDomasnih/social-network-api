@@ -2,6 +2,7 @@ import { IsArray, IsNumber, IsObject, IsOptional, IsString, ValidateNested } fro
 import { InlineStyleRanges } from '@app/nest-postgre';
 import { plainToClass, Transform, Type } from 'class-transformer';
 import { Field, InputType, Int } from '@nestjs/graphql';
+import graphqlTypeJson from 'graphql-type-json';
 
 @InputType()
 class CreateBlogDtoInlineStyleRangesDto implements InlineStyleRanges {
@@ -25,7 +26,7 @@ class CreateBlogDtoInlineStyleRangesDto implements InlineStyleRanges {
 @InputType()
 class CreateBlogDtoTextBlocks {
     @IsObject()
-        // @Field(type => JSON)
+        @Field(type => graphqlTypeJson)
     data: {};
 
     @IsNumber()
@@ -59,11 +60,11 @@ class CreateBlogDtoTextBlocks {
 @InputType()
 export class CreateBlogDto {
     @ValidateNested({ each: true })
-    @Transform(({ value }) => JSON.parse(value).map((v: CreateBlogDtoTextBlocks) => plainToClass(CreateBlogDtoTextBlocks, v)))
+    // @Transform(({ value }) => JSON.parse(value).map((v: CreateBlogDtoTextBlocks) => plainToClass(CreateBlogDtoTextBlocks, v)))
     @Field(type => [CreateBlogDtoTextBlocks])
     textBlocks: CreateBlogDtoTextBlocks[];
-    @Transform(({ value }) => JSON.parse(value))
+    // @Transform(({ value }) => JSON.parse(value))
     @IsObject()
-        // @Field(type => JSON)
+    @Field(type => graphqlTypeJson)
     entityMap: {};
 }

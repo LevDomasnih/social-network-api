@@ -67,14 +67,14 @@ export class BlogsResolver {
         return this.filesRepository.getFile(blog.mainImage.id);
     }
 
-    @Mutation(returns => [CreateBlogScheme])
+    @Mutation(returns => BlogEntity)
     @UseGuards(JwtGqlGuard)
     async createBlog(
         @UserGql() user: UserEntity,
-        @Args({ name: 'files', type: () => [GraphQLUpload] }) fileUpload: Promise<FileUpload>[],
+        @Args({ name: 'files', type: () => [GraphQLUpload], nullable: true }) filesUpload: FileUpload[],
         @Args('blogData') createBlogDto: CreateBlogDto,
-    ): Promise<CreateBlogScheme[]> {
-        const filesAwaited = await Promise.all(fileUpload);
+    ): Promise<BlogEntity> {
+        const filesAwaited = await Promise.all(filesUpload);
         try {
             const files = await gqlFileUploadConvert(filesAwaited);
             return this.blogsService.createBlog(user, files, createBlogDto);
