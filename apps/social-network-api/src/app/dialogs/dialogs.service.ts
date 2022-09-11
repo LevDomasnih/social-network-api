@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DialogsRepository, MessagesRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
+import { DialogsRepository, MessagesEntity, MessagesRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
 import { FindManyOptions } from 'typeorm';
 import { DialogsServiceInterface } from './interfaces/dialogs.service.interface';
 import {
@@ -137,8 +137,8 @@ export class DialogsService implements DialogsServiceInterface {
 
     async updateDialog(
         user: UserEntity,
-        { dialogId, ...dto }: UpdateDialogsInterfaceArgs,
-    ): Promise<UpdateDialogsInterfaceReturn> {
+        { dialogId, text, ...dto }: UpdateDialogsInterfaceArgs,
+    ): Promise<MessagesEntity> {
         const dialog = await this.dialogsRepository.findOne({ id: dialogId }, { relations: ['owners'] });
         if (!dialog) {
             throw new BadRequestException(`Диалог ${dialogId} отсутствует`);
@@ -147,20 +147,9 @@ export class DialogsService implements DialogsServiceInterface {
         if (!owner) {
             throw new BadRequestException(`Юзер ${user.id} отсутствует`);
         }
-        const newMessage = await this.messagesRepository.saveAndGet(
-            { owner, dialog, ...dto },
+        return this.messagesRepository.saveAndGet(
+            { owner, dialog, text},
         );
-
-        return {
-            user: {
-                id: owner.id,
-                avatar: owner.profile.avatar?.getFilePath() || null,
-                lastName: owner.profile.lastName,
-                firstName: owner.profile.firstName,
-            },
-            ...newMessage,
-            dialogId,
-        };
     }
 
 

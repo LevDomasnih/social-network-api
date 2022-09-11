@@ -8,7 +8,9 @@ import { graphqlUploadExpress } from 'graphql-upload';
         GraphQLModule.forRoot<ApolloDriverConfig>({
             driver: ApolloDriver,
             autoSchemaFile: 'schema.graphql',
-            installSubscriptionHandlers: true,
+            subscriptions: {
+                'graphql-ws': true
+            },
             debug: true,
             introspection: true,
             cors: { origin: true, credentials: true },

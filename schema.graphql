@@ -202,6 +202,7 @@ type Mutation {
   editImg(field: String!, file: Upload!): FilesEntity
   createBlog(files: [Upload!], blogData: CreateBlogDto!): BlogEntity!
   deleteBlog(id: String!): DeleteBlogScheme!
+  createMessage(image: Upload!, file: Upload!, data: CreateDialogMessageInput!): MessagesEntity!
   createPost(files: [Upload!], data: CreatePostInput!): PostEntity!
   changeLike(postId: String!): ChangeLikeScheme!
 }
@@ -254,7 +255,16 @@ input CreateBlogDtoInlineStyleRangesDto {
   style: String!
 }
 
+input CreateDialogMessageInput {
+  text: String!
+  dialogId: ID!
+}
+
 input CreatePostInput {
   text: String!
   parentPost: String
+}
+
+type Subscription {
+  messageCreated: MessagesEntity!
 }

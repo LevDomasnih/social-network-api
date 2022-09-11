@@ -1,6 +1,6 @@
-import { Args, ID, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver, Subscription } from '@nestjs/graphql';
 import { DialogsService } from './dialogs.service';
-import { UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { JwtGqlGuard } from '../auth/guards/jwt-gql.guard';
 import { IdValidationPipe } from '@app/common';
 import { UserGql } from '@app/common/decorators/user.gql.decorator';
@@ -13,6 +13,13 @@ import {
     UsersRepository,
 } from '@app/nest-postgre';
 import { DialogInfoSchema } from '@app/graphql-lib/schemes/dialog-info.schema';
+import { PUB_SUB } from '../../pub-sub/pub-sub.module';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { CreateDialogMessageInput } from './dto/create-dialog-message.input';
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
+import gqlFileUploadConvert from '@app/common/helpers/gql-file-upload-convert';
+
+const MESSAGE_CREATED = 'messageCreated';
 
 @Resolver(() => DialogsEntity)
 export class DialogsResolver {
@@ -21,6 +28,7 @@ export class DialogsResolver {
         private readonly dialogsRepository: DialogsRepository,
         private readonly usersRepository: UsersRepository,
         private readonly messagesRepository: MessagesRepository,
+        @Inject(PUB_SUB) private readonly pubSub: RedisPubSub,
     ) {
     }
 
@@ -62,5 +70,38 @@ export class DialogsResolver {
         @Parent() dialogsEntity: DialogsEntity,
     ) {
         return this.messagesRepository.getMessages(dialogsEntity.id);
+    }
+
+    @Mutation(returns => MessagesEntity)
+    @UseGuards(JwtGqlGuard)
+    async createMessage(
+        @UserGql() user: UserEntity,
+        @Args({ name: 'image', type: () => GraphQLUpload }) imageUpload: FileUpload,
+        @Args({ name: 'file', type: () => GraphQLUpload }) fileUpload: FileUpload,
+        @Args('data') createDialogMessageInput: CreateDialogMessageInput
+    ) {
+        const newMessage = await this.dialogsService.updateDialog(user, {
+            dialogId: createDialogMessageInput.dialogId,
+            image: await gqlFileUploadConvert(imageUpload),
+            text: createDialogMessageInput.text,
+            file: await gqlFileUploadConvert(fileUpload)
+        })
+        const owners = (await this.dialogsRepository.findOne(createDialogMessageInput.dialogId,
+            {relations: ['owners']}
+        ))?.owners
+        owners?.filter(own => own.id !== user.id).forEach(own => {
+            this.pubSub.publish(`${MESSAGE_CREATED}/${own.id}`, { messageCreated: newMessage });
+        })
+        return newMessage
+    }
+
+    @Subscription(returns => MessagesEntity, {
+        name: 'messageCreated'
+    })
+    @UseGuards(JwtGqlGuard)
+    async subscribeToCreateMessage(
+        @UserGql() user: UserEntity,
+    ) {
+        return this.pubSub.asyncIterator(`${MESSAGE_CREATED}/${user.id}`);
     }
 }

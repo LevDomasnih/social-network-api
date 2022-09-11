@@ -10,7 +10,7 @@ export interface DialogsServiceInterface {
     validateOwners(owners: string[], options?: FindManyOptions<UserEntity>): Promise<UserEntity[]>;
     findDialogId(ownerId: string, secondOwnerId: string): Promise<string | null>;
     createDialog(user: UserEntity, data: CreateDialogInterfaceArgs): Promise<CreateDialogInterfaceReturn[]>
-    updateDialog(user: UserEntity, data: UpdateDialogsInterfaceArgs): Promise<UpdateDialogsInterfaceReturn>
+    // updateDialog(user: UserEntity, data: UpdateDialogsInterfaceArgs): Promise<UpdateDialogsInterfaceReturn>
     getDialogs(user: UserEntity): Promise<GetDialogsInterfaceReturn[]>
     getUserDialog(user: UserEntity, secondUserId: string): Promise<GetUserDialogInterfaceReturn>
     updateDialogOwners(

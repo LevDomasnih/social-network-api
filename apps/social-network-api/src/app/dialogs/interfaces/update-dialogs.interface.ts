@@ -1,11 +1,13 @@
 import { IsOptional, IsString } from 'class-validator';
 import { DialogsEntity, FilesEntity, UserEntity } from '@app/nest-postgre';
+import { FileUpload } from 'graphql-upload';
+import { IFileUpload } from '@app/common/model/file-upload.interface';
 
 export interface UpdateDialogsInterfaceArgs {
     text: string;
     dialogId: string;
-    image: FilesEntity;
-    file: FilesEntity;
+    image: IFileUpload;
+    file: IFileUpload;
 }
 
 export interface UpdateDialogsInterfaceReturn {
