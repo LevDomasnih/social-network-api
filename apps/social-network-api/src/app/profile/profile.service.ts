@@ -1,11 +1,13 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { FilesRepository, ProfileRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
-import { EditAvatarResponse, EditProfileResponseDto, FindProfileResponseDto, UpdateProfileRequestDto } from './dto';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { UpdateProfileFileContract } from '@app/amqp-contracts';
+import { IFileUpload } from '@app/common/model/file-upload.interface';
+import { EditProfileInterfaceDto } from './interfaces/edit-profile.interface';
+import { ProfileServiceInterface } from './interfaces/profile.service.interface';
 
 @Injectable()
-export class ProfileService {
+export class ProfileService implements ProfileServiceInterface {
     private readonly logger = new Logger(ProfileService.name);
     private readonly url = process.env.API_URL || 'http://localhost:3000';
 
@@ -19,43 +21,28 @@ export class ProfileService {
 
     async editProfile(
         user: UserEntity,
-        { email, login, ...dto }: UpdateProfileRequestDto,
-    ): Promise<EditProfileResponseDto> {
+        { email, login, ...dto }: EditProfileInterfaceDto,
+    ) {
         const owner = await this.usersRepository.findOne(user.id);
         if (!owner) {
             throw new BadRequestException('Профиль отсутствует');
         }
-        const updatedUser = await this.usersRepository.update(
+        await this.usersRepository.update(
             user.id,
             { email, login },
         );
-        const profile = await this.profileRepository.update(
+        await this.profileRepository.update(
             { owner },
             { ...dto },
         );
-        return { updated: profile.affected === 1 && updatedUser.affected === 1 };
-    }
-
-    async findProfile(userId: string): Promise<FindProfileResponseDto> {
-        const owner = await this.usersRepository.findOne(userId);
-        const profile = await this.profileRepository.findOne({ owner }, { relations: ['avatar', 'mainImage'] });
-        if (!profile) {
-            throw new BadRequestException('Профиль отсутствует');
-        }
-        return {
-            ...profile,
-            avatar: profile?.avatar?.folder ?
-                this.url + '/' + profile.avatar.folder + '/' + (profile.avatar?.name || '') : null,
-            mainImage: profile?.mainImage?.folder ?
-                this.url + '/' + profile.mainImage.folder + '/' + (profile.mainImage?.name || '') : null,
-        };
+        return this.usersRepository.findOne(owner.id)
     }
 
     async editImage(
-        file: Express.Multer.File[],
+        file: IFileUpload,
         user: UserEntity,
         field: 'avatar' | 'mainImage',
-    ): Promise<EditAvatarResponse> {
+    ) {
         const profile = await this.profileRepository.findOne({ owner: user }, { relations: [field] });
 
         if (!profile) {
@@ -66,12 +53,14 @@ export class ProfileService {
             exchange: UpdateProfileFileContract.queue.exchange,
             routingKey: UpdateProfileFileContract.queue.routingKey,
             payload: {
-                buffer: file[0].buffer,
+                buffer: file.buffer,
                 user: user,
                 fileField: field,
                 oldPath: profile?.[field]?.path,
             },
         });
+
+        let fileId;
 
         if (!profile[field]) {
             const image = await this.filesRepository.save({
@@ -79,14 +68,14 @@ export class ProfileService {
                 ...newFile,
             });
             await this.profileRepository.update({ id: profile.id }, { [field]: image });
+            fileId = image.id;
         } else {
             await this.filesRepository.update({ id: profile[field].id }, {
                 ...newFile,
             });
+            fileId = profile[field].id
         }
 
-        return {
-            fileName: this.url + '/' + newFile.folder + '/' + newFile.name,
-        };
+        return this.filesRepository.findOne(fileId)
     }
 }

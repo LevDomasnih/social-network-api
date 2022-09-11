@@ -1,21 +1,23 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
 import { BaseCustomEntity, FilesEntity, BlogTextBlockEntity } from '@app/nest-postgre/entities';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import graphqlTypeJson from 'graphql-type-json'
 
+@ObjectType()
 @Entity('blogs')
 export class BlogEntity extends BaseCustomEntity {
-    @ApiProperty({ type: () => UserEntity })
+    @Field(type => UserEntity)
     @ManyToOne(() => UserEntity, user => user.blogs)
     @JoinColumn({name: 'owner_id'})
     owner: UserEntity;
 
-    @ApiProperty()
+    @Field(type => [BlogTextBlockEntity])
     @OneToMany(() => BlogTextBlockEntity, postText => postText.postOwner, { onDelete: 'CASCADE' })
     @JoinColumn({name: 'text_blocks'})
-    textBlocks: string;
+    textBlocks: BlogTextBlockEntity[];
 
-    @ApiProperty()
+    @Field(type => [String], { nullable: true })
     @Column({
         type: 'jsonb',
         array: false,
@@ -24,7 +26,7 @@ export class BlogEntity extends BaseCustomEntity {
     })
     headers: string[];
 
-    @ApiProperty()
+    @Field(type => graphqlTypeJson, {nullable: true})
     @Column({
         type: 'jsonb',
         name: 'entity_map',
@@ -33,16 +35,16 @@ export class BlogEntity extends BaseCustomEntity {
     })
     entityMap: {}
 
-    @ApiProperty({type: () => FilesEntity})
+    @Field(type => FilesEntity, {nullable: true})
     @OneToOne(() => FilesEntity, { onDelete: 'CASCADE' })
     @JoinColumn({name: 'main_image_id'})
-    mainImage: FilesEntity; // TODO file
+    mainImage: FilesEntity;
 
-    @ApiProperty()
+    @Field(tye => Int)
     @Column({ default: 0 })
     likes: number;
 
-    @ApiProperty()
+    @Field(tye => Int)
     @Column({ default: 0 })
     views: number;
 

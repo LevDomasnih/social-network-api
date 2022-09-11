@@ -1,7 +1,8 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../users/user.entity';
-import { BaseCustomEntity, MessagesEntity } from '@app/nest-postgre/entities';
+import { BaseCustomEntity, MessagesEntity, Status } from '@app/nest-postgre/entities';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 // class Options {
 //
@@ -15,9 +16,12 @@ export enum DialogType {
     DIALOGS = 'DIALOGS',
 }
 
+registerEnumType(DialogType, { name: 'DialogType' })
+
+@ObjectType()
 @Entity('dialogs')
 export class DialogsEntity extends BaseCustomEntity {
-    @ApiProperty({ type: () => [UserEntity] })
+    @Field(type => [UserEntity])
     @ManyToMany(() => UserEntity, user => user.dialogs, { onDelete: 'CASCADE', cascade: true })
     @JoinTable({
         name: 'dialogs_users',
@@ -32,11 +36,11 @@ export class DialogsEntity extends BaseCustomEntity {
     })
     owners: UserEntity[];
 
-    @ApiProperty({ type: () => [MessagesEntity] })
+    @Field(type => [MessagesEntity])
     @OneToMany(() => MessagesEntity, message => message.dialog)
     messages: MessagesEntity[];
 
-    @ApiProperty()
+    @Field(type => DialogType)
     @Column({
         type: 'enum',
         enum: DialogType,

@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { FollowRepository, BlogRepository, ProfileRepository, UsersRepository } from '@app/nest-postgre';
-import { AuthLoginRequestDto, AuthRegisterRequestDto, IsValidFieldsRequestDto } from './dto';
+import { BlogRepository, FollowRepository, ProfileRepository, UsersRepository } from '@app/nest-postgre';
+import { IsValidDto, LoginDto, RegisterDto } from './dto';
+import { IsValidScheme } from './schemes/is-valid.scheme';
 
 @Injectable()
 export class AuthService {
@@ -15,13 +16,13 @@ export class AuthService {
     ) {
     }
 
-    async login({ loginOrEmail, password }: AuthLoginRequestDto) {
+    async login({ loginOrEmail, password }: LoginDto) {
         const { email } = await this.validateUser(loginOrEmail, password);
         return this.createAccessToken(email);
     }
 
-    async register(dto: AuthRegisterRequestDto) {
-        const oldUser = (await this.findUser({email: dto.email}))[0];
+    async register(dto: RegisterDto) {
+        const oldUser = (await this.findUser({ email: dto.email }))[0];
 
         if (oldUser) {
             throw new BadRequestException('Данный пользователь уже зарегистрирован!');
@@ -43,9 +44,13 @@ export class AuthService {
         }
     }
 
-    async isValidFields(dto: IsValidFieldsRequestDto) {
+    async isValidFields(dto: IsValidDto): Promise<IsValidScheme> {
+        const query = {
+            [dto.fieldName]: dto.fieldValue
+        }
+
         return {
-            valid: await this.userRepository.existsByOptions(dto)
+            valid: await this.userRepository.existsByOptions(query),
         };
     }
 
@@ -56,7 +61,7 @@ export class AuthService {
         };
     }
 
-    private async createUser({ email, password, ...dto }: AuthRegisterRequestDto) {
+    private async createUser({ email, password, ...dto }: RegisterDto) {
         const salt = await genSalt(10);
         try {
             const userInstance = this.userRepository.create({
@@ -80,12 +85,15 @@ export class AuthService {
         }
     }
 
-    private async findUser(options: {[key: string]: string}) {
-        return this.userRepository.find({where: Object.keys(options).map(e => ({[e]: options[e]})),  select: ['passwordHash', 'email'] });
+    private async findUser(options: { [key: string]: string }) {
+        return this.userRepository.find({
+            where: Object.keys(options).map(e => ({ [e]: options[e] })),
+            select: ['passwordHash', 'email'],
+        });
     }
 
     private async validateUser(loginOrEmail: string, password: string) {
-        const user = (await this.findUser({login: loginOrEmail, email: loginOrEmail}))[0];
+        const user = (await this.findUser({ login: loginOrEmail, email: loginOrEmail }))[0];
         if (!user) {
             throw new UnauthorizedException('Данного пользователя не существует');
         }
@@ -94,23 +102,5 @@ export class AuthService {
             throw new UnauthorizedException('Неверный пароль');
         }
         return { email: user.email };
-    }
-
-    async getAuth(id: string) { // FIXME DTO
-        const user = await this.userRepository.findOne(id,
-            { relations: ['profile', 'profile.avatar', 'profile.mainImage'],
-            });
-        if (!user) {
-            throw new BadRequestException('Пользователя не существует');
-        }
-        return {
-            id: user.id,
-            login: user.login,
-            email: user.email,
-            firstName: user.profile.firstName,
-            lastName: user.profile.lastName,
-            avatar: user.profile?.avatar?.getFilePath() || null,
-            notifications: 0 // FIXME MOCK!!!
-        }
     }
 }

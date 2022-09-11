@@ -1,0 +1,270 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ProfileEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: UserEntity!
+  firstName: String!
+  lastName: String!
+  middleName: String
+  phone: String!
+  avatar: FilesEntity
+  mainImage: FilesEntity
+  status: String
+  about: String
+  birthday: DateTime
+  country: String
+  city: String
+  relatives: String
+  school: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type FollowEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: UserEntity!
+  subscriber: [FollowEntity!]!
+  subscriberOwner: [FollowEntity!]!
+}
+
+type BlogEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: UserEntity!
+  textBlocks: [BlogTextBlockEntity!]!
+  headers: [String!]
+  entityMap: JSON
+  mainImage: FilesEntity
+  likes: Int!
+  views: Int!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type UserEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  email: String!
+  login: String!
+  profile: ProfileEntity!
+  blogs: [BlogEntity!]!
+  posts: [PostEntity!]!
+  dialogs: [DialogsEntity!]!
+  messages: [MessagesEntity!]!
+}
+
+type DialogsEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owners: [UserEntity!]!
+  messages: [MessagesEntity!]!
+  status: DialogType!
+  lastMessage: MessagesEntity!
+  info: DialogInfoSchema!
+}
+
+enum DialogType {
+  CHAT
+  DIALOGS
+}
+
+type DialogInfoSchema {
+  id: ID!
+  image: FilesEntity
+  name: String!
+}
+
+type FilesEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: UserEntity!
+  name: String!
+  filePath: String!
+}
+
+type MessagesEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  dialog: DialogsEntity!
+  owner: UserEntity!
+  text: String!
+  image: FilesEntity
+  file: FilesEntity
+}
+
+type InlineStyleRanges {
+  length: Int!
+  offset: Int!
+  style: String!
+}
+
+type BlogTextBlockEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  postOwner: BlogEntity!
+  data: JSON
+  depth: Int!
+  entityRanges: [String!]
+  inlineStyleRanges: [InlineStyleRanges!]
+  key: String!
+  text: String!
+  type: String!
+}
+
+type PostEntity {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  owner: UserEntity!
+  images: FilesEntity
+  files: FilesEntity
+  likes: [String!]
+  views: [String!]
+  text: String!
+  parentPost: PostEntity
+  childrenPosts: [PostEntity!]!
+}
+
+type RegisterScheme {
+  access_token: String!
+}
+
+type LoginScheme {
+  access_token: String!
+}
+
+type IsValidScheme {
+  valid: Boolean!
+}
+
+type GetFollowScheme {
+  id: ID!
+  email: String!
+  login: String!
+}
+
+type GetUserBaseInfo {
+  id: String!
+  login: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  middleName: String!
+  avatar: FilesEntity
+}
+
+type DeleteBlogScheme {
+  deleted: Boolean!
+}
+
+type ChangeLikeScheme {
+  text: String!
+}
+
+type Query {
+  login(loginOrEmail: String!, password: String!): LoginScheme!
+  isValidFields(fieldName: String!, fieldValue: String!): IsValidScheme!
+  profile(userId: String!): ProfileEntity!
+  users: [UserEntity!]!
+  userMe: UserEntity!
+  userMeBaseInfo: GetUserBaseInfo!
+  user(id: ID!): UserEntity!
+  getFollowUsers(id: String!): [GetFollowScheme!]!
+  blogsOfUser(id: ID!): [BlogEntity!]!
+  blogsMe: [BlogEntity!]!
+  dialog(id: ID!): DialogsEntity!
+  dialogs: [DialogsEntity!]!
+  post(postId: ID!): PostEntity!
+  posts(userId: ID!): [PostEntity!]!
+}
+
+type Mutation {
+  register(registerData: register!): RegisterScheme!
+  edit(data: EditProfileInput!): UserEntity!
+  editImg(field: String!, file: Upload!): FilesEntity
+  createBlog(files: [Upload!], blogData: CreateBlogDto!): BlogEntity!
+  deleteBlog(id: String!): DeleteBlogScheme!
+  createMessage(image: Upload!, file: Upload!, data: CreateDialogMessageInput!): MessagesEntity!
+  createPost(files: [Upload!], data: CreatePostInput!): PostEntity!
+  changeLike(postId: String!): ChangeLikeScheme!
+}
+
+input register {
+  firstName: String!
+  lastName: String!
+  phone: String!
+  email: String!
+  password: String!
+}
+
+input EditProfileInput {
+  middleName: String!
+  firstName: String!
+  lastName: String!
+  phone: String!
+  email: String!
+  login: String!
+  birthday: String
+  country: String
+  city: String
+  relatives: String
+  school: String
+  status: String
+  about: String
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input CreateBlogDto {
+  textBlocks: [CreateBlogDtoTextBlocks!]!
+  entityMap: JSON!
+}
+
+input CreateBlogDtoTextBlocks {
+  data: JSON!
+  depth: Int!
+  entityRanges: [String!]!
+  inlineStyleRanges: [CreateBlogDtoInlineStyleRangesDto!]!
+  key: String!
+  text: String!
+  type: String!
+}
+
+input CreateBlogDtoInlineStyleRangesDto {
+  length: String!
+  offset: String!
+  style: String!
+}
+
+input CreateDialogMessageInput {
+  text: String!
+  dialogId: ID!
+}
+
+input CreatePostInput {
+  text: String!
+  parentPost: String
+}
+
+type Subscription {
+  messageCreated: MessagesEntity!
+}
