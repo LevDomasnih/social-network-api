@@ -1,12 +1,14 @@
-import { EntityRepository } from 'typeorm';
+import { EntityRepository, In } from 'typeorm';
 import { DialogsEntity } from './dialogs.entity';
 import { GetSqlResponse, SqlToJsonModel } from '@app/common';
 import {
     BaseRepository,
     DialogsRepositoryInterface,
     GetDialogByIdModel,
-    GetDialogByUserIdModel,
+    GetDialogByUserIdModel, UserEntity, UsersRepository,
 } from '@app/nest-postgre/entities';
+import { BadRequestException } from '@nestjs/common';
+import { DialogInfoSchema } from '@app/graphql-lib/schemes/dialog-info.schema';
 
 @EntityRepository(DialogsEntity)
 export class DialogsRepository extends BaseRepository<DialogsEntity> implements DialogsRepositoryInterface {
@@ -222,5 +224,71 @@ export class DialogsRepository extends BaseRepository<DialogsEntity> implements 
                    WHERE du1.dialogs_id = du.dialogs_id) = rows.id
         `, [ownerId1, ownerId2]);
         return new GetSqlResponse<{}>().getRow(response);
+    }
+
+    getDialogById(id: string): Promise<DialogsEntity | undefined> {
+        return this.findOne(id)
+    }
+
+    async getDialogByUser(userConsumerId: string, userConsumedId: string): Promise<DialogsEntity | undefined> {
+        const owner = await this.db.getRepository(UserEntity).findOne({
+            relations: ['dialogs', 'dialogs.owners'],
+            where: { id: userConsumerId },
+        });
+        const secondOwner = await this.db.getRepository(UserEntity).findOne(userConsumedId);
+        let dialogId: null | string = null;
+
+        if (!owner || !secondOwner) {
+            return;
+        }
+
+        for (const dialog of owner.dialogs) {
+            const isFind: boolean[] = dialog.owners.map(userOwner => {
+                return userOwner.id === owner.id || userOwner.id === secondOwner.id;
+            });
+            if (!isFind.some(e => !e)) {
+                if (isFind.length === 1) {
+                    if (owner.id === secondOwner.id) {
+                        dialogId = dialog.id;
+                        break;
+                    }
+                } else {
+                    dialogId = dialog.id;
+                    break;
+                }
+            }
+        }
+        return dialogId ? (this.findOne(dialogId, {
+            relations: ['owners']
+        })) : undefined;
+    }
+
+    getDialogs(id: string): Promise<DialogsEntity[]> {
+        return this.find({
+            where: {
+                id: In(['f2f6fda5-b2c0-40af-8a86-a0ebe1fb1c7a'])
+            },
+        })
+    }
+
+    async getInfo(dialogId: string, userConsumerId: string): Promise<DialogInfoSchema | undefined> {
+        const dialog = await this.findOne(dialogId, {
+            relations: ['owners', 'owners.profile', 'owners.profile.avatar']
+        });
+        if (!dialog) {
+            return;
+        }
+        const userConsumed = dialog.owners.find(own => own.id !== userConsumerId)
+            || dialog.owners.find(own => own.id === userConsumerId)
+        if (!userConsumed) {
+            return;
+        }
+
+        return {
+            id: userConsumed.id,
+            image: userConsumed.profile.avatar,
+            name: `${userConsumed.profile.firstName} ${userConsumed.profile.lastName}`
+
+        }
     }
 }

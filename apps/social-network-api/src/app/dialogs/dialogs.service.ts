@@ -1,15 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { DialogsRepository, MessagesRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
-import {
-    CreateDialogRequestDto,
-    UpdateDialogRequestDto,
-    UpdateOwnersRequestDto,
-    UpdateOwnersResponseDto,
-} from './dto';
+import { DialogsRepository, MessagesEntity, MessagesRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
 import { FindManyOptions } from 'typeorm';
+import { DialogsServiceInterface } from './interfaces/dialogs.service.interface';
+import {
+    UpdateDialogOwnersInterfaceArgs,
+    UpdateDialogOwnersInterfaceReturn,
+} from './interfaces/update-dialog-owners.interface';
+import { GetUserDialogInterfaceReturn } from './interfaces/get-user-dialog.interface';
+import { GetDialogsInterfaceReturn } from './interfaces/get-dialogs.interface';
+import { UpdateDialogsInterfaceArgs, UpdateDialogsInterfaceReturn } from './interfaces/update-dialogs.interface';
+import { CreateDialogInterfaceArgs, CreateDialogInterfaceReturn } from './interfaces/create-dialog.interface';
 
 @Injectable()
-export class DialogsService {
+export class DialogsService implements DialogsServiceInterface {
     constructor(
         private readonly dialogsRepository: DialogsRepository,
         private readonly userRepository: UsersRepository,
@@ -17,7 +20,7 @@ export class DialogsService {
     ) {
     }
 
-    async validateOwners(owners: string[], options?: FindManyOptions<UserEntity>) {
+    async validateOwners(owners: string[], options?: FindManyOptions<UserEntity>): Promise<UserEntity[]> {
         return this.userRepository.find({ where: owners.map(id => ({ id })), ...options });
     }
 
@@ -53,8 +56,8 @@ export class DialogsService {
 
     async createDialog(
         user: UserEntity,
-        { secondOwnerId, ...messageData }: CreateDialogRequestDto,
-    ) {
+        { secondOwnerId, ...messageData }: CreateDialogInterfaceArgs,
+    ): Promise<CreateDialogInterfaceReturn[]> {
         const owner = await this.userRepository.findOne(
             user.id,
             { relations: ['profile', 'profile.avatar'] },
@@ -134,34 +137,23 @@ export class DialogsService {
 
     async updateDialog(
         user: UserEntity,
-        { dialogId, ...dto }: UpdateDialogRequestDto,
-    )/*: Promise<UpdateDialogResponseDto>*/ {
+        { dialogId, text, ...dto }: UpdateDialogsInterfaceArgs,
+    ): Promise<MessagesEntity> {
         const dialog = await this.dialogsRepository.findOne({ id: dialogId }, { relations: ['owners'] });
         if (!dialog) {
             throw new BadRequestException(`Диалог ${dialogId} отсутствует`);
         }
-        const owner = await this.userRepository.findOne(user.id, {relations: ['profile', 'profile.avatar']});
+        const owner = await this.userRepository.findOne(user.id, { relations: ['profile', 'profile.avatar'] });
         if (!owner) {
             throw new BadRequestException(`Юзер ${user.id} отсутствует`);
         }
-        const newMessage = await this.messagesRepository.saveAndGet(
-            { owner, dialog, ...dto },
+        return this.messagesRepository.saveAndGet(
+            { owner, dialog, text},
         );
-
-        return {
-            user: {
-                id: owner.id,
-                avatar: owner.profile.avatar?.getFilePath() || null,
-                lastName: owner.profile.lastName,
-                firstName: owner.profile.firstName,
-            },
-            ...newMessage,
-            dialogId,
-        };
     }
 
 
-    async getDialogs(user: UserEntity) {
+    async getDialogs(user: UserEntity): Promise<GetDialogsInterfaceReturn[]> {
         try {
             const userDialogs = await this.userRepository.findOne(
                 user.id,
@@ -238,9 +230,10 @@ export class DialogsService {
         }
     }
 
-    async getUserDialog(user: UserEntity, secondUserId: string)/*: Promise<{} | GetDialogResponseDto>*/ {
+    async getUserDialog(user: UserEntity, secondUserId: string): Promise<GetUserDialogInterfaceReturn> {
         const owner = await this.userRepository.findOne(user.id, { relations: ['profile', 'profile.avatar'] });
-        const secondOwner = await this.userRepository.findOne(secondUserId, { relations: ['profile', 'profile.avatar'] });
+        const secondOwner = await this.userRepository
+            .findOne(secondUserId, { relations: ['profile', 'profile.avatar'] });
         if (!owner || !secondOwner) {
             throw new BadRequestException(`Пользователя ${user.id} не существует`);
         }
@@ -291,8 +284,8 @@ export class DialogsService {
 
     async updateDialogOwners(
         user: UserEntity,
-        { dialogId, owners }: UpdateOwnersRequestDto,
-    ): Promise<UpdateOwnersResponseDto | undefined> {
+        { dialogId, owners }: UpdateDialogOwnersInterfaceArgs,
+    ): Promise<UpdateDialogOwnersInterfaceReturn | undefined> {
         const oldDialog = await this.dialogsRepository.findOne({ id: dialogId });
         if (!oldDialog) {
             throw new BadRequestException('Диалога не существует');

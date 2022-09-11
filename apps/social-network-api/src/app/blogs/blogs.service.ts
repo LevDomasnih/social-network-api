@@ -1,22 +1,26 @@
-import { Injectable } from '@nestjs/common';
-import { Express } from 'express';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
+    BlogEntity,
     BlogRepository,
     BlogTextBlockRepository,
     FilesRepository,
     UserEntity,
     UsersRepository,
 } from '@app/nest-postgre';
-import { CreateBlogRequestDto } from './dto';
 import { UpdateProfileFileContract } from '@app/amqp-contracts';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { IFileUpload } from '@app/common/model/file-upload.interface';
+import { CreateBlogDto } from './dto';
+import { CreateBlogScheme } from './schemes';
+import { DeleteBlogScheme } from './schemes/delete-blog.scheme';
 
 @Injectable()
 export class BlogsService {
     private readonly url = process.env.API_URL || 'http://localhost:3000';
+
     constructor(
         private readonly usersRepository: UsersRepository,
-        private readonly postRepository: BlogRepository,
+        private readonly blogRepository: BlogRepository,
         private readonly amqpConnection: AmqpConnection,
         private readonly filesRepository: FilesRepository,
         private readonly blogTextBlockRepository: BlogTextBlockRepository,
@@ -50,9 +54,9 @@ export class BlogsService {
 
     async createBlog(
         user: UserEntity,
-        files: Express.Multer.File[],
-        dto: CreateBlogRequestDto,
-    )/*: Promise<CreatePostResponseDto> */{
+        files: IFileUpload[],
+        dto: CreateBlogDto,
+    ): Promise<BlogEntity> {
 
         const newFile = await this.amqpConnection.request<UpdateProfileFileContract.ResponsePayload>({
             exchange: UpdateProfileFileContract.queue.exchange,
@@ -73,36 +77,41 @@ export class BlogsService {
         // TODO RX??
         const headers = dto.textBlocks
             .filter(block => block.type.includes('header'))
-            .map(block => block.text)
+            .map(block => block.text);
 
-        const newPost = await this.postRepository.save({
+        const newBlog = await this.blogRepository.save({
             owner: user,
             headers,
             mainImage: image,
-            entityMap: dto.entityMap
-        })
+            entityMap: dto.entityMap,
+        });
         for (const block of dto.textBlocks) {
             await this.blogTextBlockRepository.save({
-                postOwner: newPost,
+                postOwner: newBlog,
                 key: block.key,
                 data: block.data,
                 depth: block.depth,
                 entityRanges: block.entityRanges,
                 inlineStyleRanges: block.inlineStyleRanges,
                 text: block.text,
-                type: block.type
-            })
+                type: block.type,
+            });
         }
 
-        return this.postRepository.getBlogsAndCommentsByUserId(user.id)
-            .then(posts => posts
-                .sort((postPrev, postNext) =>
-                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()))
+        const blog = await this.blogRepository.findOne(newBlog.id, {relations: ['owner', 'mainImage']})
+
+        if (!blog) {
+            throw new BadRequestException('Блог не создался')
+        }
+
+        return blog
     }
 
-    async deleteBlog(user: UserEntity, postId: string) {
-        const deleteResult = await this.postRepository.delete({owner: user, id: postId})
-        return deleteResult.affected // FIXME добавить структуру к удалению
+    async deleteBlog(user: UserEntity, postId: string): Promise<DeleteBlogScheme> {
+        const deleteResult = await this.blogRepository.delete({ owner: user, id: postId });
+        return {
+            deleted: !!deleteResult.affected,
+        }; // FIXME добавить структуру к удалению
     }
 
     // async createComment(
@@ -144,19 +153,4 @@ export class BlogsService {
     //         updated: updatedPost.affected === 1,
     //     }; // TODO
     // }
-
-    async getPost() {
-
-    }
-
-    async getBlogsOfUser(userId: string) {
-        return this.postRepository.getBlogsAndCommentsByUserId(userId)
-            .then(posts => posts
-                .sort((postPrev, postNext) =>
-                    new Date(postNext.createdAt).getTime() - new Date(postPrev.createdAt).getTime()))
-    }
-
-    async getPosts() {
-
-    }
 }

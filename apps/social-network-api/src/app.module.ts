@@ -1,5 +1,5 @@
-import { Global, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { CacheModule, Global, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './app/auth/auth.module';
 import { ProfileModule } from './app/profile/profile.module';
 import { UsersModule } from './app/users/users.module';
@@ -25,10 +25,23 @@ import { SharedModule } from '@app/common/shared.module';
 import { StaticModule } from './app/static/static.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostsModule } from './app/posts/posts.module';
+import { GraphqlLibModule } from '@app/graphql-lib';
+import { PubSubModule } from './pub-sub/pub-sub.module';
+import * as redisStore from 'cache-manager-redis-store'
 
 @Global()
 @Module({
     imports: [
+        CacheModule.registerAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                store: redisStore,
+                host: configService.get('REDIS_HOST'),
+                port: configService.get('REDIS_PORT'),
+                ttl: 120
+            })
+        }),
         // конфиг модули
         SharedModule,
         ConfigModule.forRoot(),
@@ -45,6 +58,7 @@ import { PostsModule } from './app/posts/posts.module';
             SubscribersRepository,
             FilesRepository,
         ]),
+        GraphqlLibModule,
         // модули доменов
         AuthModule,
         ProfileModule,
@@ -56,6 +70,7 @@ import { PostsModule } from './app/posts/posts.module';
         FilesModule,
         StaticModule,
         PostsModule,
+        PubSubModule,
     ],
     exports: [
         // сущности

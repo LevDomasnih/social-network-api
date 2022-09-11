@@ -1,21 +1,28 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseCustomEntity, BlogEntity } from '@app/nest-postgre/entities';
 import { ApiProperty } from '@nestjs/swagger';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import graphqlTypeJson from 'graphql-type-json';
 
+@ObjectType()
 export class InlineStyleRanges {
+    @Field(type => Int)
     length: number
+    @Field(type => Int)
     offset: number
+    @Field()
     style: string
 }
 
+@ObjectType()
 @Entity('blog_text_blocks')
 export class BlogTextBlockEntity extends BaseCustomEntity {
-    @ApiProperty({ type: () => BlogEntity })
+    @Field(type => BlogEntity)
     @ManyToOne(() => BlogEntity, post => post.textBlocks, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'post_owner' })
     postOwner: BlogEntity;
 
-    @ApiProperty()
+    @Field(type => graphqlTypeJson, {nullable: true})
     @Column({
         type: 'jsonb',
         default: () => "'{}'",
@@ -23,11 +30,11 @@ export class BlogTextBlockEntity extends BaseCustomEntity {
     })
     data: {};
 
-    @ApiProperty()
+    @Field(type => Int)
     @Column({ type: 'int' })
     depth: number;
 
-    @ApiProperty()
+    @Field(type => [String], { nullable: true })
     @Column({
         type: 'jsonb',
         array: false,
@@ -36,7 +43,7 @@ export class BlogTextBlockEntity extends BaseCustomEntity {
         name: 'entity_ranges' }) // может и не строка
     entityRanges: string[];
 
-    @ApiProperty()
+    @Field(type => [InlineStyleRanges], { nullable: true })
     @Column({
         type: 'jsonb',
         array: false,
@@ -46,15 +53,15 @@ export class BlogTextBlockEntity extends BaseCustomEntity {
     })
     inlineStyleRanges: InlineStyleRanges[];
 
-    @ApiProperty()
+    @Field()
     @Column({ type: 'varchar' })
     key: string;
 
-    @ApiProperty()
+    @Field()
     @Column({ type: 'text' })
     text: string;
 
-    @ApiProperty()
+    @Field()
     @Column({ type: 'varchar' })
     type: string;
 }

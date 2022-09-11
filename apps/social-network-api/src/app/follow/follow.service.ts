@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { FindOneOptions } from 'typeorm/find-options/FindOneOptions';
 import { FollowRepository, SubscribersRepository, UserEntity, UsersRepository } from '@app/nest-postgre';
-import { FollowResponseDto, UnfollowResponseDto } from './dto';
+import { FollowServiceInterface } from './interfaces/follow.service.interface';
+import { FollowInterface } from './interfaces/follow.interface';
+import { UnfollowInterface } from './interfaces/unfollow.interface';
 
 @Injectable()
-export class FollowService {
+export class FollowService implements FollowServiceInterface {
     constructor(
         private readonly userRepository: UsersRepository,
         private readonly followRepository: FollowRepository,
@@ -12,11 +14,11 @@ export class FollowService {
     ) {
     }
 
-    async findUser(followUser: string, options?: FindOneOptions<UserEntity>) {
+    private async findUser(followUser: string, options?: FindOneOptions<UserEntity>) {
         return this.userRepository.findOne({ id: followUser }, options);
     }
 
-    async follow(subscriberId: string, ownerId: string): Promise<FollowResponseDto> {
+    async follow(subscriberId: string, ownerId: string): Promise<FollowInterface> {
         const subscriberOwner = (await this.findUser(ownerId, { relations: ['follow'] }))?.follow;
         const subscriber = (await this.findUser(subscriberId, { relations: ['follow'] }))?.follow;
         if (!subscriberOwner || !subscriber) {
@@ -41,7 +43,7 @@ export class FollowService {
         return newFollow;
     }
 
-    async unfollow(subscriberId: string, ownerId: string): Promise<UnfollowResponseDto> {
+    async unfollow(subscriberId: string, ownerId: string): Promise<UnfollowInterface> {
         const subscriberOwner = (await this.findUser(ownerId, { relations: ['follow'] }))?.follow;
         const subscriber = (await this.findUser(subscriberId, { relations: ['follow'] }))?.follow;
         if (!subscriberOwner || !subscriber) {

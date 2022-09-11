@@ -1,52 +1,53 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { BaseCustomEntity, FilesEntity, UserEntity } from '@app/nest-postgre/entities';
+import { Field, ObjectType } from '@nestjs/graphql';
 
+@ObjectType()
 @Entity('posts')
 export class PostEntity extends BaseCustomEntity {
-    @ApiProperty({ type: () => UserEntity })
+    @Field(type => UserEntity)
     @ManyToOne(() => UserEntity, user => user.blogs)
     @JoinColumn({ name: 'owner_id' })
     owner: UserEntity;
 
-    @ApiProperty({ type: () => FilesEntity })
+    @Field(type => FilesEntity, { nullable: true })
     @ManyToOne(() => FilesEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'images_id' })
     images: FilesEntity;
 
-    @ApiProperty({ type: () => FilesEntity })
+    @Field(type => FilesEntity, {nullable: true})
     @ManyToOne(() => FilesEntity, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'files_id' })
     files: FilesEntity;
 
-    @ApiProperty()
+    @Field(type => [String], { nullable: true })
     @Column({
         type: 'jsonb',
         array: false,
-        default: () => "'[]'",
+        default: () => '\'[]\'',
         nullable: false,
     })
     likes: string[];
 
-    @ApiProperty()
+    @Field(type => [String], { nullable: true })
     @Column({
         type: 'jsonb',
         array: false,
-        default: () => "'[]'",
+        default: () => '\'[]\'',
         nullable: false,
     })
     views: string[];
 
-    @ApiProperty()
+    @Field()
     @Column({ type: 'text' })
     text: string;
 
-    // @ApiProperty({ type: () => [PostEntity] })
+    @Field(tye => PostEntity, {nullable: true})
     @ManyToOne(() => PostEntity, post => post.childrenPosts, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'parent_posts_id' })
     parentPost: PostEntity;
 
-    // @ApiProperty({ type: () => [BlogEntity] })
+    @Field(tye => [PostEntity])
     @OneToMany(() => PostEntity, post => post.parentPost, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'children_posts' })
     childrenPosts: PostEntity[];

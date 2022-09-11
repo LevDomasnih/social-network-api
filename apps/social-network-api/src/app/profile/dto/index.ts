@@ -1,5 +1,0 @@
-export * from './edit-avatar/edit-avatar.response'
-export * from './edit-main-image/edit-main-image.response.dto'
-export * from './find-profile/find-profile.response.dto'
-export * from './update-profile/edit-profile.response.dto'
-export * from './update-profile/update-profile.request.dto'

@@ -2,11 +2,11 @@ version: '3.1'
 
 services:
   backend:
-    build: ../.
+    build: ../../.
     ports:
       - 3000:3000
     volumes:
-       - ./.env:/opt/app/.env
+       - ../.env:/opt/app/.env
 #    networks:
 #      - back
 #      - reverse-proxy
@@ -43,6 +43,20 @@ services:
       - "15672:15672"
       - "25672:25672"
       - "35197:35197"
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
 #networks:
 #  reverse-proxy:
 #    external:
